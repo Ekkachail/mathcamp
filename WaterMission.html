@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ปฏิบัติการตวงน้ำเป๊ะ!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Styles --- */
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f4f9fd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        /* --- Header --- */
+        .header-container { text-align: center; margin-bottom: 20px; }
+        .game-logo {
+            max-width: 150px; height: auto; border-radius: 15px;
+            margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0; color: #2c3e50; font-size: 1.8rem; }
+        
+        .mission-badge {
+            display: inline-block;
+            background: #2980b9;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        /* --- Game Area --- */
+        .game-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            margin: 30px 0;
+            width: 100%;
+            max-width: 500px;
+            height: 250px; /* Fix height for alignment */
+        }
+
+        .jug-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            flex: 1;
+            transition: transform 0.1s;
+        }
+        .jug-container:active { transform: scale(0.95); }
+
+        .jug {
+            width: 100%; max-width: 80px;
+            background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+            border: 3px solid #34495e;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: height 0.3s ease; /* Animation for resizing jugs */
+        }
+
+        .water {
+            width: 100%;
+            background-color: #00a8ff;
+            transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+        }
+        .water::after {
+            content: ''; position: absolute; width: 100%; height: 5px;
+            background: rgba(255,255,255,0.3); top: 0;
+        }
+
+        .jug-label {
+            margin-top: 8px; font-weight: 600; color: #2c3e50;
+            background: white; padding: 2px 10px; border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Selected State */
+        .selected .jug { border-color: #ff9f43; box-shadow: 0 0 15px rgba(255, 159, 67, 0.6); }
+        .selected .jug-label { color: #e67e22; background-color: #fff3cd; }
+
+        /* --- Controls --- */
+        .controls { width: 100%; text-align: center; }
+        #status-text { font-size: 1.1rem; height: 1.5em; color: #ff9f43; font-weight: 600; margin-bottom: 15px; }
+        
+        .btn {
+            border: none; padding: 12px 30px; font-size: 1rem; border-radius: 50px;
+            cursor: pointer; font-family: 'Kanit', sans-serif; transition: all 0.2s;
+            color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .btn-reset { background-color: #34495e; }
+
+        /* --- Secret Input Section --- */
+        .secret-area {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-code {
+            padding: 8px 15px; border: 2px solid #bdc3c7; border-radius: 20px;
+            font-family: 'Kanit', sans-serif; outline: none; width: 150px; text-align: center;
+        }
+        .btn-code { background-color: #e67e22; padding: 8px 20px; font-size: 0.9rem; }
+
+        /* --- Win Overlay --- */
+        #win-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            flex-direction: column; justify-content: center; align-items: center;
+            color: white; animation: fadeIn 0.3s;
+        }
+        #win-overlay h2 { font-size: 2.5rem; color: #2ecc71; margin-bottom: 10px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <img src="https://share.google/HKKgaVfyM368m4RJm" alt="Logo" class="game-logo" onerror="this.style.display='none'">
+        <h1>ปฏิบัติการตวงน้ำเป๊ะ!</h1>
+        <div class="mission-badge" id="mission-text">ด่าน 1: เป้าหมาย 4-4-0</div>
+    </div>
+
+    <div class="game-area">
+        <div class="jug-container" id="jug-0" onclick="clickJug(0)">
+            <div class="jug" id="jug-vis-0">
+                <div class="water" id="water-0" style="height: 0%"></div>
+            </div>
+            <div class="jug-label"><span id="val-0">0</span> / <span id="max-0">8</span></div>
+        </div>
+        <div class="jug-container" id="jug-1" onclick="clickJug(1)">
+            <div class="jug" id="jug-vis-1">
+                <div class="water" id="water-1" style="height: 0%"></div>
+            </div>
+            <div class="jug-label"><span id="val-1">0</span> / <span id="max-1">5</span></div>
+        </div>
+        <div class="jug-container" id="jug-2" onclick="clickJug(2)">
+            <div class="jug" id="jug-vis-2">
+                <div class="water" id="water-2" style="height: 0%"></div>
+            </div>
+            <div class="jug-label"><span id="val-2">0</span> / <span id="max-2">3</span></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div id="status-text">เริ่มเกม! แตะแก้วเพื่อรินน้ำ</div>
+        <button class="btn btn-reset" onclick="resetGame()">เริ่มใหม่ (Reset)</button>
+    </div>
+
+    <div class="secret-area">
+        <input type="text" id="secret-input" class="input-code" placeholder="ใส่รหัสลับที่นี่">
+        <button class="btn btn-code" onclick="checkSecret()">เปลี่ยนด่าน</button>
+    </div>
+
+    <div id="win-overlay">
+        <h2>🎉 ภารกิจสำเร็จ! 🎉</h2>
+        <p id="win-msg">คุณทำได้ยอดเยี่ยมมาก</p>
+        <br>
+        <button class="btn" onclick="resetGame()" style="background-color: #27ae60;">เล่นอีกครั้ง</button>
+    </div>
+
+    <script>
+        // --- Game Configurations ---
+        const LEVELS = {
+            1: {
+                caps: [8, 5, 3],
+                start: [8, 0, 0], // เริ่มต้นแก้วแรกเต็ม
+                target: [4, 4, 0],
+                desc: "ด่าน 1: เป้าหมาย แบ่งน้ำ 4 ลิตร สองกอง",
+                heights: [200, 140, 100] // ความสูง Visual ของแก้ว
+            },
+            2: {
+                caps: [19, 13, 7],
+                start: [0, 13, 7], // เริ่มต้นแก้วกลางและเล็กเต็ม
+                target: [10, 10, 0],
+                desc: "ด่าน 2: เป้าหมาย แบ่งน้ำ 10 ลิตร สองกอง",
+                heights: [220, 170, 100]
+            }
+        };
+
+        // --- State ---
+        let currentLevelId = 1; // เริ่มต้นด่าน 1
+        let currentConfig = LEVELS[1];
+        let currentWater = [];
+        let selectedIndex = null;
+
+        // --- Initialization ---
+        function initGame() {
+            // โหลดค่า Config ตามด่านปัจจุบัน
+            currentConfig = LEVELS[currentLevelId];
+            currentWater = [...currentConfig.start];
+            selectedIndex = null;
+
+            // อัปเดต UI (ข้อความ Max Cap และความสูงแก้ว)
+            document.getElementById('mission-text').innerText = currentConfig.desc;
+            
+            for(let i=0; i<3; i++) {
+                document.getElementById(`max-${i}`).innerText = currentConfig.caps[i];
+                // ปรับความสูงแก้วให้ดูสมจริงตามด่าน
+                document.getElementById(`jug-vis-${i}`).style.height = `${currentConfig.heights[i]}px`;
+                highlightJug(i, false);
+            }
+
+            document.getElementById('status-text').innerText = "พร้อมแล้ว! แตะแก้วเพื่อเริ่ม";
+            document.getElementById('win-overlay').style.display = 'none';
+            
+            updateDisplay();
+        }
+
+        // --- Core Logic ---
+        function clickJug(index) {
+            const statusEl = document.getElementById('status-text');
+
+            if (selectedIndex === null) {
+                // เลือกแก้วต้นทาง
+                if (currentWater[index] > 0) {
+                    selectedIndex = index;
+                    highlightJug(index, true);
+                    statusEl.innerText = `กำลังเลือกแก้ว ${currentConfig.caps[index]} ลิตร`;
+                    statusEl.style.color = "#ff9f43";
+                } else {
+                    statusEl.innerText = "แก้วนี้ไม่มีน้ำ!";
+                    statusEl.style.color = "#e74c3c";
+                    shakeJug(index);
+                }
+            } else {
+                // เลือกแก้วปลายทาง
+                if (selectedIndex === index) {
+                    // ยกเลิก
+                    highlightJug(selectedIndex, false);
+                    selectedIndex = null;
+                    statusEl.innerText = "ยกเลิก";
+                    statusEl.style.color = "#95a5a6";
+                } else {
+                    // เทน้ำ
+                    pourWater(selectedIndex, index);
+                    highlightJug(selectedIndex, false);
+                    selectedIndex = null;
+                }
+            }
+        }
+
+        function pourWater(fromIdx, toIdx) {
+            const statusEl = document.getElementById('status-text');
+            const maxCap = currentConfig.caps;
+            
+            const spaceAvailable = maxCap[toIdx] - currentWater[toIdx];
+            
+            if (spaceAvailable === 0) {
+                statusEl.innerText = "เต็มแล้ว! เทไม่ได้";
+                statusEl.style.color = "#e74c3c";
+                return;
+            }
+
+            const amountToPour = Math.min(currentWater[fromIdx], spaceAvailable);
+            currentWater[fromIdx] -= amountToPour;
+            currentWater[toIdx] += amountToPour;
+
+            updateDisplay();
+            statusEl.innerText = `เทน้ำเรียบร้อย`;
+            statusEl.style.color = "#27ae60";
+
+            setTimeout(checkWin, 200);
+        }
+
+        function updateDisplay() {
+            for (let i = 0; i < 3; i++) {
+                const percent = (currentWater[i] / currentConfig.caps[i]) * 100;
+                document.getElementById(`water-${i}`).style.height = `${percent}%`;
+                document.getElementById(`val-${i}`).innerText = currentWater[i];
+            }
+        }
+
+        function checkWin() {
+            // เช็คเงื่อนไขชนะตามด่าน (เฉพาะแก้ว 1 และ 2 เท่านั้นที่สนใจตามโจทย์)
+            const target = currentConfig.target;
+            if (currentWater[0] === target[0] && currentWater[1] === target[1]) {
+                document.getElementById('win-msg').innerText = 
+                    (currentLevelId === 1) ? "ได้น้ำ 4 ลิตรเท่ากันแล้ว!" : "ได้น้ำ 10 ลิตรเท่ากันแล้ว!";
+                document.getElementById('win-overlay').style.display = 'flex';
+            }
+        }
+
+        // --- Utilities ---
+        function highlightJug(index, isActive) {
+            const el = document.getElementById(`jug-${index}`);
+            isActive ? el.classList.add('selected') : el.classList.remove('selected');
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        function shakeJug(index) {
+            const el = document.getElementById(`jug-${index}`);
+            el.style.transform = "translateX(5px)";
+            setTimeout(() => el.style.transform = "translateX(-5px)", 50);
+            setTimeout(() => el.style.transform = "translateX(5px)", 100);
+            setTimeout(() => el.style.transform = "translateX(0)", 150);
+        }
+
+        // --- Secret Code Logic ---
+        function checkSecret() {
+            const input = document.getElementById('secret-input');
+            const val = input.value.trim();
+
+            if (val === 'mathnu2') {
+                // สลับด่าน 1 <-> 2
+                currentLevelId = (currentLevelId === 1) ? 2 : 1;
+                
+                // แจ้งเตือนและรีเซ็ต
+                alert(`รหัสถูกต้อง! กำลังเข้าสู่ด่าน ${currentLevelId}`);
+                initGame();
+                input.value = ""; // เคลียร์ช่อง
+            } else {
+                alert("รหัสไม่ถูกต้อง!");
+                input.classList.add('shake'); // (Optional effect if CSS added)
+            }
+        }
+
+        // เริ่มเกมครั้งแรก
+        initGame();
+
+    </script>
+</body>
+</html>
