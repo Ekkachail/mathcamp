@@ -326,12 +326,13 @@
             <div class="glass-card relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -mr-10 -mt-10"></div>
                 <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                    <div class="w-full md:w-1/3 text-center">
+                    <div class="w-full md:w-1/2 text-center">
                          <!-- รูปที่ 3: วงกลม (circle.png) -->
-                         <img src="circle.png" alt="Circle" class="concept-img w-48 mx-auto rotate-3 hover:rotate-0 transition-all duration-500" onclick="openModal(this)">
+                         <!-- ปรับความกว้างเป็น md:w-1/2 (50%) และรูปภาพ w-3/4 -->
+                         <img src="circle.png" alt="Circle" class="concept-img w-full md:w-3/4 mx-auto rotate-3 hover:rotate-0 transition-all duration-500" onclick="openModal(this)">
                         <h3 class="text-2xl font-bold text-green-700 mt-4">วงกลม (Circle)</h3>
                     </div>
-                    <div class="w-full md:w-2/3">
+                    <div class="w-full md:w-1/2">
                         <p class="mb-3 text-gray-600"><strong>นิยาม:</strong> จุดศูนย์กลาง $(h,k)$, รัศมี $r$</p>
                         <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100 shadow-inner mb-4">
                             <p class="text-xs uppercase tracking-wider text-green-600 font-bold mb-2">สมการมาตรฐาน</p>
@@ -342,7 +343,7 @@
                         <div class="flex flex-wrap gap-2 text-sm bg-white/40 p-3 rounded-xl">
                             <span class="font-semibold text-gray-700">รูปทั่วไป:</span> $x^2 + y^2 + Dx + Ey + F = 0$
                             <span class="text-gray-400 mx-2">|</span>
-                            <span class="font-semibold text-gray-700">จุดศูนย์กลาง:</span> $(-D/2, -E/2)$
+                            <span class="font-semibold text-gray-700">ศูนย์กลาง:</span> $(-D/2, -E/2)$
                         </div>
                     </div>
                 </div>
