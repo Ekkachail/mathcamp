@@ -26,6 +26,28 @@
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
 
+    <!-- Modal Logic Script -->
+    <script>
+        function openModal(element) {
+            var modal = document.getElementById("imageModal");
+            var modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = element.src;
+        }
+
+        function closeModal() {
+            var modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
+    </script>
+
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -140,12 +162,64 @@
             background: rgba(255,255,255,0.8);
             padding: 10px;
             border: 1px solid white;
+            cursor: zoom-in; /* Change cursor to indicate clickability */
+            transition: transform 0.2s ease;
+        }
+        
+        .concept-img:hover {
+            transform: scale(1.03); /* Slight zoom on hover */
         }
         
         /* Number Badge Gradient */
         .num-badge {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Lightbox Modal CSS */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000; /* High z-index to sit on top */
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 900px;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            animation-name: zoom;
+            animation-duration: 0.3s;
+        }
+        @keyframes zoom {
+            from {transform:scale(0)} 
+            to {transform:scale(1)}
+        }
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -159,8 +233,7 @@
             <div class="flex-shrink-0 bg-white/90 p-2 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.3)] backdrop-blur-sm">
                 <!-- Naresuan University Logo -->
                 <!-- รูปที่ 1: โลโก้ -->
-                <!-- เมื่อใช้งานจริงในเครื่อง ให้เปลี่ยน src เป็น "mathlogo" -->
-                <img src="mathlogo" alt="Naresuan University Logo" class="w-20 h-20 md:w-24 md:h-24 object-contain">
+                <img src="mathlogo.png" alt="Naresuan University Logo" class="w-20 h-20 md:w-24 md:h-24 object-contain">
             </div>
 
             <!-- Title & Info Section -->
@@ -196,8 +269,9 @@
                 <!-- Distance & Midpoint -->
                 <div class="glass-card">
                     <h3 class="text-xl font-bold mb-4 text-indigo-700 border-b border-indigo-100 pb-2">📍 จุดและระยะทาง</h3>
-                    <!-- รูปที่ 2: จุดและระยะทาง (point_distance.png) -->
-                    <img src="line.png" class="concept-img w-40">
+                    <!-- รูปที่ 2: line.png (แก้ไขจาก point_distance) -->
+                    <!-- เพิ่ม onclick เพื่อขยายรูป -->
+                    <img src="line.png" alt="Coordinate System" class="concept-img w-40" onclick="openModal(this)">
                     <div class="space-y-4">
                         <div class="bg-white/40 p-3 rounded-lg border border-white/50">
                             <p class="font-semibold text-gray-700 text-sm">ระยะห่างระหว่างจุด 2 จุด ($P_1, P_2$)</p>
@@ -245,7 +319,7 @@
             </h2>
             
             <div class="flex justify-center mb-10">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Conic_sections_%28with_plane%29.svg/640px-Conic_sections_%28with_plane%29.svg.png" alt="Conic Sections" class="concept-img max-w-sm shadow-2xl">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Conic_sections_%28with_plane%29.svg/640px-Conic_sections_%28with_plane%29.svg.png" alt="Conic Sections" class="concept-img max-w-sm shadow-2xl" onclick="openModal(this)">
             </div>
 
             <!-- Circle -->
@@ -254,7 +328,7 @@
                 <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
                     <div class="w-full md:w-1/3 text-center">
                          <!-- รูปที่ 3: วงกลม (circle.png) -->
-                         <img src="circle.png" alt="Circle" class="concept-img w-48 mx-auto rotate-3 hover:rotate-0 transition-all duration-500">
+                         <img src="circle.png" alt="Circle" class="concept-img w-48 mx-auto rotate-3 hover:rotate-0 transition-all duration-500" onclick="openModal(this)">
                         <h3 class="text-2xl font-bold text-green-700 mt-4">วงกลม (Circle)</h3>
                     </div>
                     <div class="w-full md:w-2/3">
@@ -289,7 +363,7 @@
                 <div class="flex flex-col md:flex-row gap-8 relative z-10">
                      <div class="w-full md:w-1/4">
                         <!-- รูปที่ 4: พาราโบลา (parabola.png) -->
-                        <img src="parabola.png" alt="Parabola Parts" class="concept-img w-full hover:scale-105 transition-transform">
+                        <img src="parabola.png" alt="Parabola Parts" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
                      </div>
                      <div class="w-full md:w-3/4">
                         <!-- Glass Table -->
@@ -384,7 +458,7 @@
                 <div class="flex flex-col md:flex-row gap-8 relative z-10">
                     <div class="w-full md:w-1/4">
                          <!-- รูปที่ 5: วงรี (ellipse.png) -->
-                         <img src="ellipse.png" alt="Ellipse" class="concept-img w-full hover:scale-105 transition-transform">
+                         <img src="ellipse.png" alt="Ellipse" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
                     </div>
                     <div class="w-full md:w-3/4">
                         <table class="glass-table">
@@ -478,7 +552,7 @@
                 <div class="flex flex-col md:flex-row gap-8 relative z-10">
                      <div class="w-full md:w-1/4">
                         <!-- รูปที่ 6: ไฮเพอร์โบลา (hyperbola.png) -->
-                        <img src="hyperbola.png" alt="Hyperbola" class="concept-img w-full hover:scale-105 transition-transform">
+                        <img src="hyperbola.png" alt="Hyperbola" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
                      </div>
                      <div class="w-full md:w-3/4">
                         <table class="glass-table">
@@ -554,6 +628,11 @@
         <p class="text-sm mt-2 opacity-70">© 2024 Math Summary Website - Naresuan University</p>
     </footer>
 
+    <!-- The Modal -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+
 </body>
 </html>
-
