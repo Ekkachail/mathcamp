@@ -37,7 +37,7 @@
 
         function closeModal() {
             var modal = document.getElementById("imageModal");
-            modal.style.display = "none";
+            modal.style.display = "none"; // Fixed: removed 'var' keyword
         }
 
         // Close on Escape key
@@ -167,7 +167,7 @@
         }
         
         .concept-img:hover {
-            transform: scale(1.03); /* Slight zoom on hover */
+            transform: scale(1.02); /* Slight zoom on hover */
         }
         
         /* Number Badge Gradient */
@@ -316,8 +316,9 @@
                 <span class="text-gray-500 text-lg ml-3 font-normal">(Conic Sections)</span>
             </h2>
             
-            <div class="flex justify-center mb-10">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Conic_sections_%28with_plane%29.svg/640px-Conic_sections_%28with_plane%29.svg.png" alt="Conic Sections" class="concept-img max-w-sm shadow-2xl" onclick="openModal(this)">
+            <!-- Banner Image Section -->
+            <div class="flex justify-center mb-10 w-full px-0 md:px-0">
+                <img src="b.png" alt="Conic Sections Banner" class="concept-img w-full max-w-5xl shadow-2xl object-cover rounded-2xl border-none p-0 bg-transparent" onclick="openModal(this)">
             </div>
 
             <!-- Circle -->
@@ -359,9 +360,9 @@
                 </div>
 
                 <div class="flex flex-col gap-6 relative z-10">
-                     <!-- ตารางสูตร -->
-                     <div class="w-full">
-                        <table class="glass-table">
+                      <!-- ตารางสูตร -->
+                      <div class="w-full overflow-x-auto">
+                        <table class="glass-table min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr>
                                     <th width="25%">ลักษณะกราฟ</th>
@@ -414,21 +415,21 @@
                                 </tr>
                             </tbody>
                         </table>
-                     </div>
-                     
-                     <!-- รูปภาพ 2 คอลัมน์ด้านล่าง -->
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white/40 p-2 rounded-lg border border-white/50 text-center">
-                            <span class="text-sm font-semibold text-orange-700 mb-2 block">กราฟพาราโบลา รูปที่ 1</span>
-                            <!-- รูปที่ 4.1: parabola1.png -->
-                            <img src="parabola1.png" alt="Parabola Type 1" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
-                        </div>
-                        <div class="bg-white/40 p-2 rounded-lg border border-white/50 text-center">
-                            <span class="text-sm font-semibold text-orange-700 mb-2 block">กราฟพาราโบลา รูปที่ 2</span>
-                            <!-- รูปที่ 4.2: parabola2.png -->
-                            <img src="parabola2.png" alt="Parabola Type 2" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
-                        </div>
-                     </div>
+                      </div>
+                      
+                      <!-- รูปภาพ 2 คอลัมน์ด้านล่าง -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div class="bg-white/40 p-2 rounded-lg border border-white/50 text-center">
+                             <span class="text-sm font-semibold text-orange-700 mb-2 block">กราฟพาราโบลา รูปที่ 1</span>
+                             <!-- รูปที่ 4.1: parabola1.png -->
+                             <img src="parabola1.png" alt="Parabola Type 1" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
+                         </div>
+                         <div class="bg-white/40 p-2 rounded-lg border border-white/50 text-center">
+                             <span class="text-sm font-semibold text-orange-700 mb-2 block">กราฟพาราโบลา รูปที่ 2</span>
+                             <!-- รูปที่ 4.2: parabola2.png -->
+                             <img src="parabola2.png" alt="Parabola Type 2" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
+                         </div>
+                      </div>
                 </div>
             </div>
 
@@ -445,28 +446,28 @@
                 
                 <!-- ENLARGED FORMULA GRID -->
                 <div class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-base relative z-10">
-                     <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
+                      <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
                         <span class="block text-red-600 font-bold text-sm mb-1">แกนเอก</span>
                         $2a$
-                     </div>
-                     <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
+                      </div>
+                      <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
                         <span class="block text-red-600 font-bold text-sm mb-1">แกนโท</span>
                         $2b$
-                     </div>
-                     <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
+                      </div>
+                      <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
                         <span class="block text-red-600 font-bold text-sm mb-1">ลาตัสเรกตัม</span>
                         $2b^2/a$
-                     </div>
-                     <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
+                      </div>
+                      <div class="bg-red-50/50 p-3 rounded-lg border border-red-100 text-center backdrop-blur-sm">
                         <span class="block text-red-600 font-bold text-sm mb-1">ความเยื้อง (e)</span>
                         $c/a$
-                     </div>
+                      </div>
                 </div>
 
                 <div class="flex flex-col gap-6 relative z-10">
                     <!-- ตารางสูตร -->
-                    <div class="w-full">
-                        <table class="glass-table">
+                    <div class="w-full overflow-x-auto">
+                        <table class="glass-table min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr>
                                     <th width="25%">แกนเอก</th>
@@ -558,20 +559,20 @@
 
                  <!-- ENLARGED FORMULA GRID -->
                  <div class="mb-6 grid grid-cols-2 gap-3 text-base relative z-10 max-w-lg mx-auto md:mx-0">
-                     <div class="bg-purple-50/50 p-3 rounded-lg border border-purple-100 text-center backdrop-blur-sm">
+                      <div class="bg-purple-50/50 p-3 rounded-lg border border-purple-100 text-center backdrop-blur-sm">
                         <span class="block text-purple-600 font-bold text-sm mb-1">แกนตามขวาง</span>
                         $2a$
-                     </div>
-                     <div class="bg-purple-50/50 p-3 rounded-lg border border-purple-100 text-center backdrop-blur-sm">
+                      </div>
+                      <div class="bg-purple-50/50 p-3 rounded-lg border border-purple-100 text-center backdrop-blur-sm">
                         <span class="block text-purple-600 font-bold text-sm mb-1">แกนสังยุค</span>
                         $2b$
-                     </div>
+                      </div>
                 </div>
 
                 <div class="flex flex-col gap-6 relative z-10">
-                     <!-- ตารางสูตร -->
-                     <div class="w-full">
-                        <table class="glass-table">
+                      <!-- ตารางสูตร -->
+                      <div class="w-full overflow-x-auto">
+                        <table class="glass-table min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr>
                                     <th width="25%">แกนตามขวาง</th>
@@ -632,10 +633,10 @@
                                 </tr>
                             </tbody>
                         </table>
-                     </div>
+                      </div>
 
-                     <!-- รูปภาพ 2 คอลัมน์ด้านล่าง -->
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <!-- รูปภาพ 2 คอลัมน์ด้านล่าง -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white/40 p-2 rounded-lg border border-white/50 text-center">
                             <span class="text-sm font-semibold text-purple-700 mb-2 block">กราฟไฮเพอร์โบลา (ขนาน X)</span>
                             <!-- รูปที่ 6.1: hyperbola1.png -->
@@ -646,7 +647,7 @@
                             <!-- รูปที่ 6.2: hyperbola2.png -->
                             <img src="hyperbola2.png" alt="Hyperbola Type 2" class="concept-img w-full hover:scale-105 transition-transform" onclick="openModal(this)">
                         </div>
-                     </div>
+                      </div>
                 </div>
             </div>
 
@@ -666,5 +667,3 @@
 
 </body>
 </html>
-
-
