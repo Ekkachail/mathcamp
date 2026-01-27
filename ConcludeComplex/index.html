@@ -218,7 +218,8 @@
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white/90 border-b border-slate-200 shadow-md backdrop-blur-md">
         <div class="max-w-6xl mx-auto py-4 px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex-shrink-0 bg-slate-50 p-2 rounded-full border border-slate-200">
+            <!-- Logo Section: Removed background/border circle -->
+            <div class="flex-shrink-0">
                 <!-- Placeholder for Logo -->
                 <!-- แก้ไข path: ถอยออก 1 ชั้น (..) แล้วเข้า ConcludeConic -->
                 <img src="../ConcludeConic/willteach.png" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=Math+NU'" alt="Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain">
@@ -230,7 +231,7 @@
                 <p class="text-lg text-emerald-600 font-medium mb-2 font-sans">จำนวนเชิงซ้อน (Complex Numbers)</p>
                 <div class="inline-block md:block px-4 py-1 rounded-full bg-slate-100 border border-slate-200">
                     <div class="flex flex-col md:flex-row md:items-center md:gap-3 text-sm font-medium text-slate-600">
-                        <span>โดย อาจารย์ เอกชัย หลายศิริกุล</span>
+                        <span>โดย อาจารย์เอกชัย หลายศิริกุล</span>
                         <span class="hidden md:inline text-slate-400">|</span>
                         <span>ภาควิชาคณิตศาสตร์ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร</span>
                     </div>
@@ -263,7 +264,7 @@
                         </ul>
                     </div>
                     <div class="w-full md:w-1/2">
-                        <h3 class="text-2xl font-bold text-blue-700 mb-4 pb-2 border-b border-blue-100 inline-block">วัฏจักรของ $i^n$ (Powers of i)</h3>
+                        <h3 class="text-2xl font-bold text-blue-700 mb-4 pb-2 border-b border-blue-100 inline-block">วัฏจักรของ $i^n$ (Powers of $i$)</h3>
                         <p class="mb-2 text-slate-500">วนลูปทุกๆ 4 ตัว (นำเลขชี้กำลัง $n$ หารด้วย 4)</p>
                         <table class="nature-table">
                             <thead>
@@ -368,12 +369,30 @@
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
                         <strong class="text-slate-700">สมบัติสำคัญ:</strong>
-                        <ul class="list-disc pl-5 mt-2 space-y-1 text-sm text-slate-600">
-                            <li>$|z|^2 = z \cdot \bar{z}$ <span class="text-emerald-600 font-bold">(สำคัญ!)</span></li>
-                            <li>$\overline{z_1 \pm z_2} = \bar{z}_1 \pm \bar{z}_2$</li>
-                            <li>$|z_1 z_2| = |z_1| |z_2|$</li>
-                            <li>$|\frac{z_1}{z_2}| = \frac{|z_1|}{|z_2|}$</li>
-                        </ul>
+                        <table class="w-full text-sm mt-2">
+                            <tbody>
+                                <tr>
+                                    <td class="text-right py-2 w-[40%] font-semibold text-slate-800">$|z|^2$</td>
+                                    <td class="text-center py-2 px-2 text-slate-500">$=$</td>
+                                    <td class="text-left py-2 font-semibold text-slate-800">$z \cdot \bar{z}$ <span class="text-emerald-600 font-bold ml-2 text-xs">(สำคัญ!)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right py-2 font-semibold text-slate-800">$\overline{z_1 \pm z_2}$</td>
+                                    <td class="text-center py-2 px-2 text-slate-500">$=$</td>
+                                    <td class="text-left py-2 font-semibold text-slate-800">$\bar{z}_1 \pm \bar{z}_2$</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right py-2 font-semibold text-slate-800">$|z_1 z_2|$</td>
+                                    <td class="text-center py-2 px-2 text-slate-500">$=$</td>
+                                    <td class="text-left py-2 font-semibold text-slate-800">$|z_1| |z_2|$</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right py-2 font-semibold text-slate-800">$|\frac{z_1}{z_2}|$</td>
+                                    <td class="text-center py-2 px-2 text-slate-500">$=$</td>
+                                    <td class="text-left py-2 font-semibold text-slate-800">$\frac{|z_1|}{|z_2|}$</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -453,4 +472,3 @@
 
 </body>
 </html>
-
