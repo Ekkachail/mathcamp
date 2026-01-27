@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สรุปสูตรจำนวนเชิงซ้อน - มหาวิทยาลัยนเรศวร</title>
     
-    <!-- Google Fonts: Prompt & Mali (Handwritten style for Ghibli vibe) -->
-    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Prompt & Kanit (Strong & Modern like Mountains) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -46,105 +46,132 @@
     </script>
 
     <style>
-        /* Ghibli Theme Variables */
+        /* Mountain / Nature Theme Variables */
         :root {
-            --bg-gradient-start: #E0F7FA;
-            --bg-gradient-mid: #E8F5E9;
-            --bg-gradient-end: #F1F8E9;
-            --card-bg: #FFFEF5;
-            --text-main: #4E342E;
-            --header-border: #C5E1A5;
-            --accent-green: #388E3C;
-            --accent-orange: #E65100;
-            --accent-blue: #0277BD;
-            --accent-purple: #7B1FA2;
+            /* Background: Misty Mountain Morning */
+            --bg-gradient-start: #e0eafc;
+            --bg-gradient-end: #cfdef3;
+            
+            /* Card: Clean Snow/White Stone */
+            --card-bg: #ffffff; 
+            --card-border: #e2e8f0; /* Light Grey */
+            
+            /* Text: Slate & Earth */
+            --text-main: #334155; /* Slate 700 */
+            --text-header: #1e293b; /* Slate 800 */
+            
+            /* Accents */
+            --accent-green: #10b981; /* Emerald */
+            --accent-blue: #3b82f6; /* Royal Blue */
+            --accent-dark-green: #047857; /* Forest Green */
+            --accent-mountain: #64748b; /* Slate 500 */
         }
 
         body {
             font-family: 'Prompt', sans-serif;
-            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 60%, var(--bg-gradient-end) 100%);
+            background: linear-gradient(to bottom, #cfd9df 0%, #e2ebf0 100%); /* Alternative cool grey gradient */
+            background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); /* Clean misty look */
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
         }
 
+        /* Strong Headers like Peaks */
         h1, h2, h3, h4, strong, th {
-            font-family: 'Mali', cursive;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
         }
 
-        /* Ghibli Paper Card */
-        .ghibli-card {
-            background: var(--card-bg);
-            border: 2px solid #FFF;
-            border-radius: 24px;
+        /* Nature Card (Clean Stone Style) */
+        .nature-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid #fff;
+            border-radius: 20px; /* Smooth rounded corners */
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 8px 8px 0px rgba(121, 85, 72, 0.1), 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); /* Soft shadow */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
         }
         
-        .ghibli-card:hover {
+        /* Decorative top border representing horizon/greenery */
+        .nature-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+        }
+        
+        .nature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 10px 10px 0px rgba(121, 85, 72, 0.15), 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* Table Styling */
-        .ghibli-table {
+        /* Table Styling - Clean & Organized */
+        .nature-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            border-radius: 16px;
-            border: 2px solid #D7CCC8;
+            border-radius: 12px;
             overflow: hidden;
-            background-color: #fff;
+            border: 1px solid #cbd5e1;
             margin-top: 1rem;
         }
         
-        .ghibli-table th {
-            background: #D7CCC8;
-            color: #3E2723;
+        .nature-table th {
+            background: #f1f5f9; /* Slate 100 */
+            color: #334155;
             font-weight: 700;
             padding: 1rem;
             text-align: left;
-            border-bottom: 2px solid #fff;
+            border-bottom: 2px solid #cbd5e1;
         }
-        .ghibli-table td {
+        .nature-table td {
             padding: 1rem;
-            border-bottom: 1px solid #EFEBE9;
-            background: #FAFAFA;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
             vertical-align: top;
-            color: #5D4037;
+            background: white;
         }
-        .ghibli-table tr:last-child td { border-bottom: none; }
+        .nature-table tr:last-child td { border-bottom: none; }
+        .nature-table tr:hover td { background-color: #f8fafc; }
 
         /* Components */
         .num-badge {
-            background: #FFCC80;
-            color: #5D4037;
-            box-shadow: 2px 2px 0px rgba(93, 64, 55, 0.2);
-            font-family: 'Mali', cursive;
+            background: linear-gradient(135deg, var(--accent-dark-green), var(--accent-green));
+            color: white;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            font-family: 'Kanit', sans-serif;
+            border-radius: 12px; /* Soft square */
         }
 
+        /* Formula Box - Stone Tablet Style */
         .formula-box {
-            background-color: #FFF8E1;
-            border: 2px dashed #FFE082;
-            border-radius: 12px;
+            background-color: #f8fafc;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 8px;
             padding: 1rem;
             text-align: center;
             margin: 1rem 0;
-            font-weight: bold;
-            color: #3E2723;
+            font-weight: 500;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            font-family: 'Prompt', sans-serif;
         }
 
+        /* Note Box - Mossy feel */
         .note-box {
-            background-color: #E1F5FE;
-            border-left: 5px solid #29B6F6;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            margin-top: 10px;
+            background-color: #ecfdf5; /* Emerald 50 */
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.95em;
+            margin-top: 15px;
+            color: #065f46; /* Emerald 800 */
         }
 
         /* Modal */
@@ -158,7 +185,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(78, 52, 46, 0.9);
+            background-color: rgba(15, 23, 42, 0.9); /* Slate 900 */
             backdrop-filter: blur(5px);
         }
         .modal-content {
@@ -169,39 +196,42 @@
             max-height: 90vh;
             object-fit: contain;
             border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             animation: zoom 0.3s;
         }
-        @keyframes zoom { from {transform:scale(0)} to {transform:scale(1)} }
+        @keyframes zoom { from {transform:scale(0); opacity:0} to {transform:scale(1); opacity:1} }
         .close {
             position: absolute;
             top: 20px;
             right: 35px;
-            color: #FFF3E0;
+            color: #f1f5f9;
             font-size: 40px;
             font-weight: bold;
             transition: 0.3s;
             cursor: pointer;
         }
+        .close:hover { color: var(--accent-green); }
     </style>
 </head>
 <body class="pb-12">
 
     <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/90 border-b-4 border-[#C5E1A5] shadow-sm backdrop-blur-sm">
+    <header class="sticky top-0 z-50 bg-white/90 border-b border-slate-200 shadow-md backdrop-blur-md">
         <div class="max-w-6xl mx-auto py-4 px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex-shrink-0 bg-[#FFFBE6] p-3 rounded-full border-2 border-[#FFE082] shadow-sm">
+            <div class="flex-shrink-0 bg-slate-50 p-2 rounded-full border border-slate-200">
                 <!-- Placeholder for Logo -->
                 <!-- แก้ไข path: ถอยออก 1 ชั้น (..) แล้วเข้า ConcludeConic -->
-                <img src="../ConcludeConic/willteach.png" onerror="this.src='https://placehold.co/100x100?text=Math+NU'" alt="Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain">
+                <img src="../ConcludeConic/mathlogo.png" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=Math+NU'" alt="Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain">
             </div>
             <div class="text-center md:text-left flex-grow">
-                <h1 class="text-2xl md:text-3xl font-bold mb-1 text-[#33691E] tracking-tight">สรุปสูตรคณิตศาสตร์ ม.ปลาย</h1>
-                <p class="text-lg text-[#558B2F] font-medium mb-2">เรื่อง จำนวนเชิงซ้อน (Complex Numbers)</p>
-                <div class="inline-block md:block px-4 py-1 rounded-full bg-[#F1F8E9] border border-[#DCEDC8]">
-                    <div class="flex flex-col md:flex-row md:items-center md:gap-3 text-sm font-medium text-[#5D4037]">
+                <h1 class="text-2xl md:text-4xl font-bold mb-1 text-slate-800 tracking-tight">
+                    สรุปสูตรคณิตศาสตร์
+                </h1>
+                <p class="text-lg text-emerald-600 font-medium mb-2 font-sans">จำนวนเชิงซ้อน (Complex Numbers)</p>
+                <div class="inline-block md:block px-4 py-1 rounded-full bg-slate-100 border border-slate-200">
+                    <div class="flex flex-col md:flex-row md:items-center md:gap-3 text-sm font-medium text-slate-600">
                         <span>โดย อาจารย์ เอกชัย หลายศิริกุล</span>
-                        <span class="hidden md:inline text-[#AED581]">●</span>
+                        <span class="hidden md:inline text-slate-400">|</span>
                         <span>ภาควิชาคณิตศาสตร์ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร</span>
                     </div>
                 </div>
@@ -213,40 +243,40 @@
 
         <!-- Section 1: Definition & i -->
         <section>
-            <h2 class="text-3xl font-bold mb-6 flex items-center text-[#2E7D32]">
-                <span class="num-badge rounded-full w-12 h-12 flex items-center justify-center mr-4 text-xl font-bold">1</span>
+            <h2 class="text-3xl font-bold mb-6 flex items-center text-slate-700">
+                <span class="num-badge w-10 h-10 flex items-center justify-center mr-4 text-xl">1</span>
                 นิยามและหน่วยจินตภาพ
-                <span class="text-[#8D6E63] text-lg ml-3 font-normal font-sans">(Definition & Imaginary Unit)</span>
+                <span class="text-slate-400 text-lg ml-3 font-normal font-sans">(Definition & Imaginary Unit)</span>
             </h2>
 
-            <div class="ghibli-card">
+            <div class="nature-card">
                 <div class="flex flex-col md:flex-row gap-8">
                     <div class="w-full md:w-1/2">
-                        <h3 class="text-xl font-bold text-[#0277BD] mb-4">รูป Cartesian (พิกัดฉาก)</h3>
-                        <div class="formula-box bg-[#E1F5FE] border-[#B3E5FC]">
+                        <h3 class="text-2xl font-bold text-emerald-700 mb-4 pb-2 border-b border-emerald-100 inline-block">รูป Cartesian (พิกัดฉาก)</h3>
+                        <div class="formula-box">
                             $$z = a + bi$$
                         </div>
-                        <ul class="list-disc pl-5 space-y-2 text-[#4E342E]">
-                            <li>$a = \text{Re}(z)$ คือ ส่วนจริง (Real Part)</li>
-                            <li>$b = \text{Im}(z)$ คือ ส่วนจินตภาพ (Imaginary Part)</li>
-                            <li>$i = \sqrt{-1}$ หรือ $i^2 = -1$</li>
+                        <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                            <li><strong class="text-slate-800">$a = \text{Re}(z)$</strong> คือ ส่วนจริง (Real Part)</li>
+                            <li><strong class="text-slate-800">$b = \text{Im}(z)$</strong> คือ ส่วนจินตภาพ (Imaginary Part)</li>
+                            <li><strong class="text-emerald-600">$i = \sqrt{-1}$</strong> หรือ $i^2 = -1$</li>
                         </ul>
                     </div>
                     <div class="w-full md:w-1/2">
-                        <h3 class="text-xl font-bold text-[#AD1457] mb-4">วัฏจักรของ $i^n$ (Powers of i)</h3>
-                        <p class="mb-2">วนลูปทุกๆ 4 ตัว (นำเลขชี้กำลัง $n$ หารด้วย 4 ดูเศษ)</p>
-                        <table class="ghibli-table">
+                        <h3 class="text-2xl font-bold text-blue-700 mb-4 pb-2 border-b border-blue-100 inline-block">วัฏจักรของ $i^n$ (Powers of i)</h3>
+                        <p class="mb-2 text-slate-500">วนลูปทุกๆ 4 ตัว (นำเลขชี้กำลัง $n$ หารด้วย 4)</p>
+                        <table class="nature-table">
                             <thead>
                                 <tr>
-                                    <th style="background:#F8BBD0; color:#880E4F;">เศษเหลือ</th>
-                                    <th style="background:#F8BBD0; color:#880E4F;">ค่าที่ได้</th>
+                                    <th>เศษเหลือ (Remainder)</th>
+                                    <th>ค่าที่ได้</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>เศษ 1</td><td class="font-bold">$i$</td></tr>
-                                <tr><td>เศษ 2</td><td class="font-bold">$-1$</td></tr>
-                                <tr><td>เศษ 3</td><td class="font-bold">$-i$</td></tr>
-                                <tr><td>หารลงตัว (เศษ 0)</td><td class="font-bold">$1$</td></tr>
+                                <tr><td>เศษ 1</td><td class="font-bold text-slate-700">$i$</td></tr>
+                                <tr><td>เศษ 2</td><td class="font-bold text-slate-700">$-1$</td></tr>
+                                <tr><td>เศษ 3</td><td class="font-bold text-slate-700">$-i$</td></tr>
+                                <tr><td>หารลงตัว (เศษ 0)</td><td class="font-bold text-slate-700">$1$</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -256,38 +286,38 @@
 
         <!-- Section 2: Forms -->
         <section>
-            <h2 class="text-3xl font-bold mb-6 flex items-center text-[#E65100]">
-                <span class="num-badge rounded-full w-12 h-12 flex items-center justify-center mr-4 text-xl font-bold">2</span>
+            <h2 class="text-3xl font-bold mb-6 flex items-center text-slate-700">
+                <span class="num-badge w-10 h-10 flex items-center justify-center mr-4 text-xl">2</span>
                 รูปแบบและการแปลง
-                <span class="text-[#8D6E63] text-lg ml-3 font-normal font-sans">(Complex Forms)</span>
+                <span class="text-slate-400 text-lg ml-3 font-normal font-sans">(Complex Forms)</span>
             </h2>
 
-            <div class="ghibli-card">
+            <div class="nature-card">
                 <div class="grid md:grid-cols-2 gap-8 items-start">
                     <div>
-                        <h3 class="text-lg font-bold text-[#E65100] mb-2">1. รูปพิกัดฉาก (Rectangular)</h3>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">1. รูปพิกัดฉาก (Rectangular)</h3>
                         <div class="formula-box">$$z = a + bi$$</div>
-                        <p class="text-sm text-center">คู่ลำดับ $(a, b)$</p>
+                        <p class="text-sm text-center font-medium text-slate-500">คู่ลำดับ $(a, b)$</p>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-[#E65100] mb-2">2. รูปเชิงขั้ว (Polar Form)</h3>
+                        <h3 class="text-xl font-bold text-slate-700 mb-2">2. รูปเชิงขั้ว (Polar Form)</h3>
                         <div class="formula-box">$$z = r(\cos \theta + i \sin \theta)$$</div>
-                        <p class="text-sm text-center">เขียนย่อ: $z = r \text{cis } \theta$</p>
+                        <p class="text-sm text-center font-medium text-slate-500">เขียนย่อ: $z = r \text{cis } \theta$</p>
                     </div>
                 </div>
                 
-                <div class="mt-6 p-4 bg-[#FFF3E0] rounded-xl border border-[#FFE0B2]">
-                    <h3 class="text-lg font-bold text-[#BF360C] mb-3 text-center">การแปลงระหว่างรูปแบบ</h3>
+                <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-600 mb-3 text-center">การแปลงระหว่างรูปแบบ</h3>
                     <div class="flex flex-col md:flex-row justify-around items-center gap-4">
                         <div class="text-center">
-                            <span class="font-bold block mb-1">หาขนาด ($r$ หรือ Modulus)</span>
-                            $$r = |z| = \sqrt{a^2 + b^2}$$
+                            <span class="font-bold block mb-1 text-slate-700">หาขนาด ($r$ หรือ Modulus)</span>
+                            <span class="text-xl text-emerald-600">$$r = |z| = \sqrt{a^2 + b^2}$$</span>
                         </div>
-                        <div class="hidden md:block h-12 w-px bg-[#FFCC80]"></div>
+                        <div class="hidden md:block h-12 w-px bg-slate-300"></div>
                         <div class="text-center">
-                            <span class="font-bold block mb-1">หามุม ($\theta$ หรือ Argument)</span>
-                            $$\tan \theta = \frac{b}{a}$$
-                            <span class="text-xs text-[#E65100]">(ดูจตุภาค Quadrant ประกอบเสมอ)</span>
+                            <span class="font-bold block mb-1 text-slate-700">หามุม ($\theta$ หรือ Argument)</span>
+                            <span class="text-xl text-emerald-600">$$\tan \theta = \frac{b}{a}$$</span>
+                            <span class="text-xs text-slate-400 font-medium">(ดูจตุภาค Quadrant ประกอบเสมอ)</span>
                         </div>
                     </div>
                 </div>
@@ -296,50 +326,50 @@
 
         <!-- Section 3: Operations -->
         <section>
-            <h2 class="text-3xl font-bold mb-6 flex items-center text-[#7B1FA2]">
-                <span class="num-badge rounded-full w-12 h-12 flex items-center justify-center mr-4 text-xl font-bold">3</span>
+            <h2 class="text-3xl font-bold mb-6 flex items-center text-slate-700">
+                <span class="num-badge w-10 h-10 flex items-center justify-center mr-4 text-xl">3</span>
                 พีชคณิตและสมบัติ
-                <span class="text-[#8D6E63] text-lg ml-3 font-normal font-sans">(Operations & Properties)</span>
+                <span class="text-slate-400 text-lg ml-3 font-normal font-sans">(Operations & Properties)</span>
             </h2>
 
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Basic Ops -->
-                <div class="ghibli-card mb-0">
-                    <h3 class="text-xl font-bold text-[#7B1FA2] mb-3">การคำนวณพื้นฐาน</h3>
-                    <p class="text-sm mb-2">กำหนด $z_1 = a+bi, z_2 = c+di$</p>
+                <div class="nature-card mb-0">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-3 pb-2 border-b border-blue-100 inline-block">การคำนวณพื้นฐาน</h3>
+                    <p class="text-sm mb-2 font-bold text-slate-500">กำหนด $z_1 = a+bi, z_2 = c+di$</p>
                     <ul class="space-y-3">
-                        <li class="bg-[#F3E5F5] p-2 rounded-lg">
-                            <span class="font-bold block text-[#6A1B9A]">บวก/ลบ:</span>
+                        <li class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                            <span class="font-bold block text-blue-800">บวก/ลบ:</span>
                             $$(a\pm c) + (b\pm d)i$$
                         </li>
-                        <li class="bg-[#F3E5F5] p-2 rounded-lg">
-                            <span class="font-bold block text-[#6A1B9A]">คูณ:</span>
+                        <li class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                            <span class="font-bold block text-blue-800">คูณ:</span>
                             $$(ac - bd) + (ad + bc)i$$
                         </li>
-                        <li class="bg-[#F3E5F5] p-2 rounded-lg">
-                            <span class="font-bold block text-[#6A1B9A]">หาร (คูณสังยุค):</span>
+                        <li class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                            <span class="font-bold block text-blue-800">หาร (คูณสังยุค):</span>
                             $$\frac{z_1}{z_2} = \frac{z_1 \cdot \bar{z}_2}{|z_2|^2}$$
                         </li>
                     </ul>
                 </div>
 
                 <!-- Conjugate & Modulus -->
-                <div class="ghibli-card mb-0">
-                    <h3 class="text-xl font-bold text-[#7B1FA2] mb-3">สังยุค ($\bar{z}$) และ ค่าสัมบูรณ์ ($|z|$)</h3>
+                <div class="nature-card mb-0">
+                    <h3 class="text-2xl font-bold text-emerald-600 mb-3 pb-2 border-b border-emerald-100 inline-block">สังยุค ($\bar{z}$) และ สัมบูรณ์ ($|z|$)</h3>
                     <div class="flex gap-4 mb-4 text-sm text-center">
-                        <div class="w-1/2 bg-[#EDE7F6] p-2 rounded-lg border border-[#D1C4E9]">
-                            <strong>Conjugate</strong><br>
+                        <div class="w-1/2 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                            <strong class="text-emerald-800">Conjugate</strong><br>
                             $\overline{a+bi} = a-bi$
                         </div>
-                        <div class="w-1/2 bg-[#EDE7F6] p-2 rounded-lg border border-[#D1C4E9]">
-                            <strong>Modulus</strong><br>
+                        <div class="w-1/2 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                            <strong class="text-emerald-800">Modulus</strong><br>
                             $|z| = \sqrt{a^2+b^2}$
                         </div>
                     </div>
-                    <div class="bg-[#F3E5F5] p-3 rounded-lg border border-[#E1BEE7]">
-                        <strong class="text-[#4A148C]">สมบัติสำคัญ:</strong>
-                        <ul class="list-disc pl-5 mt-1 space-y-1 text-sm">
-                            <li>$|z|^2 = z \cdot \bar{z}$ (สำคัญ!)</li>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <strong class="text-slate-700">สมบัติสำคัญ:</strong>
+                        <ul class="list-disc pl-5 mt-2 space-y-1 text-sm text-slate-600">
+                            <li>$|z|^2 = z \cdot \bar{z}$ <span class="text-emerald-600 font-bold">(สำคัญ!)</span></li>
                             <li>$\overline{z_1 \pm z_2} = \bar{z}_1 \pm \bar{z}_2$</li>
                             <li>$|z_1 z_2| = |z_1| |z_2|$</li>
                             <li>$|\frac{z_1}{z_2}| = \frac{|z_1|}{|z_2|}$</li>
@@ -351,28 +381,28 @@
 
         <!-- Section 4: Polar Ops & Roots -->
         <section class="mt-8">
-            <h2 class="text-3xl font-bold mb-6 flex items-center text-[#C62828]">
-                <span class="num-badge rounded-full w-12 h-12 flex items-center justify-center mr-4 text-xl font-bold">4</span>
+            <h2 class="text-3xl font-bold mb-6 flex items-center text-slate-700">
+                <span class="num-badge w-10 h-10 flex items-center justify-center mr-4 text-xl">4</span>
                 เชิงขั้ว, เดอมัวร์ และราก
-                <span class="text-[#8D6E63] text-lg ml-3 font-normal font-sans">(Polar, De Moivre & Roots)</span>
+                <span class="text-slate-400 text-lg ml-3 font-normal font-sans">(Polar, De Moivre & Roots)</span>
             </h2>
 
-            <div class="ghibli-card">
+            <div class="nature-card">
                 <!-- Polar Ops -->
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-[#C62828] mb-2 border-b border-[#EF9A9A] inline-block">การดำเนินการรูปเชิงขั้ว</h3>
-                    <p class="text-sm text-[#8D6E63] mb-3">กำหนด $z_1 = r_1 \text{cis } \theta_1$ และ $z_2 = r_2 \text{cis } \theta_2$</p>
+                    <h3 class="text-2xl font-bold text-slate-700 mb-2 pb-2 border-b border-slate-200 inline-block">การดำเนินการรูปเชิงขั้ว</h3>
+                    <p class="text-sm text-slate-500 mb-3 font-bold">กำหนด $z_1 = r_1 \text{cis } \theta_1$ และ $z_2 = r_2 \text{cis } \theta_2$</p>
                     <div class="grid md:grid-cols-3 gap-4 text-center">
-                        <div class="bg-[#FFEBEE] p-3 rounded-xl border border-[#EF9A9A]">
-                            <strong class="text-[#C62828] block mb-1">การคูณ</strong>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-400 transition-colors">
+                            <strong class="text-blue-600 block mb-1">การคูณ</strong>
                             $r_1 r_2 \text{cis } (\theta_1 + \theta_2)$
                         </div>
-                        <div class="bg-[#FFEBEE] p-3 rounded-xl border border-[#EF9A9A]">
-                            <strong class="text-[#C62828] block mb-1">การหาร</strong>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-400 transition-colors">
+                            <strong class="text-blue-600 block mb-1">การหาร</strong>
                             $\frac{r_1}{r_2} \text{cis } (\theta_1 - \theta_2)$
                         </div>
-                        <div class="bg-[#FFEBEE] p-3 rounded-xl border border-[#EF9A9A]">
-                            <strong class="text-[#C62828] block mb-1">ยกกำลัง (De Moivre)</strong>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-blue-400 transition-colors">
+                            <strong class="text-blue-600 block mb-1">ยกกำลัง (De Moivre)</strong>
                             $z^n = r^n \text{cis } (n\theta)$
                         </div>
                     </div>
@@ -380,13 +410,13 @@
 
                 <!-- Roots -->
                 <div>
-                    <h3 class="text-xl font-bold text-[#C62828] mb-2 border-b border-[#EF9A9A] inline-block">การหารากที่ $n$ ($w^n = z$)</h3>
-                    <div class="formula-box bg-[#FFEBEE] border-[#EF9A9A] text-lg">
+                    <h3 class="text-2xl font-bold text-slate-700 mb-2 pb-2 border-b border-slate-200 inline-block">การหารากที่ $n$ ($w^n = z$)</h3>
+                    <div class="formula-box text-lg border-emerald-200 border-l-4">
                         $$w_k = \sqrt[n]{r} \left[ \cos \left( \frac{\theta + 2k\pi}{n} \right) + i \sin \left( \frac{\theta + 2k\pi}{n} \right) \right]$$
                     </div>
-                    <p class="text-center text-sm font-bold text-[#C62828]">โดยที่ $k = 0, 1, 2, ..., n-1$</p>
-                    <div class="note-box mt-3 text-[#5D4037]">
-                        <strong>ข้อสังเกต:</strong> รากทั้ง $n$ คำตอบ จะมีขนาดเท่ากัน (อยู่บนวงกลมรัศมี $\sqrt[n]{r}$) และมุมห่างกันเท่าๆ กันเป็นมุม $\frac{360^\circ}{n}$
+                    <p class="text-center text-sm font-bold text-slate-500">โดยที่ $k = 0, 1, 2, ..., n-1$</p>
+                    <div class="note-box mt-3">
+                        <strong class="text-emerald-700">ข้อสังเกต:</strong> รากทั้ง $n$ คำตอบ จะมีขนาดเท่ากัน (อยู่บนวงกลมรัศมี $\sqrt[n]{r}$) และมุมห่างกันเท่าๆ กันเป็นมุม $\frac{360^\circ}{n}$
                     </div>
                 </div>
             </div>
@@ -394,25 +424,25 @@
 
         <!-- Section 5: Polynomials -->
         <section class="mt-8">
-            <h2 class="text-3xl font-bold mb-6 flex items-center text-[#455A64]">
-                <span class="num-badge rounded-full w-12 h-12 flex items-center justify-center mr-4 text-xl font-bold">5</span>
+            <h2 class="text-3xl font-bold mb-6 flex items-center text-slate-700">
+                <span class="num-badge w-10 h-10 flex items-center justify-center mr-4 text-xl">5</span>
                 สมการพหุนาม
-                <span class="text-[#8D6E63] text-lg ml-3 font-normal font-sans">(Polynomial Equations)</span>
+                <span class="text-slate-400 text-lg ml-3 font-normal font-sans">(Polynomial Equations)</span>
             </h2>
-            <div class="ghibli-card">
-                <h3 class="text-xl font-bold text-[#455A64] mb-3">สมการกำลังสอง $ax^2 + bx + c = 0$</h3>
-                <div class="formula-box bg-[#ECEFF1] border-[#CFD8DC]">
+            <div class="nature-card">
+                <h3 class="text-2xl font-bold text-slate-700 mb-3">สมการกำลังสอง $ax^2 + bx + c = 0$</h3>
+                <div class="formula-box bg-slate-800 text-white border-slate-600">
                     $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
                 </div>
-                <p class="text-[#37474F]">ถ้า $b^2 - 4ac < 0$ คำตอบจะเป็นจำนวนเชิงซ้อนที่เป็นคู่สังยุคกัน (Conjugate Pairs)</p>
+                <p class="text-slate-600 font-medium text-center">ถ้า $b^2 - 4ac < 0$ คำตอบจะเป็นจำนวนเชิงซ้อนที่เป็น <strong class="text-emerald-600">คู่สังยุค (Conjugate Pairs)</strong></p>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-[#FFF8E1] border-t-4 border-[#FFE082] text-[#5D4037] py-8 mt-16 text-center">
-        <p class="font-medium font-['Mali']">สร้างสรรค์ด้วย HTML, Tailwind CSS และ MathJax ในธีม Ghibli Style</p>
-        <p class="text-sm mt-2 opacity-70">© 2024 Math Summary Website - Naresuan University</p>
+    <footer class="bg-slate-50 border-t border-slate-200 text-slate-500 py-10 mt-16 text-center">
+        <p class="font-medium font-kanit text-lg text-slate-700 mb-2">สร้างสรรค์ด้วย HTML, Tailwind CSS และ MathJax</p>
+        <p class="text-sm opacity-70 font-sans">© 2024 Math Summary Website - Naresuan University</p>
     </footer>
 
     <!-- The Modal -->
