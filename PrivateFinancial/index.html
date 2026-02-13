@@ -131,7 +131,7 @@
                         <span class="text-sm font-medium">รายปีต้องจ่ายเร็วๆ นี้</span>
                     </div>
                     <h2 class="text-3xl font-bold tracking-tight" id="upcomingCount">...</h2>
-                    <p class="text-xs text-orange-50 mt-2 opacity-80">ในรอบ 30 วัน</p>
+                    <p class="text-xs text-orange-50 mt-2 opacity-80">ในรอบ 90 วัน</p>
                 </div>
             </div>
         </div>
@@ -141,10 +141,10 @@
             
             <!-- Left Column: Upcoming & Charts -->
             <div class="lg:col-span-1 space-y-8">
-                <!-- Upcoming Payments List -->
+                <!-- Upcoming Payments List (All Yearly) -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                        <h3 class="font-semibold text-gray-800">📅 รายการรายปีที่ใกล้ถึงกำหนด</h3>
+                        <h3 class="font-semibold text-gray-800">📅 รายการรายปีทั้งหมด (เรียงตามกำหนดจ่าย)</h3>
                     </div>
                     <div class="divide-y divide-gray-100 max-h-[400px] overflow-y-auto" id="upcomingList">
                         <div class="p-6 text-center text-gray-500">กำลังโหลด...</div>
@@ -169,7 +169,7 @@
             <!-- Right Column: All Expenses Table -->
             <div class="lg:col-span-2 space-y-6">
                 
-                <!-- FILTER DROPDOWN (MODIFIED) -->
+                <!-- FILTER DROPDOWN -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
                          <h3 class="font-semibold text-gray-800 flex items-center">
@@ -361,7 +361,8 @@
             let totalMonthlyBurden = 0;
             let activeExpenses = [];
             let completedExpenses = [];
-            let upcomingPayments = [];
+            let upcomingCount90Days = 0; // For Card Count
+            let allYearlyItems = []; // For Side List
             let categoryAggregation = {};
 
             const today = moment();
@@ -425,11 +426,18 @@
                      categoryAggregation[groupName].yearly += yearlyCost;
                 }
 
+                // Check for Upcoming
                 if (nextDueDate) {
                     const daysDiff = nextDueDate.diff(today, 'days');
-                    // MODIFIED: Added check for 'Yearly' frequency to filter upcoming list
-                    if (daysDiff >= 0 && daysDiff <= 30 && item.Frequency === 'Yearly') {
-                        upcomingPayments.push({
+                    
+                    // Logic 1: Card Alert - Count Yearly items within 90 days
+                    if (daysDiff >= 0 && daysDiff <= 90 && item.Frequency === 'Yearly') {
+                        upcomingCount90Days++;
+                    }
+
+                    // Logic 2: List - Collect ALL active Yearly items
+                    if (item.Frequency === 'Yearly') {
+                        allYearlyItems.push({
                             name: item.Category,
                             date: nextDueDate,
                             amount: amount,
@@ -447,11 +455,12 @@
             document.getElementById('monthlyBurden').textContent = formatCurrency(totalMonthlyBurden);
             document.getElementById('estimatedBalance').textContent = formatCurrency(currentSalary - totalMonthlyBurden);
             
-            document.getElementById('upcomingCount').textContent = `${upcomingPayments.length} รายการ`;
+            // Update Card Count (90 Days)
+            document.getElementById('upcomingCount').textContent = `${upcomingCount90Days} รายการ`;
 
             // UI Init
-            renderFilterDropdown(expenseData); // Changed from Chips to Dropdown
-            renderUpcomingList(upcomingPayments);
+            renderFilterDropdown(expenseData);
+            renderUpcomingList(allYearlyItems); // Send all yearly items
             switchChartMode('monthly');
             
             // Initial Table Render (All)
@@ -637,28 +646,41 @@
             const container = document.getElementById('upcomingList');
             container.innerHTML = '';
             if(items.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">ไม่มีรายจ่ายรายปีใน 30 วันนี้ <br>สบายใจได้! 🎉</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">ไม่มีรายจ่ายรายปีที่ Active <br>สบายใจได้! 🎉</div>`;
                 return;
             }
+            
+            // Sort by nearest date (already sorted usually but ensures correctness)
             items.sort((a, b) => a.daysLeft - b.daysLeft);
+
             items.forEach(item => {
                 const div = document.createElement('div');
-                div.className = "px-6 py-4 flex items-center justify-between hover:bg-orange-50 transition group";
+                div.className = "px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition group border-l-4 border-transparent hover:border-indigo-500";
+                
                 let dayText = item.daysLeft === 0 ? "วันนี้!" : `อีก ${item.daysLeft} วัน`;
-                let dayColor = item.daysLeft <= 3 ? "text-red-600 bg-red-100" : "text-orange-600 bg-orange-100";
+                let dayColor = "text-gray-600 bg-gray-100";
+                
+                if (item.daysLeft <= 30) {
+                    dayColor = "text-red-600 bg-red-100";
+                } else if (item.daysLeft <= 90) {
+                    dayColor = "text-orange-600 bg-orange-100";
+                } else {
+                    dayColor = "text-emerald-600 bg-emerald-100";
+                }
+
                 div.innerHTML = `
                     <div class="flex items-center">
-                        <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm">
+                        <div class="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition-colors">
                             <span class="font-bold text-sm">${item.date.format('DD')}</span>
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-900">${item.name}</p>
-                            <p class="text-xs text-gray-500">${item.date.format('ddd, D MMM')}</p>
+                            <p class="text-xs text-gray-500">${item.date.format('MMM YYYY')}</p>
                         </div>
                     </div>
                     <div class="text-right">
                         <p class="text-sm font-bold text-gray-900">${formatCurrency(item.amount)}</p>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${dayColor}">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${dayColor} mt-1">
                             ${dayText}
                         </span>
                     </div>
