@@ -52,7 +52,7 @@
         <div class="flex">
             <div class="ml-3">
                 <p class="text-sm text-yellow-700">
-                    <span class="font-bold">โหมดข้อมูลจำลอง:</span> ขณะนี้แสดงข้อมูลตัวอย่าง หากต้องการใช้ข้อมูลจริงจาก Google Sheet กรุณาแก้ไข URL ในไฟล์ HTML (ส่วน Script)
+                    <span class="font-bold">โหมดข้อมูลจำลอง:</span> ขณะนี้แสดงข้อมูลตัวอย่าง หากต้องการใช้ข้อมูลจริงจาก Google Sheet กรุณาแก้ไขการตั้งค่าด้านล่างของไฟล์ (บรรทัดที่ 300+)
                 </p>
             </div>
         </div>
@@ -262,32 +262,35 @@
     <!-- LOGIC SCRIPT -->
     <script>
         // ==========================================
-        // ⚙️ CONFIGURATION
+        // ⚙️ CONFIGURATION (การตั้งค่า)
         // ==========================================
         
-        const useMockData = false; 
+        // ⚠️ สำคัญ: เปลี่ยนเป็น false เพื่อใช้ข้อมูลจริงจาก Google Sheet
+        const useMockData = true; 
+        
+        // ใส่ลิงก์ CSV จาก Google Sheet ที่นี่ (File -> Share -> Publish to web -> CSV)
         const incomeSheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=0&single=true&output=csv";
         const expenseSheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=126929060&single=true&output=csv";
 
         // ==========================================
-        // 📊 MOCK DATA
+        // 📊 MOCK DATA (ข้อมูลตัวอย่าง)
         // ==========================================
         const mockIncome = [
-            { Date: "2023-11-25", Amount: "48000" },
-            { Date: "2023-12-25", Amount: "50000" },
-            { Date: "2024-01-26", Amount: "52000" }
+            { Date: "2025-10-01", Amount: "61290.00" } // อัปเดตตามรูปภาพของคุณ
         ];
 
+        // อัปเดต Mock Expenses ตามภาพหน้าจอ Dashboard ของคุณ
         const mockExpenses = [
-            { Category: "ประกันชีวิต AIA", StartDate: "2020-05-15", Amount: "25000", Frequency: "Yearly", DurationYears: "20", PaymentSource: "KBank" },
-            { Category: "ประกันรถยนต์", StartDate: "2023-02-10", Amount: "18000", Frequency: "Yearly", DurationYears: "0", PaymentSource: "TTB" },
-            { Category: "Netflix", StartDate: "2023-01-01", Amount: "419", Frequency: "Monthly", DurationYears: "0", PaymentSource: "TrueMoney" },
-            { Category: "ค่าคอนโด", StartDate: "2023-01-05", Amount: "12000", Frequency: "Monthly", DurationYears: "0", PaymentSource: "KBank" },
-            { Category: "อินเตอร์เน็ตบ้าน", StartDate: "2023-01-05", Amount: "799", Frequency: "Monthly", DurationYears: "0", PaymentSource: "True" },
-            { Category: "กองทุน RMF", StartDate: "2023-12-01", Amount: "5000", Frequency: "Monthly", DurationYears: "0", PaymentSource: "DCA" },
-            { Category: "กองทุน SSF", StartDate: "2023-12-01", Amount: "2000", Frequency: "Monthly", DurationYears: "0", PaymentSource: "DCA" },
-            { Category: "ประกันสะสมทรัพย์ (ครบแล้ว)", StartDate: "2018-01-01", Amount: "30000", Frequency: "Yearly", DurationYears: "5", PaymentSource: "KBank" },
-            { Category: "ซ่อมคอมพิวเตอร์", StartDate: "2024-02-10", Amount: "2500", Frequency: "OneTime", DurationYears: "0", PaymentSource: "Make" }
+            { Category: "Internet wifi", StartDate: "2025-04-01", Amount: "6000", Frequency: "Yearly", DurationYears: "0", PaymentSource: "KBank" },
+            { Category: "ประกัน axa โอซิส", StartDate: "2025-10-01", Amount: "18000", Frequency: "Yearly", DurationYears: "10", PaymentSource: "KBank" },
+            { Category: "ประกัน axa บำนาญเธรด", StartDate: "2025-11-01", Amount: "36000", Frequency: "Yearly", DurationYears: "15", PaymentSource: "KBank" },
+            { Category: "ประกัน axa ไลฟ์เรดี้", StartDate: "2025-12-01", Amount: "40000", Frequency: "Yearly", DurationYears: "20", PaymentSource: "KBank" },
+            { Category: "ประกัน fwd easy save 10/5", StartDate: "2026-02-01", Amount: "24000", Frequency: "Yearly", DurationYears: "5", PaymentSource: "KBank" },
+            { Category: "Internet IQUIY", StartDate: "2026-02-24", Amount: "100", Frequency: "OneTime", DurationYears: "0", PaymentSource: "KBank" },
+            { Category: "DCA KBank", StartDate: "2025-01-24", Amount: "1000", Frequency: "Monthly", DurationYears: "0", PaymentSource: "KBank" },
+            { Category: "DCA ttb Smart", StartDate: "2025-01-24", Amount: "2000", Frequency: "Monthly", DurationYears: "0", PaymentSource: "TTB" },
+            { Category: "RMF ES-Set50", StartDate: "2025-01-24", Amount: "500", Frequency: "Monthly", DurationYears: "0", PaymentSource: "TTB" },
+            { Category: "RMF ES-Set50 (2)", StartDate: "2025-01-24", Amount: "500", Frequency: "Monthly", DurationYears: "0", PaymentSource: "TTB" }
         ];
 
         // ==========================================
@@ -295,7 +298,11 @@
         // ==========================================
 
         document.getElementById('currentDateDisplay').textContent = moment().format('D MMMM YYYY');
-        if(useMockData) document.getElementById('configAlert').classList.remove('hidden');
+        
+        // Show alert if mocking data
+        if(useMockData) {
+            document.getElementById('configAlert').classList.remove('hidden');
+        }
 
         let globalActiveExpenses = [];
         let globalCompletedExpenses = [];
@@ -311,10 +318,15 @@
                 expenses = mockExpenses;
             } else {
                 try {
+                    // Check if URL is still placeholder
+                    if (incomeSheetCSV.includes("YOUR_INCOME") || expenseSheetCSV.includes("YOUR_EXPENSE")) {
+                        alert("กรุณาใส่ลิงก์ CSV ของ Google Sheet ในตัวแปร incomeSheetCSV และ expenseSheetCSV ในโค้ดก่อนครับ");
+                        return;
+                    }
                     incomes = await fetchData(incomeSheetCSV);
                     expenses = await fetchData(expenseSheetCSV);
                 } catch (error) {
-                    alert("Error loading data: " + error.message);
+                    alert("เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
                     return;
                 }
             }
@@ -341,7 +353,7 @@
             if (n.includes('ประกัน')) return 'หมวดประกัน';
             if (n.includes('กองทุน') || n.includes('rmf') || n.includes('ssf') || n.includes('dca')) return 'การลงทุน/ออม';
             if (n.includes('คอนโด') || n.includes('บ้าน') || n.includes('ไฟฟ้า') || n.includes('น้ำ')) return 'ที่อยู่อาศัย';
-            if (n.includes('net') || n.includes('เน็ต') || n.includes('spotify') || n.includes('youtube')) return 'บันเทิง/เน็ต';
+            if (n.includes('net') || n.includes('เน็ต') || n.includes('spotify') || n.includes('youtube') || n.includes('wifi') || n.includes('iquiy')) return 'บันเทิง/เน็ต';
             if (n.includes('รถ') || n.includes('น้ำมัน') || n.includes('เดินทาง')) return 'เดินทาง/รถ';
             return name;
         }
@@ -351,7 +363,7 @@
             const sortedIncome = incomeData
                 .filter(i => i.Date && i.Amount)
                 .sort((a, b) => new Date(b.Date) - new Date(a.Date));
-            const currentSalary = sortedIncome.length > 0 ? parseFloat(sortedIncome[0].Amount) : 0;
+            const currentSalary = sortedIncome.length > 0 ? parseFloat(sortedIncome[0].Amount.replace(/,/g, '')) : 0;
             const salaryDate = sortedIncome.length > 0 ? sortedIncome[0].Date : "-";
             
             document.getElementById('latestSalary').textContent = formatCurrency(currentSalary);
