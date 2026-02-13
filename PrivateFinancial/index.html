@@ -128,7 +128,7 @@
                         <div class="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
                             <i class="fa-regular fa-clock text-sm"></i>
                         </div>
-                        <span class="text-sm font-medium">ต้องจ่ายเร็วๆ นี้</span>
+                        <span class="text-sm font-medium">รายปีต้องจ่ายเร็วๆ นี้</span>
                     </div>
                     <h2 class="text-3xl font-bold tracking-tight" id="upcomingCount">...</h2>
                     <p class="text-xs text-orange-50 mt-2 opacity-80">ในรอบ 30 วัน</p>
@@ -144,7 +144,7 @@
                 <!-- Upcoming Payments List -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                        <h3 class="font-semibold text-gray-800">📅 รายการที่ใกล้ถึงกำหนด</h3>
+                        <h3 class="font-semibold text-gray-800">📅 รายการรายปีที่ใกล้ถึงกำหนด</h3>
                     </div>
                     <div class="divide-y divide-gray-100 max-h-[400px] overflow-y-auto" id="upcomingList">
                         <div class="p-6 text-center text-gray-500">กำลังโหลด...</div>
@@ -427,7 +427,8 @@
 
                 if (nextDueDate) {
                     const daysDiff = nextDueDate.diff(today, 'days');
-                    if (daysDiff >= 0 && daysDiff <= 30) {
+                    // MODIFIED: Added check for 'Yearly' frequency to filter upcoming list
+                    if (daysDiff >= 0 && daysDiff <= 30 && item.Frequency === 'Yearly') {
                         upcomingPayments.push({
                             name: item.Category,
                             date: nextDueDate,
@@ -636,7 +637,7 @@
             const container = document.getElementById('upcomingList');
             container.innerHTML = '';
             if(items.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">ไม่มีรายจ่ายใน 30 วันนี้ <br>สบายใจได้! 🎉</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">ไม่มีรายจ่ายรายปีใน 30 วันนี้ <br>สบายใจได้! 🎉</div>`;
                 return;
             }
             items.sort((a, b) => a.daysLeft - b.daysLeft);
@@ -683,6 +684,4 @@
 
     </script>
 </body>
-
 </html>
-
