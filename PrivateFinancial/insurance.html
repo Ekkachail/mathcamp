@@ -18,6 +18,10 @@
         .card { @apply bg-white rounded-xl shadow-sm border border-gray-200; }
         .table-header { @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50; }
         .table-cell { @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-100; }
+        /* Custom Scrollbar for policy list */
+        .policy-list::-webkit-scrollbar { width: 6px; }
+        .policy-list::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 4px; }
+        .section-divider { @apply border-t-2 border-dashed border-gray-200 my-12; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -50,9 +54,15 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Controls Section -->
+        <!-- ========================================= -->
+        <!-- PART 1: SINGLE POLICY ANALYSIS -->
+        <!-- ========================================= -->
+        <div class="mb-6 flex items-center">
+            <div class="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</div>
+            <h2 class="text-2xl font-bold text-gray-800">วิเคราะห์รายกรมธรรม์ (Single Policy Analysis)</h2>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            
             <!-- Policy Selector & Info -->
             <div class="lg:col-span-2 card p-6">
                 <div class="flex items-center justify-between mb-4">
@@ -89,15 +99,13 @@
                 <h2 class="text-lg font-semibold mb-4 text-white flex items-center">
                     <i class="fa-solid fa-crosshairs text-green-400 mr-2"></i> เป้าหมายกำไร
                 </h2>
-                <p class="text-sm text-gray-400 mb-4">ระบุ % กำไรที่ต้องการ (เทียบกับเงินต้นที่จ่ายไป) เพื่อหาปีที่ควรเวนคืน</p>
-                
+                <p class="text-sm text-gray-400 mb-4">ระบุ % กำไรที่ต้องการ (เทียบกับเงินต้น) เพื่อหาปีที่ควรเวนคืน</p>
                 <div class="flex gap-2 mb-4">
                     <input type="number" id="targetProfitInput" placeholder="เช่น 5, 10, 20" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
-                    <button onclick="calculateTargetYear()" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
+                    <button onclick="calculateSingleTarget()" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
                         คำนวณ
                     </button>
                 </div>
-
                 <div id="targetResult" class="hidden p-4 bg-white/10 rounded-lg border border-white/20 text-center animate-pulse">
                     <p class="text-gray-300 text-xs">เพื่อให้ได้กำไร <span id="resTargetPct" class="text-green-300 font-bold"></span>%</p>
                     <p class="mt-2 text-sm">ควรเวนคืนในปีที่ <span id="resYear" class="text-2xl font-bold text-white"></span></p>
@@ -106,30 +114,117 @@
             </div>
         </div>
 
-        <!-- Analysis Table -->
-        <div class="card overflow-hidden">
+        <!-- Single Policy Table -->
+        <div class="card overflow-hidden mb-8">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                <h3 class="font-bold text-gray-800">ตารางวิเคราะห์มูลค่าเวนคืน (CV คำนวณจาก บาท/1,000 ทุนประกัน)</h3>
+                <h3 class="font-bold text-gray-800">ตารางมูลค่าเวนคืน (บาท/1,000 ทุนประกัน)</h3>
                 <span class="text-xs text-gray-500">*ต้นทุน = เบี้ย x ปีที่ชำระ</span>
             </div>
-            
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto h-96 overflow-y-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
+                    <thead class="sticky top-0 bg-gray-50 z-10 shadow-sm">
                         <tr>
                             <th class="table-header">ปีที่ (Year)</th>
-                            <th class="table-header text-right">ต้นทุนเบี้ยสะสม (Paid Cost)</th>
-                            <th class="table-header text-right">อัตราเวนคืน (ต่อ 1,000)</th>
-                            <th class="table-header text-right text-indigo-600">มูลค่าเวนคืน (CV Value)</th>
-                            <th class="table-header text-right">กำไร/ขาดทุน (THB)</th>
+                            <th class="table-header text-right">ต้นทุนสะสม</th>
+                            <th class="table-header text-right">อัตราเวนคืน</th>
+                            <th class="table-header text-right text-indigo-600">มูลค่าเวนคืน</th>
+                            <th class="table-header text-right">กำไร/ขาดทุน (บาท)</th>
                             <th class="table-header text-right">กำไร/ขาดทุน (%)</th>
                             <th class="table-header text-center">สถานะ</th>
                         </tr>
                     </thead>
-                    <tbody id="analysisTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- JS Generated Content -->
-                    </tbody>
+                    <tbody id="singleTableBody" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ========================================= -->
+        <!-- PART 2: PORTFOLIO ANALYSIS -->
+        <!-- ========================================= -->
+        <div class="mb-6 flex items-center">
+            <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</div>
+            <h2 class="text-2xl font-bold text-gray-800">วิเคราะห์ภาพรวมพอร์ตโฟลิโอ (Portfolio Analysis)</h2>
+        </div>
+
+        <div class="card p-6 mb-8 bg-white">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Select Policies -->
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold flex items-center mb-3">
+                        <i class="fa-solid fa-layer-group text-blue-500 mr-2"></i> เลือกกรมธรรม์ที่จะรวมยอด
+                    </h2>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 h-48 overflow-y-auto policy-list" id="policyCheckboxes"></div>
+                    <div class="mt-2 text-xs text-gray-500 flex justify-between">
+                        <button onclick="toggleAllPolicies(true)" class="text-indigo-600 hover:underline">เลือกทั้งหมด</button>
+                        <button onclick="toggleAllPolicies(false)" class="text-gray-500 hover:underline">ล้างการเลือก</button>
+                    </div>
+                </div>
+                <!-- Select Year -->
+                <div class="w-full md:w-1/3 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold flex items-center mb-3">
+                            <i class="fa-solid fa-calendar-check text-blue-500 mr-2"></i> กำหนดปีเวนคืน (Target Year)
+                        </h2>
+                        <input type="number" id="targetYearInput" class="bg-white border border-gray-300 text-gray-900 text-lg rounded-lg block w-full p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="2050">
+                    </div>
+                    <button onclick="analyzePortfolio()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition-colors">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> วิเคราะห์ผลตอบแทนรวม
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Results (Hidden by default) -->
+        <div id="portfolioResultSection" class="hidden space-y-8 animate-fade-in">
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-5 border-l-4 border-gray-500 bg-gray-50">
+                    <p class="text-sm text-gray-600 mb-1">ต้นทุนเบี้ยสะสมรวม</p>
+                    <h3 class="text-2xl font-bold text-gray-800" id="sumTotalPaid">-</h3>
+                </div>
+                <div class="card p-5 border-l-4 border-indigo-500 bg-indigo-50">
+                    <p class="text-sm text-indigo-600 mb-1">มูลค่าเวนคืนรวม</p>
+                    <h3 class="text-2xl font-bold text-gray-800" id="sumTotalCV">-</h3>
+                </div>
+                <div class="card p-5 border-l-4 border-green-500 bg-green-50" id="profitCard">
+                    <p class="text-sm text-green-600 mb-1">กำไร/ขาดทุนสุทธิ</p>
+                    <h3 class="text-2xl font-bold text-gray-800" id="sumTotalProfit">-</h3>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card p-6">
+                    <h3 class="font-bold text-gray-800 mb-4 text-center">สัดส่วนมูลค่าเวนคืน (By Policy)</h3>
+                    <div class="relative h-72"><canvas id="cvPieChart"></canvas></div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-bold text-gray-800 mb-4 text-center">กำไร/ขาดทุน แต่ละกรมธรรม์</h3>
+                    <div class="relative h-72"><canvas id="profitBarChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Snapshot Table -->
+            <div class="card overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h3 class="font-bold text-gray-800">รายละเอียดรายกรมธรรม์ ณ ปีที่เลือก</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ชื่อกรมธรรม์</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">ปีที่</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">เบี้ยจ่ายสะสม</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">มูลค่าเวนคืน</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">กำไร/ขาดทุน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -137,51 +232,47 @@
 
     <script>
         // ==========================================
-        // ⚙️ CONFIGURATION (ส่วนที่ต้องแก้ไข)
+        // ⚙️ CONFIGURATION
         // ==========================================
-        
         const useMockData = false; 
-        
-        // CSV Header ต้องมี: PolicyName, StartDate, Premium, SumAssured, DurationYears, CoverageYears, CV_Rates_Per1000
-        // CV_Rates_Per1000: ใส่ตัวเลขจำนวนเต็มตามตารางกรมธรรม์ (เช่น 50 หมายถึง 50 บาท ต่อทุน 1,000)
         const insuranceSheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=1735189322&single=true&output=csv";
 
         // ==========================================
-        // 1. MOCK DATA (ข้อมูลจำลอง)
+        // 1. DATA & VARIABLES
         // ==========================================
         const mockPolicies = [
             {
-                id: 1,
-                name: "ประกัน axa โอซิส (Mock)",
-                startDate: "2025-10-01",
-                premium: 18000,
-                sumAssured: 300000, // ทุนประกัน 300,000
-                duration: 10,
-                coverage: 20,
-                // อัตราเวนคืนต่อทุน 1,000 บาท (สมมติว่าเริ่มมีมูลค่าปีที่ 3 ที่ 15 บาท, ปีที่ 20 ที่ 350 บาท)
+                id: 1, name: "ประกัน axa โอซิส (Mock)", startDate: "2025-10-01", premium: 18000, sumAssured: 300000, duration: 10, coverage: 20,
                 cvRate: [0, 0, 15, 35, 65, 95, 125, 160, 200, 245, 255, 265, 275, 285, 300, 310, 320, 330, 340, 350] 
             },
             {
-                id: 2,
-                name: "ประกัน axa บำนาญเธรด (Mock)",
-                startDate: "2025-11-01",
-                premium: 36000,
-                sumAssured: 500000, // ทุนประกัน 500,000
-                duration: 15,
-                coverage: 60,
-                // อัตราเวนคืนต่อทุน 1,000 บาท
+                id: 2, name: "ประกัน axa บำนาญเธรด (Mock)", startDate: "2025-11-01", premium: 36000, sumAssured: 500000, duration: 15, coverage: 60,
                 cvRate: [0, 5, 25, 50, 80, 110, 150, 190, 230, 270, 310, 350, 400, 450, 500, 520, 540, 560, 580, 600]
+            },
+            {
+                id: 3, name: "ประกันจากตารางล่าสุด (Mock 44 ปี)", startDate: "2025-01-01", premium: 20000, sumAssured: 100000, duration: 10, coverage: 44, 
+                cvRate: [0, 26, 86, 146, 220, 279, 340, 403, 468, 535, 546, 558, 569, 581, 593, 605, 616, 628, 640, 652, 664, 676, 688, 700, 711, 723, 735, 746, 757, 768, 779, 790, 800, 811, 821, 832, 844, 856, 868, 881, 895, 911, 928, 948]
+            },
+            {
+                id: 4, name: "ประกันจากตารางล่าสุด (Mock 10 ปี)", startDate: "2025-01-01", premium: 50000, sumAssured: 100000, duration: 5, coverage: 10, 
+                cvRate: [153, 550, 1371, 2118, 3022, 3100, 3181, 3266, 3356, 3500]
+            },
+            {
+                id: 5, name: "ประกันจากตารางล่าสุด (Mock 21 ปี)", startDate: "2025-01-01", premium: 30000, sumAssured: 100000, duration: 5, coverage: 21, 
+                cvRate: [118, 427, 1059, 1623, 2293, 2342, 2393, 2445, 2498, 2553, 2608, 2666, 2724, 2785, 2846, 2910, 2976, 3043, 3113, 3185, 3260]
             }
         ];
 
         let policies = [];
         let currentPolicy = null;
+        let pieChartInstance = null;
+        let barChartInstance = null;
 
         // ==========================================
         // 2. INITIALIZATION
         // ==========================================
-        
         if(useMockData) document.getElementById('configAlert').classList.remove('hidden');
+        document.getElementById('targetYearInput').value = moment().year() + 10;
 
         async function init() {
             try {
@@ -189,19 +280,13 @@
                     policies = mockPolicies;
                 } else {
                     if (insuranceSheetCSV.includes("YOUR_INSURANCE")) {
-                        alert("กรุณาใส่ลิงก์ CSV ของ Google Sheet ประกันภัยก่อนครับ");
-                        return;
+                        alert("กรุณาใส่ลิงก์ CSV ของ Google Sheet"); return;
                     }
                     const rawData = await fetchData(insuranceSheetCSV);
-                    // Convert CSV rows to Policy Objects
                     policies = rawData.map((row, index) => {
                         let rates = [];
-                        // รองรับทั้งชื่อใหม่ CV_Rates_Per1000 และชื่อเดิม CV_Rates
                         const rateString = row.CV_Rates_Per1000 || row.CV_Rates;
-                        if (rateString) {
-                            rates = rateString.split(',').map(num => parseFloat(num.trim()));
-                        }
-                        
+                        if (rateString) rates = rateString.split(',').map(num => parseFloat(num.trim()));
                         return {
                             id: index,
                             name: row.PolicyName,
@@ -215,28 +300,30 @@
                     });
                 }
                 
-                populateSelect();
-                if(policies.length > 0) loadPolicy(0);
+                populateSingleSelect();
+                populateCheckboxes();
+                
+                // Load first policy for Single View
+                if(policies.length > 0) loadSinglePolicy(0);
 
             } catch (error) {
                 console.error(error);
-                alert("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + error.message);
+                alert("โหลดข้อมูลไม่สำเร็จ: " + error.message);
             }
         }
 
         function fetchData(url) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 Papa.parse(url, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
+                    download: true, header: true, skipEmptyLines: true,
                     complete: (results) => resolve(results.data),
-                    error: (error) => reject(error)
+                    error: (error) => alert(error)
                 });
             });
         }
 
-        function populateSelect() {
+        // Populate Dropdown (Single)
+        function populateSingleSelect() {
             const select = document.getElementById('policySelect');
             select.innerHTML = '';
             policies.forEach((p, index) => {
@@ -245,42 +332,58 @@
                 opt.textContent = p.name;
                 select.appendChild(opt);
             });
-            select.addEventListener('change', (e) => loadPolicy(e.target.value));
+            select.addEventListener('change', (e) => loadSinglePolicy(e.target.value));
+        }
+
+        // Populate Checkboxes (Portfolio)
+        function populateCheckboxes() {
+            const container = document.getElementById('policyCheckboxes');
+            container.innerHTML = '';
+            policies.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center mb-2 hover:bg-gray-100 p-1 rounded transition";
+                div.innerHTML = `
+                    <input type="checkbox" id="policy_${index}" value="${index}" class="policy-checkbox w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" checked>
+                    <label for="policy_${index}" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer flex-1">${p.name}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleAllPolicies(checked) {
+            document.querySelectorAll('.policy-checkbox').forEach(cb => cb.checked = checked);
         }
 
         // ==========================================
-        // 3. LOGIC & CALCULATION (UPDATED)
+        // 3. SINGLE POLICY LOGIC
         // ==========================================
-        function loadPolicy(index) {
+        function loadSinglePolicy(index) {
             currentPolicy = policies[index];
             const p = currentPolicy;
 
-            // Update Info Cards
+            // UI Info
             document.getElementById('infoSumAssured').textContent = formatMoney(p.sumAssured);
             document.getElementById('infoPremium').textContent = formatMoney(p.premium);
             document.getElementById('infoDuration').textContent = `${p.duration} ปี`;
             
-            // Calculate Status
             const startYear = moment(p.startDate).year();
             const currentYear = moment().year();
             const policyYear = currentYear - startYear + 1;
-            
             let statusText = "Active (ปีที่ " + policyYear + ")";
             if(policyYear > p.coverage) statusText = "ครบสัญญา (Matured)";
             document.getElementById('infoStatus').textContent = statusText;
 
-            // Generate Table
-            renderTable(p);
+            // Table
+            renderSingleTable(p);
             
-            // Reset Calculator
+            // Reset Calc
             document.getElementById('targetResult').classList.add('hidden');
             document.getElementById('targetProfitInput').value = '';
         }
 
-        function renderTable(p) {
-            const tbody = document.getElementById('analysisTableBody');
+        function renderSingleTable(p) {
+            const tbody = document.getElementById('singleTableBody');
             tbody.innerHTML = '';
-
             let cumulativePaid = 0;
             const startYear = moment(p.startDate);
             const maxRows = Math.max(p.coverage, p.cvRate.length);
@@ -289,39 +392,23 @@
                 const yearNum = i + 1;
                 const calendarYear = startYear.clone().add(i, 'years').format('YYYY');
                 
-                // 1. คำนวณต้นทุน (เบี้ยสะสม)
-                if (yearNum <= p.duration) {
-                    cumulativePaid += p.premium;
-                }
+                if (yearNum <= p.duration) cumulativePaid += p.premium;
 
-                // 2. คำนวณมูลค่าเวนคืน (สูตรใหม่: ทุนประกัน / 1000 * Rate)
-                let cvValue = 0;
-                let rate = 0;
-                if (i < p.cvRate.length) {
-                    rate = p.cvRate[i];
-                    // Formula: (SumAssured / 1000) * Rate
-                    cvValue = (p.sumAssured / 1000) * rate;
-                }
+                let rate = (i < p.cvRate.length) ? p.cvRate[i] : 0;
+                let cvValue = (p.sumAssured / 1000) * rate;
+                let profit = cvValue - cumulativePaid;
+                let profitPct = cumulativePaid > 0 ? (profit/cumulativePaid)*100 : -100;
 
-                // 3. คำนวณกำไร/ขาดทุน
-                const profit = cvValue - cumulativePaid;
-                const profitPct = (cumulativePaid > 0) ? (profit / cumulativePaid) * 100 : -100;
-
-                // Styling
-                const isBreakeven = profit >= 0;
-                const profitColor = isBreakeven ? 'text-green-600' : 'text-red-500';
-                const rowClass = isBreakeven ? 'bg-green-50/30' : '';
-                const icon = isBreakeven ? '<i class="fa-solid fa-check-circle text-green-500"></i>' : '<i class="fa-solid fa-circle-xmark text-gray-300"></i>';
+                const profitColor = profit >= 0 ? 'text-green-600' : 'text-red-500';
+                const rowClass = profit >= 0 ? 'bg-green-50/30' : '';
+                const icon = profit >= 0 ? '<i class="fa-solid fa-check-circle text-green-500"></i>' : '<i class="fa-solid fa-circle-xmark text-gray-300"></i>';
 
                 const tr = document.createElement('tr');
                 tr.className = `hover:bg-gray-50 transition ${rowClass}`;
                 tr.innerHTML = `
-                    <td class="table-cell font-medium">
-                        <span class="bg-gray-100 text-gray-600 py-1 px-2 rounded text-xs mr-2">${yearNum}</span>
-                        ${calendarYear}
-                    </td>
+                    <td class="table-cell font-medium"><span class="bg-gray-100 text-gray-600 py-1 px-2 rounded text-xs mr-2">${yearNum}</span> ${calendarYear}</td>
                     <td class="table-cell text-right text-gray-600">${formatMoney(cumulativePaid)}</td>
-                    <td class="table-cell text-right text-gray-500">${rate.toLocaleString()}</td>
+                    <td class="table-cell text-right text-gray-500">${rate}</td>
                     <td class="table-cell text-right font-bold text-indigo-600">${formatMoney(cvValue)}</td>
                     <td class="table-cell text-right ${profitColor}">${formatMoney(profit)}</td>
                     <td class="table-cell text-right font-bold ${profitColor}">${profitPct.toFixed(2)}%</td>
@@ -331,66 +418,150 @@
             }
         }
 
-        // ==========================================
-        // 4. GOAL SEEK CALCULATOR
-        // ==========================================
-        function calculateTargetYear() {
+        function calculateSingleTarget() {
             const target = parseFloat(document.getElementById('targetProfitInput').value);
             const resultDiv = document.getElementById('targetResult');
             const p = currentPolicy;
 
-            if (isNaN(target)) {
-                alert("กรุณาระบุ % กำไรที่ต้องการ");
-                return;
-            }
+            if (isNaN(target)) { alert("ระบุ % กำไร"); return; }
 
             let foundYear = -1;
             let cumulativePaid = 0;
 
             for (let i = 0; i < p.cvRate.length; i++) {
-                const yearNum = i + 1;
-
-                // Calculate Cost
-                if (yearNum <= p.duration) {
-                    cumulativePaid += p.premium;
-                }
-
-                // Calculate Value (New Formula)
-                const rate = p.cvRate[i];
-                const cvValue = (p.sumAssured / 1000) * rate;
+                if (i+1 <= p.duration) cumulativePaid += p.premium;
+                let cvValue = (p.sumAssured / 1000) * p.cvRate[i];
+                let profitPct = cumulativePaid > 0 ? ((cvValue - cumulativePaid) / cumulativePaid) * 100 : -100;
                 
-                // Calculate Profit %
-                const profit = cvValue - cumulativePaid;
-                const profitPct = (cumulativePaid > 0) ? (profit / cumulativePaid) * 100 : -100;
-
-                if (profitPct >= target) {
-                    foundYear = yearNum;
-                    break;
-                }
+                if (profitPct >= target) { foundYear = i+1; break; }
             }
 
             if (foundYear !== -1) {
-                const startYear = moment(p.startDate);
-                const targetDate = startYear.clone().add(foundYear - 1, 'years').format('YYYY');
-                
+                const targetDate = moment(p.startDate).add(foundYear-1, 'years').format('YYYY');
                 document.getElementById('resTargetPct').textContent = target;
                 document.getElementById('resYear').textContent = foundYear;
                 document.getElementById('resYearAD').textContent = targetDate;
-                
                 resultDiv.classList.remove('hidden');
-                resultDiv.classList.remove('bg-red-900/50', 'border-red-500');
-                resultDiv.classList.add('bg-white/10', 'border-white/20');
             } else {
-                resultDiv.classList.remove('hidden');
-                resultDiv.innerHTML = `<p class="text-red-300 text-sm">ไม่พบปีที่ได้กำไร ${target}% ภายในระยะเวลาของข้อมูลที่มี</p>`;
+                alert(`ไม่พบปีที่ได้กำไร ${target}%`);
             }
+        }
+
+        // ==========================================
+        // 4. PORTFOLIO ANALYSIS LOGIC
+        // ==========================================
+        function analyzePortfolio() {
+            const selectedIndices = Array.from(document.querySelectorAll('.policy-checkbox:checked')).map(cb => parseInt(cb.value));
+            if (selectedIndices.length === 0) { alert("เลือกกรมธรรม์ก่อนครับ"); return; }
+
+            let inputYear = parseInt(document.getElementById('targetYearInput').value);
+            if (isNaN(inputYear)) { alert("ระบุปีเวนคืน"); return; }
+            let targetYear = inputYear > 2400 ? inputYear - 543 : inputYear; // Handle BE/AD
+
+            let chartLabels = [], chartCV = [], chartProfit = [], chartColors = [];
+            let totalPaid = 0, totalCV = 0, totalProfit = 0;
+            let detailRows = [];
+
+            selectedIndices.forEach(idx => {
+                const p = policies[idx];
+                const startYear = moment(p.startDate).year();
+                const policyYear = targetYear - startYear + 1;
+
+                if (policyYear < 1) return; // Not started
+
+                // Calc Paid
+                const yearsPaid = Math.min(policyYear, p.duration);
+                const paid = p.premium * yearsPaid;
+
+                // Calc CV
+                const rateIndex = Math.min(policyYear, p.cvRate.length) - 1;
+                let cv = 0;
+                if (rateIndex >= 0) {
+                    cv = (p.sumAssured / 1000) * p.cvRate[rateIndex];
+                }
+
+                const profit = cv - paid;
+
+                totalPaid += paid; totalCV += cv; totalProfit += profit;
+
+                chartLabels.push(p.name);
+                chartCV.push(cv);
+                chartProfit.push(profit);
+                chartColors.push(profit >= 0 ? '#10b981' : '#ef4444');
+
+                detailRows.push({ name: p.name, year: policyYear, paid, cv, profit });
+            });
+
+            // Update UI
+            document.getElementById('portfolioResultSection').classList.remove('hidden');
+            document.getElementById('sumTotalPaid').textContent = formatMoney(totalPaid);
+            document.getElementById('sumTotalCV').textContent = formatMoney(totalCV);
+            
+            const profitEl = document.getElementById('sumTotalProfit');
+            profitEl.textContent = formatMoney(totalProfit);
+            profitEl.className = `text-2xl font-bold ${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`;
+            document.getElementById('profitCard').className = `card p-5 border-l-4 ${totalProfit >= 0 ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`;
+
+            renderPieChart(chartLabels, chartCV);
+            renderBarChart(chartLabels, chartProfit, chartColors);
+            renderDetailTable(detailRows);
+        }
+
+        // ==========================================
+        // 5. CHART & TABLE RENDERING
+        // ==========================================
+        function renderPieChart(labels, data) {
+            const ctx = document.getElementById('cvPieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+            pieChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: data, backgroundColor: ['#6366f1','#8b5cf6','#ec4899','#f43f5e','#f97316'], borderWidth: 2, borderColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+            });
+        }
+
+        function renderBarChart(labels, data, colors) {
+            const ctx = document.getElementById('profitBarChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+            barChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Profit/Loss', data: data, backgroundColor: colors, borderRadius: 4 }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    scales: { x: { display: false }, y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderDetailTable(rows) {
+            const tbody = document.getElementById('detailTableBody');
+            tbody.innerHTML = '';
+            rows.forEach(r => {
+                const profitClass = r.profit >= 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900">${r.name}</td>
+                    <td class="px-6 py-4 text-center text-gray-500">${r.year}</td>
+                    <td class="px-6 py-4 text-right text-gray-600">${formatMoney(r.paid)}</td>
+                    <td class="px-6 py-4 text-right text-indigo-600 font-bold">${formatMoney(r.cv)}</td>
+                    <td class="px-6 py-4 text-right ${profitClass}">${formatMoney(r.profit)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function formatMoney(num) {
             return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(num);
         }
 
-        // Run
+        // Start
         init();
 
     </script>
