@@ -38,7 +38,13 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <i class="fa-solid fa-wallet text-indigo-600 text-2xl mr-3"></i>
-                    <h1 class="text-xl font-bold text-gray-900">Financial Dashboard</h1>
+                    <h1 class="text-xl font-bold text-gray-900 mr-8">Financial Dashboard</h1>
+                    
+                    <!-- NEW: Link to Insurance Page -->
+                    <a href="insurance.html" class="hidden md:flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                        <i class="fa-solid fa-shield-heart mr-2"></i>
+                        กรมธรรม์ประกันภัย
+                    </a>
                 </div>
                 <div class="flex items-center text-sm text-gray-500">
                     <span id="currentDateDisplay"></span>
@@ -52,7 +58,7 @@
         <div class="flex">
             <div class="ml-3">
                 <p class="text-sm text-yellow-700">
-                    <span class="font-bold">โหมดข้อมูลจำลอง:</span> ขณะนี้แสดงข้อมูลตัวอย่าง หากต้องการใช้ข้อมูลจริงจาก Google Sheet กรุณาแก้ไขการตั้งค่าด้านล่างของไฟล์ (บรรทัดที่ 300+)
+                    <span class="font-bold">โหมดข้อมูลจำลอง:</span> ขณะนี้แสดงข้อมูลตัวอย่าง หากต้องการใช้ข้อมูลจริงจาก Google Sheet กรุณาแก้ไขการตั้งค่าด้านล่างของไฟล์
                 </p>
             </div>
         </div>
@@ -169,25 +175,47 @@
             <!-- Right Column: All Expenses Table -->
             <div class="lg:col-span-2 space-y-6">
                 
-                <!-- FILTER DROPDOWN -->
-                <div>
-                    <div class="flex items-center justify-between mb-2">
+                <!-- NEW: DOUBLE FILTER SECTION -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-3">
                          <h3 class="font-semibold text-gray-800 flex items-center">
-                            <i class="fa-solid fa-layer-group text-indigo-500 mr-2"></i> เลือกประเภทค่าใช้จ่าย
+                            <i class="fa-solid fa-filter text-indigo-500 mr-2"></i> ค้นหาและกรองข้อมูล
                         </h3>
+                         <!-- Mobile View Link -->
+                        <a href="insurance.html" class="md:hidden text-indigo-600 text-xs font-medium">
+                            ไปหน้าประกัน >
+                        </a>
                     </div>
-                    <div class="relative">
-                        <select id="filterDropdown" class="block w-full p-3 pl-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm appearance-none cursor-pointer hover:bg-white transition-colors">
-                            <option value="all">ทั้งหมด (All Categories)</option>
-                            <!-- Options will be populated by JS -->
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Filter 1: Group Category -->
+                        <div class="relative">
+                            <label class="block text-xs text-gray-500 mb-1">หมวดหมู่ (ตามกราฟ)</label>
+                            <select id="groupFilter" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm appearance-none cursor-pointer">
+                                <option value="all">ทุกหมวดหมู่ (All Groups)</option>
+                                <!-- JS will populate smart groups -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-2 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Filter 2: Frequency -->
+                        <div class="relative">
+                            <label class="block text-xs text-gray-500 mb-1">ประเภทงวดการจ่าย</label>
+                            <select id="frequencyFilter" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm appearance-none cursor-pointer">
+                                <option value="all">ทุกงวด (All Frequencies)</option>
+                                <option value="Monthly">รายเดือน (Monthly)</option>
+                                <option value="Yearly">รายปี (Yearly)</option>
+                                <option value="OneTime">ครั้งเดียว (OneTime)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-2 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TABLE SUMMARY CARDS (Secondary stats) -->
+                <!-- TABLE SUMMARY CARDS -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="tableSummarySection">
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
                         <span class="text-xs text-gray-500">จำนวนรายการ</span>
@@ -265,21 +293,20 @@
         // ⚙️ CONFIGURATION (การตั้งค่า)
         // ==========================================
         
-        // ⚠️ สำคัญ: เปลี่ยนเป็น false เพื่อใช้ข้อมูลจริงจาก Google Sheet
         const useMockData = false; 
         
         // ใส่ลิงก์ CSV จาก Google Sheet ที่นี่ (File -> Share -> Publish to web -> CSV)
         const incomeSheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=0&single=true&output=csv";
         const expenseSheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=126929060&single=true&output=csv";
 
+
         // ==========================================
-        // 📊 MOCK DATA (ข้อมูลตัวอย่าง)
+        // 📊 MOCK DATA
         // ==========================================
         const mockIncome = [
-            { Date: "2025-10-01", Amount: "61290.00" } // อัปเดตตามรูปภาพของคุณ
+            { Date: "2025-10-01", Amount: "61290.00" } 
         ];
 
-        // อัปเดต Mock Expenses ตามภาพหน้าจอ Dashboard ของคุณ
         const mockExpenses = [
             { Category: "Internet wifi", StartDate: "2025-04-01", Amount: "6000", Frequency: "Yearly", DurationYears: "0", PaymentSource: "KBank" },
             { Category: "ประกัน axa โอซิส", StartDate: "2025-10-01", Amount: "18000", Frequency: "Yearly", DurationYears: "10", PaymentSource: "KBank" },
@@ -299,7 +326,6 @@
 
         document.getElementById('currentDateDisplay').textContent = moment().format('D MMMM YYYY');
         
-        // Show alert if mocking data
         if(useMockData) {
             document.getElementById('configAlert').classList.remove('hidden');
         }
@@ -308,7 +334,6 @@
         let globalCompletedExpenses = [];
         let globalCategoryStats = {}; 
         let currentChartInstance = null;
-        let currentFilter = 'all';
 
         async function initDashboard() {
             let incomes, expenses;
@@ -318,7 +343,6 @@
                 expenses = mockExpenses;
             } else {
                 try {
-                    // Check if URL is still placeholder
                     if (incomeSheetCSV.includes("YOUR_INCOME") || expenseSheetCSV.includes("YOUR_EXPENSE")) {
                         alert("กรุณาใส่ลิงก์ CSV ของ Google Sheet ในตัวแปร incomeSheetCSV และ expenseSheetCSV ในโค้ดก่อนครับ");
                         return;
@@ -345,7 +369,7 @@
         }
 
         // ==========================================
-        // 🧠 SMART LOGIC & PROCESSING
+        // 🧠 SMART LOGIC
         // ==========================================
 
         function getSmartCategoryGroup(name) {
@@ -355,11 +379,10 @@
             if (n.includes('คอนโด') || n.includes('บ้าน') || n.includes('ไฟฟ้า') || n.includes('น้ำ')) return 'ที่อยู่อาศัย';
             if (n.includes('net') || n.includes('เน็ต') || n.includes('spotify') || n.includes('youtube') || n.includes('wifi') || n.includes('iquiy')) return 'บันเทิง/เน็ต';
             if (n.includes('รถ') || n.includes('น้ำมัน') || n.includes('เดินทาง')) return 'เดินทาง/รถ';
-            return name;
+            return name; // Fallback to raw name if no group match
         }
 
         function processData(incomeData, expenseData) {
-            // --- Income Logic ---
             const sortedIncome = incomeData
                 .filter(i => i.Date && i.Amount)
                 .sort((a, b) => new Date(b.Date) - new Date(a.Date));
@@ -369,12 +392,11 @@
             document.getElementById('latestSalary').textContent = formatCurrency(currentSalary);
             document.getElementById('salaryDate').textContent = "อัปเดต: " + moment(salaryDate).format('DD MMM YYYY');
 
-            // --- Expense Logic ---
             let totalMonthlyBurden = 0;
             let activeExpenses = [];
             let completedExpenses = [];
-            let upcomingCount90Days = 0; // For Card Count
-            let allYearlyItems = []; // For Side List
+            let upcomingCount90Days = 0; 
+            let allYearlyItems = []; 
             let categoryAggregation = {};
 
             const today = moment();
@@ -438,16 +460,11 @@
                      categoryAggregation[groupName].yearly += yearlyCost;
                 }
 
-                // Check for Upcoming
                 if (nextDueDate) {
                     const daysDiff = nextDueDate.diff(today, 'days');
-                    
-                    // Logic 1: Card Alert - Count Yearly items within 90 days
                     if (daysDiff >= 0 && daysDiff <= 90 && item.Frequency === 'Yearly') {
                         upcomingCount90Days++;
                     }
-
-                    // Logic 2: List - Collect ALL active Yearly items
                     if (item.Frequency === 'Yearly') {
                         allYearlyItems.push({
                             name: item.Category,
@@ -463,62 +480,57 @@
             globalCompletedExpenses = completedExpenses;
             globalCategoryStats = categoryAggregation;
 
-            // Global Summary
             document.getElementById('monthlyBurden').textContent = formatCurrency(totalMonthlyBurden);
             document.getElementById('estimatedBalance').textContent = formatCurrency(currentSalary - totalMonthlyBurden);
-            
-            // Update Card Count (90 Days)
             document.getElementById('upcomingCount').textContent = `${upcomingCount90Days} รายการ`;
 
-            // UI Init
-            renderFilterDropdown(expenseData);
-            renderUpcomingList(allYearlyItems); // Send all yearly items
+            renderFilterOptions(expenseData); 
+            renderUpcomingList(allYearlyItems);
             switchChartMode('monthly');
-            
-            // Initial Table Render (All)
-            filterAndRenderTables('all');
+            filterAndRenderTables();
         }
 
         // ==========================================
-        // 🎨 UI: FILTERS (DROPDOWN MODIFIED)
+        // 🎨 UI: FILTERS (UPDATED)
         // ==========================================
 
-        function renderFilterDropdown(allData) {
-            const dropdown = document.getElementById('filterDropdown');
-            const uniqueCategories = [...new Set(allData.map(item => item.Category).filter(Boolean))].sort();
+        function renderFilterOptions(allData) {
+            const groupSelect = document.getElementById('groupFilter');
+            const freqSelect = document.getElementById('frequencyFilter');
 
-            dropdown.innerHTML = '';
+            // 1. Populate Groups from Smart Logic
+            const groups = new Set();
+            allData.forEach(item => {
+                if(item.Category) groups.add(getSmartCategoryGroup(item.Category));
+            });
+            const sortedGroups = [...groups].sort();
 
-            // 'All' Option
-            const allOption = document.createElement('option');
-            allOption.value = 'all';
-            allOption.textContent = 'ทั้งหมด (All)';
-            dropdown.appendChild(allOption);
-
-            uniqueCategories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                dropdown.appendChild(option);
+            groupSelect.innerHTML = '<option value="all">ทุกหมวดหมู่ (All Groups)</option>';
+            sortedGroups.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                groupSelect.appendChild(opt);
             });
 
-            // Add Event Listener
-            dropdown.addEventListener('change', (e) => {
-                filterAndRenderTables(e.target.value);
-            });
+            // Add Event Listeners
+            groupSelect.addEventListener('change', filterAndRenderTables);
+            freqSelect.addEventListener('change', filterAndRenderTables);
         }
 
-        function filterAndRenderTables(filterValue) {
-            currentFilter = filterValue;
-            let filteredActive, filteredCompleted;
+        function filterAndRenderTables() {
+            const selectedGroup = document.getElementById('groupFilter').value;
+            const selectedFreq = document.getElementById('frequencyFilter').value;
 
-            if (filterValue === 'all') {
-                filteredActive = globalActiveExpenses;
-                filteredCompleted = globalCompletedExpenses;
-            } else {
-                filteredActive = globalActiveExpenses.filter(item => item.Category === filterValue);
-                filteredCompleted = globalCompletedExpenses.filter(item => item.Category === filterValue);
-            }
+            // Filter Function
+            const filterFn = (item) => {
+                const groupMatch = (selectedGroup === 'all') || (getSmartCategoryGroup(item.Category) === selectedGroup);
+                const freqMatch = (selectedFreq === 'all') || (item.Frequency === selectedFreq);
+                return groupMatch && freqMatch;
+            };
+
+            const filteredActive = globalActiveExpenses.filter(filterFn);
+            const filteredCompleted = globalCompletedExpenses.filter(filterFn);
 
             renderActiveTable(filteredActive);
             renderCompletedTable(filteredCompleted);
@@ -526,7 +538,6 @@
         }
 
         function updateTableSummary(items) {
-            // Calculate stats for the filtered items
             const count = items.length;
             const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
             const totalMonthly = items.reduce((sum, item) => sum + item.monthlyCost, 0);
@@ -586,7 +597,7 @@
 
 
         // ==========================================
-        // 🎨 UI RENDERING
+        // 🎨 UI RENDERING TABLES
         // ==========================================
 
         function renderActiveTable(items) {
@@ -661,10 +672,7 @@
                 container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm">ไม่มีรายจ่ายรายปีที่ Active <br>สบายใจได้! 🎉</div>`;
                 return;
             }
-            
-            // Sort by nearest date (already sorted usually but ensures correctness)
             items.sort((a, b) => a.daysLeft - b.daysLeft);
-
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = "px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition group border-l-4 border-transparent hover:border-indigo-500";
@@ -672,13 +680,9 @@
                 let dayText = item.daysLeft === 0 ? "วันนี้!" : `อีก ${item.daysLeft} วัน`;
                 let dayColor = "text-gray-600 bg-gray-100";
                 
-                if (item.daysLeft <= 30) {
-                    dayColor = "text-red-600 bg-red-100";
-                } else if (item.daysLeft <= 90) {
-                    dayColor = "text-orange-600 bg-orange-100";
-                } else {
-                    dayColor = "text-emerald-600 bg-emerald-100";
-                }
+                if (item.daysLeft <= 30) { dayColor = "text-red-600 bg-red-100"; } 
+                else if (item.daysLeft <= 90) { dayColor = "text-orange-600 bg-orange-100"; } 
+                else { dayColor = "text-emerald-600 bg-emerald-100"; }
 
                 div.innerHTML = `
                     <div class="flex items-center">
@@ -692,9 +696,7 @@
                     </div>
                     <div class="text-right">
                         <p class="text-sm font-bold text-gray-900">${formatCurrency(item.amount)}</p>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${dayColor} mt-1">
-                            ${dayText}
-                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${dayColor} mt-1">${dayText}</span>
                     </div>
                 `;
                 container.appendChild(div);
@@ -715,8 +717,6 @@
         }
 
         initDashboard();
-
     </script>
 </body>
 </html>
-
