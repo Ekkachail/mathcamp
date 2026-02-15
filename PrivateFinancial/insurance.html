@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Portfolio Analysis</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; }
+        .card { @apply bg-white rounded-xl shadow-sm border border-gray-200; }
+        .table-header { @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50; }
+        .table-cell { @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-100; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="mr-4 text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <i class="fa-solid fa-shield-heart text-pink-500 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-gray-900">วิเคราะห์กรมธรรม์ประกันภัย</h1>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Controls Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Policy Selector & Info -->
+            <div class="lg:col-span-2 card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold flex items-center">
+                        <i class="fa-solid fa-file-contract text-indigo-500 mr-2"></i> เลือกกรมธรรม์
+                    </h2>
+                    <select id="policySelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-64 p-2.5">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">เบี้ยประกัน/ปี</p>
+                        <p class="text-xl font-bold text-gray-900" id="infoPremium">-</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">ระยะเวลาส่งเบี้ย</p>
+                        <p class="text-xl font-bold text-gray-900" id="infoDuration">-</p>
+                    </div>
+                    <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <p class="text-xs text-indigo-600">ต้นทุนทั้งหมด (เมื่อครบสัญญา)</p>
+                        <p class="text-xl font-bold text-indigo-700" id="infoTotalCost">-</p>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                        <p class="text-xs text-green-600">สถานะปัจจุบัน</p>
+                        <p class="text-xl font-bold text-green-700" id="infoStatus">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goal Calculator -->
+            <div class="card p-6 bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+                <h2 class="text-lg font-semibold mb-4 text-white flex items-center">
+                    <i class="fa-solid fa-crosshairs text-green-400 mr-2"></i> เป้าหมายกำไร
+                </h2>
+                <p class="text-sm text-gray-400 mb-4">ระบุ % กำไรที่ต้องการ เพื่อหาปีที่ควรเวนคืน</p>
+                
+                <div class="flex gap-2 mb-4">
+                    <input type="number" id="targetProfitInput" placeholder="เช่น 5, 10, 20" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                    <button onclick="calculateTargetYear()" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
+                        คำนวณ
+                    </button>
+                </div>
+
+                <div id="targetResult" class="hidden p-4 bg-white/10 rounded-lg border border-white/20 text-center animate-pulse">
+                    <p class="text-gray-300 text-xs">เพื่อให้ได้กำไร <span id="resTargetPct" class="text-green-300 font-bold"></span>%</p>
+                    <p class="mt-2 text-sm">ควรเวนคืนในปีที่ <span id="resYear" class="text-2xl font-bold text-white"></span></p>
+                    <p class="text-xs text-gray-400 mt-1">(ปี พ.ศ. <span id="resYearAD"></span>)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Table & Chart -->
+        <div class="card overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-gray-800">ตารางวิเคราะห์มูลค่าเวนคืนกรมธรรม์ (Surrender Value Analysis)</h3>
+                <span class="text-xs text-gray-500">*ข้อมูลมูลค่าเวนคืนเป็นการจำลองเพื่อการสาธิต</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="table-header">ปีที่ (Year)</th>
+                            <th class="table-header text-right">เบี้ยสะสมที่จ่าย (Paid)</th>
+                            <th class="table-header text-right text-indigo-600">มูลค่าเวนคืน (CV)</th>
+                            <th class="table-header text-right">กำไร/ขาดทุน (THB)</th>
+                            <th class="table-header text-right">กำไร/ขาดทุน (%)</th>
+                            <th class="table-header text-center">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysisTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- JS Generated Content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. MOCK DATA (จำลองข้อมูลกรมธรรม์)
+        // ==========================================
+        // ในการใช้งานจริง ควรดึงข้อมูลนี้มาจาก Database หรือ Google Sheet ที่มีตารางมูลค่าเวนคืน
+        const policies = [
+            {
+                id: 1,
+                name: "ประกัน axa โอซิส",
+                startDate: "2025-10-01",
+                premium: 18000,
+                duration: 10, // จ่าย 10 ปี
+                coverage: 20, // คุ้มครอง 20 ปี
+                // จำลองตารางมูลค่าเวนคืน (Surrender Value Table)
+                // logic: ช่วงแรกขาดทุน, ช่วงกลางเริ่มคุ้มทุน, ช่วงท้ายกำไร
+                cvRate: [0, 0, 0.1, 0.2, 0.35, 0.50, 0.65, 0.80, 0.90, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50, 1.60] 
+            },
+            {
+                id: 2,
+                name: "ประกัน axa บำนาญเธรด",
+                startDate: "2025-11-01",
+                premium: 36000,
+                duration: 15,
+                coverage: 60, // ถึงอายุ 60
+                cvRate: [0, 0.05, 0.15, 0.25, 0.40, 0.55, 0.70, 0.85, 0.95, 1.05, 1.15, 1.25, 1.35, 1.50, 1.65, 1.80, 2.0, 2.2, 2.4, 2.6]
+            },
+            {
+                id: 3,
+                name: "ประกัน fwd easy save 10/5",
+                startDate: "2026-02-01",
+                premium: 24000,
+                duration: 5,
+                coverage: 10,
+                cvRate: [0, 0.2, 0.5, 0.8, 1.0, 1.1, 1.15, 1.2, 1.25, 1.35] // คุ้มทุนเร็ว เพราะระยะสั้น
+            }
+        ];
+
+        let currentPolicy = null;
+
+        // ==========================================
+        // 2. INITIALIZATION
+        // ==========================================
+        function init() {
+            const select = document.getElementById('policySelect');
+            policies.forEach((p, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+            });
+
+            select.addEventListener('change', (e) => loadPolicy(e.target.value));
+            
+            // Load first policy by default
+            loadPolicy(0);
+        }
+
+        // ==========================================
+        // 3. LOGIC & CALCULATION
+        // ==========================================
+        function loadPolicy(index) {
+            currentPolicy = policies[index];
+            const p = currentPolicy;
+
+            // Update Info Cards
+            document.getElementById('infoPremium').textContent = formatMoney(p.premium);
+            document.getElementById('infoDuration').textContent = `${p.duration} ปี`;
+            
+            const totalCost = p.premium * p.duration;
+            document.getElementById('infoTotalCost').textContent = formatMoney(totalCost);
+
+            // Calculate Status (Simple check based on year)
+            const startYear = moment(p.startDate).year();
+            const currentYear = moment().year();
+            const policyYear = currentYear - startYear + 1;
+            
+            let statusText = "Active (ปีที่ " + policyYear + ")";
+            if(policyYear > p.coverage) statusText = "ครบสัญญา (Matured)";
+            document.getElementById('infoStatus').textContent = statusText;
+
+            // Generate Table
+            renderTable(p);
+            
+            // Reset Calculator
+            document.getElementById('targetResult').classList.add('hidden');
+            document.getElementById('targetProfitInput').value = '';
+        }
+
+        function renderTable(p) {
+            const tbody = document.getElementById('analysisTableBody');
+            tbody.innerHTML = '';
+
+            let cumulativePaid = 0;
+            const startYear = moment(p.startDate);
+
+            // Generate row for each year of coverage
+            // Note: Use p.cvRate.length as max rows for simulation
+            for (let i = 0; i < p.cvRate.length; i++) {
+                const yearNum = i + 1;
+                const calendarYear = startYear.clone().add(i, 'years').format('YYYY');
+                
+                // Calculate Paid
+                if (yearNum <= p.duration) {
+                    cumulativePaid += p.premium;
+                }
+                // (After duration ends, cumulativePaid stops increasing)
+
+                // Calculate CV (Simulated)
+                // Real logic: Look up CV table per 1,000 sum assured.
+                // Mock logic: Use rate * cumulativePaid (just for demo shape)
+                // NOTE: Usually CV is based on Sum Assured, but here we simulate a curve relative to paid for visualization.
+                let cvValue = 0;
+                
+                // Simulate curve: CV usually starts 0, then grows.
+                // We use the predefined mock rate * cumulativePaid (simplified model)
+                // Or let's just assume the rate is multiplier of Total Paid *at that time*
+                
+                // Let's make the mock logic slightly more realistic for "Profit" simulation:
+                // If rate < 1, it's a loss. If rate > 1, it's a gain.
+                const rate = p.cvRate[i];
+                cvValue = cumulativePaid * rate;
+
+                const profit = cvValue - cumulativePaid;
+                const profitPct = (cumulativePaid > 0) ? (profit / cumulativePaid) * 100 : -100;
+
+                // Styling
+                const isBreakeven = profit >= 0;
+                const profitColor = isBreakeven ? 'text-green-600' : 'text-red-500';
+                const rowClass = isBreakeven ? 'bg-green-50/30' : '';
+                const icon = isBreakeven ? '<i class="fa-solid fa-check-circle text-green-500"></i>' : '<i class="fa-solid fa-circle-xmark text-gray-300"></i>';
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-gray-50 transition ${rowClass}`;
+                tr.innerHTML = `
+                    <td class="table-cell font-medium">
+                        <span class="bg-gray-100 text-gray-600 py-1 px-2 rounded text-xs mr-2">${yearNum}</span>
+                        ${calendarYear}
+                    </td>
+                    <td class="table-cell text-right text-gray-600">${formatMoney(cumulativePaid)}</td>
+                    <td class="table-cell text-right font-bold text-indigo-600">${formatMoney(cvValue)}</td>
+                    <td class="table-cell text-right ${profitColor}">${formatMoney(profit)}</td>
+                    <td class="table-cell text-right font-bold ${profitColor}">${profitPct.toFixed(2)}%</td>
+                    <td class="table-cell text-center">${icon}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // ==========================================
+        // 4. GOAL SEEK CALCULATOR
+        // ==========================================
+        function calculateTargetYear() {
+            const target = parseFloat(document.getElementById('targetProfitInput').value);
+            const resultDiv = document.getElementById('targetResult');
+            const p = currentPolicy;
+
+            if (isNaN(target)) {
+                alert("กรุณาระบุ % กำไรที่ต้องการ");
+                return;
+            }
+
+            let foundYear = -1;
+            let cumulativePaid = 0;
+
+            for (let i = 0; i < p.cvRate.length; i++) {
+                if (i + 1 <= p.duration) cumulativePaid += p.premium;
+                
+                const cvValue = cumulativePaid * p.cvRate[i];
+                const profit = cvValue - cumulativePaid;
+                const profitPct = (profit / cumulativePaid) * 100;
+
+                if (profitPct >= target) {
+                    foundYear = i + 1;
+                    break;
+                }
+            }
+
+            if (foundYear !== -1) {
+                const startYear = moment(p.startDate);
+                const targetDate = startYear.clone().add(foundYear - 1, 'years').format('YYYY');
+                
+                document.getElementById('resTargetPct').textContent = target;
+                document.getElementById('resYear').textContent = foundYear;
+                document.getElementById('resYearAD').textContent = targetDate;
+                
+                resultDiv.classList.remove('hidden');
+                resultDiv.classList.remove('bg-red-900/50', 'border-red-500');
+                resultDiv.classList.add('bg-white/10', 'border-white/20');
+            } else {
+                // Not found within table range
+                resultDiv.classList.remove('hidden');
+                resultDiv.innerHTML = `<p class="text-red-300 text-sm">ไม่พบปีที่ได้กำไร ${target}% ภายในระยะเวลาของข้อมูลจำลองนี้</p>`;
+            }
+        }
+
+        function formatMoney(num) {
+            return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(num);
+        }
+
+        // Run
+        init();
+
+    </script>
+</body>
+</html>
