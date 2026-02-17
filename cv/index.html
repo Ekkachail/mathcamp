@@ -15,6 +15,16 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- MathJax for LaTeX support -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -58,7 +68,7 @@
     <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 py-5 bg-transparent">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <div class="text-xl font-bold text-blue-900 tracking-tight cursor-pointer" onclick="scrollToId('home')">
-                Dr. Ekkachai<span class="text-blue-600">.L</span>
+                Ekkachai<span class="text-blue-600">Laysirikul</span>
             </div>
             
             <!-- Desktop Menu -->
@@ -332,7 +342,7 @@
                                 <!-- Pub Item -->
                                 <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
                                     <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Regularity and Green's relations on GFin(Γ) × G</p>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Regularity and Green's relations on $GFin(\Gamma) \times G$</p>
                                     <p class="text-sm text-slate-600 mb-2 italic">Laysirikul, E. & Sripon, K.</p>
                                     <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Discussiones Mathematicae - General Algebra and Applications, 45(2), 355-366</div>
                                 </div>
@@ -354,7 +364,7 @@
                             <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
                                 <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
                                     <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Maximal and Minimal Congruences on the Semigroup TE(X)</p>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Maximal and Minimal Congruences on the Semigroup $T_{E}(X)$</p>
                                     <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Chinram, R.</p>
                                     <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science & Technology Asia, 29(4), 32-38</div>
                                 </div>
@@ -369,21 +379,7 @@
                             <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
                                 <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
                                     <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Left (Right) regular elements of some transformation semigroups</p>
-                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Sommanee, W.</p>
-                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Mathematics, 11(10), 2230</div>
-                                </div>
-
-                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">A Note on Regularity of Certain Semigroups of Transformations Preserving a Reflexive and Transitive Relation</p>
-                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Chaiya, Y.</p>
-                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science & Technology Asia, 28(3), 37-43</div>
-                                </div>
-                                
-                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Enumeration of Numerical Semigroups {0}∪[a,b]∪[c,∞) with Same Embedding Dimension</p>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Enumeration of Numerical Semigroups $\{0\}\cup[a,b]\cup[c,\infty)$ with Same Embedding Dimension</p>
                                     <p class="text-sm text-slate-600 mb-2 italic">Namnak, C., Phanmun, C., & Laysirikul, E.</p>
                                     <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science and Technology Nakhon Sawan Rajabhat University Journal, 15(22), 123-130</div>
                                 </div>
@@ -412,7 +408,7 @@
                             <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
                                 <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
                                     <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
-                                    <p class="text-slate-800 font-medium mb-1 leading-snug">The number of k symmetric numerical semigroup {0} U [a, b] U [c, ∞)</p>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">The number of $k$ symmetric numerical semigroup $\{0\} \cup [a, b] \cup [c, \infty)$</p>
                                     <p class="text-sm text-slate-600 mb-2 italic">Kosasirisin, P., & Laysirikul, E.</p>
                                     <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">12th National Science Research Conference, Naresuan University, 394-402</div>
                                 </div>
