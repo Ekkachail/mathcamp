@@ -1,433 +1,569 @@
-import React, { useState, useEffect } from 'react';
-import { Mail, MapPin, BookOpen, GraduationCap, Award, Briefcase, ChevronUp, User, Download, ExternalLink } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asst. Prof. Dr. Ekkachai Laysirikul - Academic CV</title>
+    <meta name="description" content="Academic Portfolio of Asst. Prof. Dr. Ekkachai Laysirikul, Department of Mathematics, Naresuan University">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Sarabun for professional Thai/English look -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-const App = () => {
-  const [activeSection, setActiveSection] = useState('home');
-  const [scrolled, setScrolled] = useState(false);
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151f32', // Darker slate for contrast
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar for nicer look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .section-nav-active {
+            color: #2563eb; /* blue-600 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 selection:bg-blue-100 selection:text-blue-900 font-sans antialiased relative">
 
-  // Handle scroll for navbar styling
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setActiveSection(id);
-    }
-  };
-
-  const navItems = [
-    { id: 'about', label: 'About' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'research', label: 'Research' },
-    { id: 'publications', label: 'Publications' },
-    { id: 'services', label: 'Services' },
-  ];
-
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-blue-100 selection:text-blue-900">
-      
-      {/* Navigation Bar */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <div className="text-xl font-bold text-blue-900 tracking-tight cursor-pointer" onClick={() => scrollToSection('home')}>
-            Dr. Ekkachai<span className="text-blue-600">.L</span>
-          </div>
-          
-          <div className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`text-sm font-medium transition-colors hover:text-blue-600 ${activeSection === item.id ? 'text-blue-600' : 'text-slate-600'}`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          <button className="md:hidden text-slate-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section id="home" className="pt-32 pb-20 md:pt-40 md:pb-28 px-6 bg-gradient-to-br from-slate-50 to-blue-50/50">
-        <div className="container mx-auto max-w-5xl flex flex-col md:flex-row items-center gap-12">
-          <div className="md:w-1/3 flex justify-center">
-            <div className="relative">
-              <div className="w-64 h-64 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center">
-                {/* Placeholder for Profile Image */}
-                <User size={120} className="text-slate-400" />
-              </div>
-              <div className="absolute bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg">
-                <Award size={24} />
-              </div>
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 py-5 bg-transparent">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="text-xl font-bold text-blue-900 tracking-tight cursor-pointer" onclick="scrollToId('home')">
+                Dr. Ekkachai<span class="text-blue-600">.L</span>
             </div>
-          </div>
-          
-          <div className="md:w-2/3 text-center md:text-left space-y-6">
-            <div>
-              <h2 className="text-blue-600 font-semibold tracking-wide uppercase text-sm mb-2">Academic Portfolio</h2>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-                Asst. Prof. Dr. Ekkachai Laysirikul
-              </h1>
-              <p className="text-xl text-slate-600 mt-2 font-light">
-                Department of Mathematics, Faculty of Science
-              </p>
-              <p className="text-lg text-blue-800 font-medium">
-                Naresuan University
-              </p>
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-start text-slate-600">
-              <div className="flex items-center gap-2">
-                <Mail size={18} className="text-blue-500" />
-                <span>ekkachail@nu.ac.th</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin size={18} className="text-blue-500" />
-                <span>Phitsanulok, Thailand</span>
-              </div>
-            </div>
-
-            <div className="pt-4 flex gap-4 justify-center md:justify-start">
-              <button onClick={() => scrollToSection('publications')} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-200 font-medium flex items-center gap-2">
-                <BookOpen size={18} />
-                View Publications
-              </button>
-              <button className="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:border-blue-300 hover:text-blue-600 transition font-medium flex items-center gap-2">
-                <Download size={18} />
-                Download CV
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content Grid */}
-      <div className="container mx-auto max-w-6xl px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          
-          {/* Left Sidebar (Education & Research) */}
-          <div className="lg:col-span-1 space-y-12">
             
-            {/* Education */}
-            <section id="about" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                  <GraduationCap size={24} />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800">Education</h3>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="relative pl-6 border-l-2 border-blue-100">
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></div>
-                  <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">2013</span>
-                  <h4 className="font-semibold text-slate-800">Doctor of Philosophy</h4>
-                  <p className="text-sm text-slate-600">Mathematics</p>
-                  <p className="text-xs text-slate-500 mt-1">Naresuan University</p>
-                </div>
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-8" id="desktop-menu">
+                <button onclick="scrollToId('about')" class="nav-link text-sm font-bold transition-colors hover:text-blue-600 text-slate-600">About</button>
+                <button onclick="scrollToId('experience')" class="nav-link text-sm font-bold transition-colors hover:text-blue-600 text-slate-600">Experience</button>
+                <button onclick="scrollToId('research')" class="nav-link text-sm font-bold transition-colors hover:text-blue-600 text-slate-600">Research</button>
+                <button onclick="scrollToId('publications')" class="nav-link text-sm font-bold transition-colors hover:text-blue-600 text-slate-600">Publications</button>
+                <button onclick="scrollToId('services')" class="nav-link text-sm font-bold transition-colors hover:text-blue-600 text-slate-600">Services</button>
+            </div>
 
-                <div className="relative pl-6 border-l-2 border-blue-100">
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">2009</span>
-                  <h4 className="font-semibold text-slate-800">Bachelor of Science</h4>
-                  <p className="text-sm text-slate-600">Mathematics</p>
-                  <p className="text-xs text-slate-500 mt-1">Naresuan University</p>
-                </div>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-slate-600 hover:text-blue-600 transition" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-slate-100 py-4 px-6 flex flex-col space-y-4">
+            <button onclick="scrollToId('about'); toggleMobileMenu()" class="text-left text-sm font-medium text-slate-600 hover:text-blue-600">About</button>
+            <button onclick="scrollToId('experience'); toggleMobileMenu()" class="text-left text-sm font-medium text-slate-600 hover:text-blue-600">Experience</button>
+            <button onclick="scrollToId('research'); toggleMobileMenu()" class="text-left text-sm font-medium text-slate-600 hover:text-blue-600">Research</button>
+            <button onclick="scrollToId('publications'); toggleMobileMenu()" class="text-left text-sm font-medium text-slate-600 hover:text-blue-600">Publications</button>
+            <button onclick="scrollToId('services'); toggleMobileMenu()" class="text-left text-sm font-medium text-slate-600 hover:text-blue-600">Services</button>
+        </div>
+    </nav>
 
-                <div className="relative pl-6 border-l-2 border-blue-100">
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">2005</span>
-                  <h4 className="font-semibold text-slate-800">High School</h4>
-                  <p className="text-sm text-slate-600">Science-Mathematics</p>
-                  <p className="text-xs text-slate-500 mt-1">Sawanananwittaya School</p>
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 md:pt-40 md:pb-28 px-6 bg-gradient-to-br from-slate-50 to-blue-50/50 min-h-screen flex items-center">
+        <div class="container mx-auto max-w-5xl flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/3 flex justify-center fade-in-element opacity-0 translate-y-4 transition-all duration-700">
+                <div class="relative">
+                    <div class="w-64 h-64 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center">
+                        <!-- Placeholder for Profile Image -->
+                        <i data-lucide="user" class="w-32 h-32 text-slate-400"></i>
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg">
+                        <i data-lucide="award" class="w-6 h-6"></i>
+                    </div>
                 </div>
-              </div>
-            </section>
-
-            {/* Research Fields */}
-            <section id="research" className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                  <ExternalLink size={24} />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800">Research Fields</h3>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {['Semigroup Theory', 'Transformation Semigroup', 'Graph Theory'].map((field, idx) => (
-                  <span key={idx} className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200">
-                    {field}
-                  </span>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {/* Right Content (Experience, Services, Publications) */}
-          <div className="lg:col-span-2 space-y-12">
+            </div>
             
-            {/* Academic Positions */}
-            <section id="experience">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                  <Briefcase size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-800">Academic Positions</h3>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="divide-y divide-slate-100">
-                  <PositionItem 
-                    year="2025 - Present" 
-                    title="Assistant Head of the Department of Mathematics" 
-                    org="Faculty of Science, Naresuan University"
-                    current={true}
-                  />
-                  <PositionItem 
-                    year="2021 - Present" 
-                    title="Program Coordinator, M.Sc. (Mathematics)" 
-                    org="Faculty of Science, Naresuan University"
-                    current={true}
-                  />
-                  <PositionItem 
-                    year="2021 - 2025" 
-                    title="Deputy Head of the Department of Mathematics" 
-                    org="Faculty of Science, Naresuan University"
-                  />
-                  <PositionItem 
-                    year="2014 - Present" 
-                    title="Lecturer" 
-                    org="Department of Mathematics, Naresuan University"
-                    current={true}
-                  />
-                </div>
-              </div>
-            </section>
-
-             {/* Academic Services */}
-             <section id="services">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-orange-50 rounded-lg text-orange-600">
-                  <Award size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-800">Academic Services & Experience</h3>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Committee Duties */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h4 className="font-bold text-slate-800 mb-4 border-b pb-2">Committee & Judge Duties</h4>
-                  <ul className="space-y-4 text-sm text-slate-600 list-disc pl-4">
-                    <li>
-                      <span className="font-semibold text-slate-800">คณะกรรมการตัดสินโครงงานคณิตศาสตร์</span> (ประเภททฤษฎีระดับชั้นมัธยมศึกษาตอนปลาย) ชิงถ้วยพระราชทานฯ ณ มหาวิทยาลัยราชภัฏนครสวรรค์ (2558-Present)
-                    </li>
-                    <li>
-                      <span className="font-semibold text-slate-800">คณะกรรมการตัดสินโครงงานคณิตศาสตร์</span> ในงานศิลปหัตถกรรมนักเรียนฯ ระดับภาค และระดับเขตพื้นที่การศึกษา (สพม. เขต 39)
-                    </li>
-                  </ul>
+            <div class="md:w-2/3 text-center md:text-left space-y-6 fade-in-element opacity-0 translate-y-4 transition-all duration-700 delay-200">
+                <div>
+                    <h2 class="text-blue-600 font-semibold tracking-wide uppercase text-sm mb-2">Academic Portfolio</h2>
+                    <h1 class="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
+                        Asst. Prof. Dr. Ekkachai Laysirikul
+                    </h1>
+                    <p class="text-xl text-slate-600 mt-2 font-light">
+                        Department of Mathematics, Faculty of Science
+                    </p>
+                    <p class="text-lg text-blue-800 font-medium">
+                        Naresuan University
+                    </p>
                 </div>
 
-                {/* Guest Speaker */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h4 className="font-bold text-slate-800 mb-4 border-b pb-2">Guest Speaker (วิทยากร)</h4>
-                  <ul className="space-y-4 text-sm text-slate-600 list-disc pl-4">
-                    <li>
-                      <span className="font-semibold text-slate-800">วิทยากรหลัก</span> โครงการค่ายคณิตศาสตร์ และค่ายโครงงานคณิตศาสตร์ (รร.พิษณุโลกพิทยาคม, รร.สวรรค์อนันต์วิทยา, รร.จุฬาภรณราชวิทยาลัย พิษณุโลก ฯลฯ)
-                    </li>
-                    <li>
-                      <span className="font-semibold text-slate-800">วิทยากร</span> โครงการอบรมครู "การออกแบบกิจกรรมการจัดการเรียนรู้เพื่อพัฒนาทักษะกระบวนการ และโครงงานคณิตศาสตร์" คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร
-                    </li>
-                    <li>
-                      <span className="font-semibold text-slate-800">วิทยากร</span> โครงการ "Coding for Better Life" โดย DEPA ภาคเหนือตอนล่าง
-                    </li>
-                  </ul>
+                <div class="flex flex-col md:flex-row gap-4 justify-center md:justify-start text-slate-600">
+                    <div class="flex items-center gap-2 hover:text-blue-600 transition-colors">
+                        <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i>
+                        <span>ekkachail@nu.ac.th</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-blue-500"></i>
+                        <span>Phitsanulok, Thailand</span>
+                    </div>
                 </div>
-              </div>
-            </section>
 
-            {/* Publications */}
-            <section id="publications">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                  <BookOpen size={24} />
+                <div class="pt-4 flex gap-4 justify-center md:justify-start">
+                    <button onclick="scrollToId('publications')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-200 font-medium flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        View Publications
+                    </button>
+                    <!-- Link to download PDF if you have it hosted -->
+                    <a href="#" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:border-blue-300 hover:text-blue-600 transition font-medium flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Download CV
+                    </a>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800">Publications</h3>
-              </div>
+            </div>
+        </div>
+    </section>
 
-              <div className="space-y-8">
+    <!-- Main Content Grid -->
+    <div class="container mx-auto max-w-6xl px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            <!-- Left Sidebar -->
+            <div class="lg:col-span-1 space-y-12">
                 
-                <PublicationYear year="2025">
-                   <PublicationItem 
-                    authors="Laysirikul, E. & Sripon, K."
-                    title="Regularity and Green's relations on GFin(Γ) × G"
-                    journal="Discussiones Mathematicae - General Algebra and Applications, 45(2), 355-366"
-                   />
-                   <PublicationItem 
-                    authors="Laysirikul, E., Sripon, K., & Chaiya, Y."
-                    title="Naturally ordered transformation semigroups preserving an equivalence relation on an invariant set"
-                    journal="Carpathian Journal of Mathematics, 41(3), 673-685"
-                   />
-                </PublicationYear>
+                <!-- Education -->
+                <section id="about" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 scroll-mt-24">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Education</h3>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- PhD -->
+                        <div class="relative pl-6 border-l-2 border-blue-100">
+                            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-2 border-white"></div>
+                            <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">2013</span>
+                            <h4 class="font-semibold text-slate-800 mt-1">Doctor of Philosophy</h4>
+                            <p class="text-sm text-slate-600">Mathematics</p>
+                            <p class="text-xs text-slate-500 mt-1">Naresuan University</p>
+                        </div>
 
-                <PublicationYear year="2024">
-                   <PublicationItem 
-                    authors="Sripon, K., Laysirikul, E., & Chinram, R."
-                    title="Maximal and Minimal Congruences on the Semigroup TE(X)"
-                    journal="Science & Technology Asia, 29(4), 32-38"
-                   />
-                </PublicationYear>
+                        <!-- BSc -->
+                        <div class="relative pl-6 border-l-2 border-blue-100">
+                            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">2009</span>
+                            <h4 class="font-semibold text-slate-800 mt-1">Bachelor of Science</h4>
+                            <p class="text-sm text-slate-600">Mathematics</p>
+                            <p class="text-xs text-slate-500 mt-1">Naresuan University</p>
+                        </div>
 
-                <PublicationYear year="2023">
-                   <PublicationItem 
-                    authors="Sripon, K., Laysirikul, E., & Sommanee, W."
-                    title="Left (Right) regular elements of some transformation semigroups"
-                    journal="Mathematics, 11(10), 2230"
-                   />
-                   <PublicationItem 
-                    authors="Sripon, K., Laysirikul, E., & Chaiya, Y."
-                    title="A Note on Regularity of Certain Semigroups of Transformations Preserving a Reflexive and Transitive Relation"
-                    journal="Science & Technology Asia, 28(3), 37-43"
-                   />
-                   <PublicationItem 
-                    authors="Namnak, C., Phanmun, C., & Laysirikul, E."
-                    title="Enumeration of Numerical Semigroups {0}∪[a,b]∪[c,∞) with Same Embedding Dimension"
-                    journal="Science and Technology Nakhon Sawan Rajabhat University Journal, 15(22), 123-130"
-                   />
-                   <PublicationItem 
-                    authors="Sripon, K., Laysirikul, E., & Chaiya, Y."
-                    title="Regularity and abundance on semigroups of transformations preserving an equivalence relation on an invariant set"
-                    journal="AIMS Mathematics, 8(8), 18223-18233"
-                   />
-                   <PublicationItem 
-                    authors="Lueangwitchajaroen, P., & Laysirikul, E."
-                    title="The Formula of the Frobenius Number for a Numerical Semigroup with Embedding Dimension Three with respect to a Partial Order Relation"
-                    journal="Naresuan University Journal: Science and Technology, 31(2), 33-41"
-                   />
-                </PublicationYear>
+                        <!-- High School -->
+                        <div class="relative pl-6 border-l-2 border-blue-100">
+                            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">2005</span>
+                            <h4 class="font-semibold text-slate-800 mt-1">High School</h4>
+                            <p class="text-sm text-slate-600">Science-Mathematics</p>
+                            <p class="text-xs text-slate-500 mt-1">Sawanananwittaya School</p>
+                        </div>
+                    </div>
+                </section>
 
-                <PublicationYear year="2020">
-                   <PublicationItem 
-                    authors="Kosasirisin, P., & Laysirikul, E."
-                    title="The number of k symmetric numerical semigroup {0} U [a, b] U [c, ∞)"
-                    journal="12th National Science Research Conference, Naresuan University, 394-402"
-                   />
-                </PublicationYear>
+                <!-- Research Fields -->
+                <section id="research" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 scroll-mt-24">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                            <i data-lucide="microscope" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Research Fields</h3>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition cursor-default">Semigroup Theory</span>
+                        <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition cursor-default">Transformation Semigroup</span>
+                        <span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition cursor-default">Graph Theory</span>
+                    </div>
+                </section>
+            </div>
 
-                <PublicationYear year="2019">
-                   <PublicationItem 
-                    authors="Laysirikul, E."
-                    title="Isomorphism Theorem for Cayley Graphs of Semigroup of Integer Modulo Prime Power Relative to an Invertible Element"
-                    journal="Naresuan University Journal: Science and Technology, 27(3), 95-100"
-                   />
-                </PublicationYear>
+            <!-- Right Content -->
+            <div class="lg:col-span-2 space-y-12">
+                
+                <!-- Academic Positions -->
+                <section id="experience" class="scroll-mt-24">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                            <i data-lucide="briefcase" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800">Academic Positions</h3>
+                    </div>
 
-                <PublicationYear year="2018">
-                   <PublicationItem 
-                    authors="Billhardt, B., Chaiya, Y., Laysirikul, E., Nupo, N., & Sanwong, J."
-                    title="A unifying approach to the Margolis-Meakin and Birget-Rhodes group expansion"
-                    journal="Semigroup Forum, 96(3), 565-580"
-                   />
-                   <PublicationItem 
-                    authors="Namnak, C., Laysirikul, E., & Sawatraksa, N."
-                    title="Natural partial order on the semigroups of partial isometries of a finite chain"
-                    journal="Thai Journal of Mathematics, 97-108"
-                   />
-                   <PublicationItem 
-                    authors="Namnak, C., Laysirikul, E., & Tantong, P."
-                    title="On R-left cancellative semigroups"
-                    journal="Songklanakarin J. Sci. Technol., 40(1), 93-95"
-                   />
-                   <PublicationItem 
-                    authors="Sawatraksa, N., Namnak, C., & Laysirikul, E."
-                    title="Left regular and right regular elements of the semigroups of transformations restricted by an equivalence"
-                    journal="Naresuan University Journal: Science and Technology, 26(4), 89-93"
-                   />
-                </PublicationYear>
-              </div>
-            </section>
-          </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="divide-y divide-slate-100">
+                            <!-- Item 1 -->
+                            <div class="p-5 hover:bg-slate-50 transition-colors flex flex-col md:flex-row gap-2 md:gap-6 items-start">
+                                <div class="md:w-32 shrink-0">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700">2025 - Present</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Assistant Head of the Department of Mathematics</h4>
+                                    <p class="text-sm text-slate-600 mt-1">Faculty of Science, Naresuan University</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Item 2 -->
+                            <div class="p-5 hover:bg-slate-50 transition-colors flex flex-col md:flex-row gap-2 md:gap-6 items-start">
+                                <div class="md:w-32 shrink-0">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700">2021 - Present</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Program Coordinator, M.Sc. (Mathematics)</h4>
+                                    <p class="text-sm text-slate-600 mt-1">Faculty of Science, Naresuan University</p>
+                                </div>
+                            </div>
+
+                            <!-- Item 3 -->
+                            <div class="p-5 hover:bg-slate-50 transition-colors flex flex-col md:flex-row gap-2 md:gap-6 items-start">
+                                <div class="md:w-32 shrink-0">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded bg-slate-100 text-slate-600">2021 - 2025</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Deputy Head of the Department of Mathematics</h4>
+                                    <p class="text-sm text-slate-600 mt-1">Faculty of Science, Naresuan University</p>
+                                </div>
+                            </div>
+
+                            <!-- Item 4 -->
+                            <div class="p-5 hover:bg-slate-50 transition-colors flex flex-col md:flex-row gap-2 md:gap-6 items-start">
+                                <div class="md:w-32 shrink-0">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700">2014 - Present</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Lecturer</h4>
+                                    <p class="text-sm text-slate-600 mt-1">Department of Mathematics, Naresuan University</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Services -->
+                <section id="services" class="scroll-mt-24">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-orange-50 rounded-lg text-orange-600">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800">Academic Services & Experience</h3>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Committee Duties -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <h4 class="font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                                <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+                                Committee Duties
+                            </h4>
+                            <ul class="space-y-4 text-sm text-slate-600 list-disc pl-4">
+                                <li>
+                                    <span class="font-semibold text-slate-800">คณะกรรมการตัดสินโครงงานคณิตศาสตร์</span> (ประเภททฤษฎีระดับชั้นมัธยมศึกษาตอนปลาย) ชิงถ้วยพระราชทานฯ ณ มหาวิทยาลัยราชภัฏนครสวรรค์ (2558-Present)
+                                </li>
+                                <li>
+                                    <span class="font-semibold text-slate-800">คณะกรรมการตัดสินโครงงานคณิตศาสตร์</span> ในงานศิลปหัตถกรรมนักเรียนฯ ระดับภาค และระดับเขตพื้นที่การศึกษา (สพม. เขต 39)
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Guest Speaker -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <h4 class="font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                                <i data-lucide="mic-2" class="w-4 h-4 text-slate-400"></i>
+                                Guest Speaker (วิทยากร)
+                            </h4>
+                            <ul class="space-y-4 text-sm text-slate-600 list-disc pl-4">
+                                <li>
+                                    <span class="font-semibold text-slate-800">วิทยากรหลัก</span> โครงการค่ายคณิตศาสตร์ และค่ายโครงงานคณิตศาสตร์ (รร.พิษณุโลกพิทยาคม, รร.สวรรค์อนันต์วิทยา, รร.จุฬาภรณราชวิทยาลัย พิษณุโลก ฯลฯ)
+                                </li>
+                                <li>
+                                    <span class="font-semibold text-slate-800">วิทยากร</span> โครงการอบรมครู "การออกแบบกิจกรรมการจัดการเรียนรู้เพื่อพัฒนาทักษะกระบวนการ และโครงงานคณิตศาสตร์" คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร
+                                </li>
+                                <li>
+                                    <span class="font-semibold text-slate-800">วิทยากร</span> โครงการ "Coding for Better Life" โดย DEPA ภาคเหนือตอนล่าง
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Publications -->
+                <section id="publications" class="scroll-mt-24">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800">Publications</h3>
+                    </div>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 2025 -->
+                        <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200 w-full">
+                                <h4 class="text-lg font-bold text-blue-800">2025</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <!-- Pub Item -->
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Regularity and Green's relations on GFin(Γ) × G</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Laysirikul, E. & Sripon, K.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Discussiones Mathematicae - General Algebra and Applications, 45(2), 355-366</div>
+                                </div>
+                                <!-- Pub Item -->
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Naturally ordered transformation semigroups preserving an equivalence relation on an invariant set</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Laysirikul, E., Sripon, K., & Chaiya, Y.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Carpathian Journal of Mathematics, 41(3), 673-685</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2024 -->
+                        <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
+                                <h4 class="text-lg font-bold text-blue-800">2024</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Maximal and Minimal Congruences on the Semigroup TE(X)</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Chinram, R.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science & Technology Asia, 29(4), 32-38</div>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- 2023 -->
+                         <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
+                                <h4 class="text-lg font-bold text-blue-800">2023</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Left (Right) regular elements of some transformation semigroups</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Sommanee, W.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Mathematics, 11(10), 2230</div>
+                                </div>
+
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">A Note on Regularity of Certain Semigroups of Transformations Preserving a Reflexive and Transitive Relation</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Chaiya, Y.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science & Technology Asia, 28(3), 37-43</div>
+                                </div>
+                                
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Enumeration of Numerical Semigroups {0}∪[a,b]∪[c,∞) with Same Embedding Dimension</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Namnak, C., Phanmun, C., & Laysirikul, E.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Science and Technology Nakhon Sawan Rajabhat University Journal, 15(22), 123-130</div>
+                                </div>
+                                
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Regularity and abundance on semigroups of transformations preserving an equivalence relation on an invariant set</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Sripon, K., Laysirikul, E., & Chaiya, Y.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">AIMS Mathematics, 8(8), 18223-18233</div>
+                                </div>
+
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">The Formula of the Frobenius Number for a Numerical Semigroup with Embedding Dimension Three with respect to a Partial Order Relation</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Lueangwitchajaroen, P., & Laysirikul, E.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Naresuan University Journal: Science and Technology, 31(2), 33-41</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                         <!-- 2020 -->
+                         <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
+                                <h4 class="text-lg font-bold text-blue-800">2020</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">The number of k symmetric numerical semigroup {0} U [a, b] U [c, ∞)</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Kosasirisin, P., & Laysirikul, E.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">12th National Science Research Conference, Naresuan University, 394-402</div>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- 2019 -->
+                         <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
+                                <h4 class="text-lg font-bold text-blue-800">2019</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Isomorphism Theorem for Cayley Graphs of Semigroup of Integer Modulo Prime Power Relative to an Invertible Element</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Laysirikul, E.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Naresuan University Journal: Science and Technology, 27(3), 95-100</div>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- 2018 -->
+                         <div class="relative">
+                            <div class="sticky top-20 z-10 bg-slate-50/95 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
+                                <h4 class="text-lg font-bold text-blue-800">2018</h4>
+                            </div>
+                            <div class="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">A unifying approach to the Margolis-Meakin and Birget-Rhodes group expansion</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Billhardt, B., Chaiya, Y., Laysirikul, E., Nupo, N., & Sanwong, J.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Semigroup Forum, 96(3), 565-580</div>
+                                </div>
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Natural partial order on the semigroups of partial isometries of a finite chain</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Namnak, C., Laysirikul, E., & Sawatraksa, N.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Thai Journal of Mathematics, 97-108</div>
+                                </div>
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">On R-left cancellative semigroups</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Namnak, C., Laysirikul, E., & Tantong, P.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Songklanakarin J. Sci. Technol., 40(1), 93-95</div>
+                                </div>
+                                <div class="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                                    <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50 group-hover:bg-blue-500 transition-colors"></div>
+                                    <p class="text-slate-800 font-medium mb-1 leading-snug">Left regular and right regular elements of the semigroups of transformations restricted by an equivalence</p>
+                                    <p class="text-sm text-slate-600 mb-2 italic">Sawatraksa, N., Namnak, C., & Laysirikul, E.</p>
+                                    <div class="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Naresuan University Journal: Science and Technology, 26(4), 89-93</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
         </div>
-      </div>
+    </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12 mt-12">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-xl font-bold text-white mb-4">Asst. Prof. Dr. Ekkachai Laysirikul</h2>
-          <p className="mb-6 opacity-70">Department of Mathematics, Faculty of Science, Naresuan University</p>
-          <div className="flex justify-center gap-4 mb-8">
-            <span className="px-3 py-1 bg-slate-800 rounded text-sm">Semigroup Theory</span>
-            <span className="px-3 py-1 bg-slate-800 rounded text-sm">Graph Theory</span>
-          </div>
-          <div className="border-t border-slate-800 pt-8 text-sm opacity-50">
-            &copy; {new Date().getFullYear()} All rights reserved. Designed for Academic Excellence.
-          </div>
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-12 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-xl font-bold text-white mb-4">Asst. Prof. Dr. Ekkachai Laysirikul</h2>
+            <p class="mb-6 opacity-70">Department of Mathematics, Faculty of Science, Naresuan University</p>
+            <div class="flex justify-center gap-4 mb-8">
+                <span class="px-3 py-1 bg-slate-800 rounded text-sm border border-slate-700">Semigroup Theory</span>
+                <span class="px-3 py-1 bg-slate-800 rounded text-sm border border-slate-700">Graph Theory</span>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-sm opacity-50">
+                &copy; <span id="current-year"></span> All rights reserved. Designed for Academic Excellence.
+            </div>
         </div>
-      </footer>
-      
-      {/* Scroll to top button */}
-      <button 
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-6 right-6 p-3 bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:bg-blue-700 z-50 ${scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-      >
-        <ChevronUp size={24} />
-      </button>
+    </footer>
+    
+    <!-- Scroll to top button -->
+    <button onclick="scrollToId('home')" id="scroll-to-top" class="fixed bottom-6 right-6 p-3 bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:bg-blue-700 z-50 opacity-0 translate-y-10">
+        <i data-lucide="chevron-up" class="w-6 h-6"></i>
+    </button>
 
-    </div>
-  );
-};
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+        document.getElementById('current-year').textContent = new Date().getFullYear();
 
-// Helper Components
-const PositionItem = ({ year, title, org, current }) => (
-  <div className="p-5 hover:bg-slate-50 transition-colors flex flex-col md:flex-row gap-2 md:gap-6 items-start">
-    <div className="md:w-32 shrink-0">
-      <span className={`inline-block px-2 py-1 text-xs font-bold rounded ${current ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
-        {year}
-      </span>
-    </div>
-    <div>
-      <h4 className="font-bold text-slate-800">{title}</h4>
-      <p className="text-sm text-slate-600 mt-1">{org}</p>
-    </div>
-  </div>
-);
+        // Navbar & Scroll Logic
+        const navbar = document.getElementById('navbar');
+        const scrollBtn = document.getElementById('scroll-to-top');
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
 
-const PublicationYear = ({ year, children }) => (
-  <div className="relative">
-    <div className="sticky top-20 z-10 bg-slate-50/90 backdrop-blur-sm py-2 mb-4 border-b border-slate-200">
-      <h4 className="text-lg font-bold text-blue-800">{year}</h4>
-    </div>
-    <div className="space-y-4 pl-4 border-l-2 border-slate-200 ml-2">
-      {children}
-    </div>
-  </div>
-);
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
 
-const PublicationItem = ({ authors, title, journal }) => (
-  <div className="relative bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-    <div className="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-slate-50"></div>
-    <p className="text-slate-800 font-medium mb-1 leading-snug">
-      {title}
-    </p>
-    <p className="text-sm text-slate-600 mb-2 italic">
-      {authors}
-    </p>
-    <div className="text-xs text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">
-      {journal}
-    </div>
-  </div>
-);
+            // Navbar styling
+            if (currentScroll > 50) {
+                navbar.classList.add('bg-white/90', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                navbar.classList.remove('bg-transparent', 'py-5');
+            } else {
+                navbar.classList.remove('bg-white/90', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                navbar.classList.add('bg-transparent', 'py-5');
+            }
 
-export default App;
+            // Scroll to top button visibility
+            if (currentScroll > 300) {
+                scrollBtn.classList.remove('opacity-0', 'translate-y-10');
+                scrollBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                scrollBtn.classList.add('opacity-0', 'translate-y-10');
+                scrollBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+
+            // Active section highlighting
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= (sectionTop - 300)) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            // Update nav links colors (Optional but nice)
+            // This implementation keeps it simple as requested, but logic is here if needed.
+        });
+
+        function scrollToId(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                // Account for fixed navbar
+                const yOffset = -80; 
+                const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Simple animation on load
+        window.onload = function() {
+            const elements = document.querySelectorAll('.fade-in-element');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.remove('opacity-0', 'translate-y-4');
+                }, index * 200);
+            });
+        }
+    </script>
+</body>
+</html>
