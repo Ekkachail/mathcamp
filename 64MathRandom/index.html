@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสุ่มรางวัล บัณฑิตภาควิชาคณิตศาสตร์ ม.นเรศวร</title>
+    <!-- โหลด Tailwind CSS สำหรับจัดการความสวยงาม -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- โหลดฟอนต์ Prompt เพื่อความทันสมัยและอ่านง่าย -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+        .font-mono { font-family: 'Courier New', Courier, monospace; }
+        
+        /* สร้างเอฟเฟกต์พื้นหลัง */
+        .bg-pattern {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen text-gray-800">
+
+    <div class="max-w-6xl mx-auto p-4 py-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 flex flex-col items-center">
+            <!-- จุดใส่ลิงก์รูปภาพโลโก้: เปลี่ยน URL ใน src ด้านล่างนี้เป็นลิงก์รูปโลโก้ภาควิชา/มหาลัย ที่ต้องการ -->
+            <img id="dept-logo" src="https://placehold.co/200x200?text=Logo" alt="โลโก้ภาควิชา" class="h-32 w-auto mb-4 object-contain drop-shadow-md rounded-full border-4 border-white" onerror="this.style.display='none'">
+            <h1 class="text-3xl md:text-5xl font-bold text-gray-800 mb-2">🎉 ระบบสุ่มรางวัลรับปริญญา 🎉</h1>
+            <h2 class="text-xl md:text-2xl text-gray-600">ภาควิชาคณิตศาสตร์ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร</h2>
+        </header>
+
+        <!-- Setting & Data Section -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-700 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    ฐานข้อมูลนิสิต (Google Sheet)
+                </h3>
+                <div class="flex gap-4 text-sm mt-2 md:mt-0">
+                    <button onclick="downloadResults()" class="text-blue-600 hover:text-blue-800 font-medium">📥 โหลดรายงานผล (CSV)</button>
+                    <button onclick="clearAllData()" class="text-red-500 hover:text-red-700 font-medium">🗑️ รีเซ็ตข้อมูลทั้งหมด</button>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <div class="text-sm text-gray-600 w-full">
+                    <p class="font-semibold text-green-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        เชื่อมต่อลิงก์ฐานข้อมูลเรียบร้อยแล้ว
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">กดปุ่ม "ดึงข้อมูลล่าสุด" เพื่ออัปเดตรายชื่อ (แนะนำให้กด 1 ครั้งก่อนเริ่มใช้งาน เพื่อดึงข้อมูลล่าสุดจาก Sheet)</p>
+                </div>
+                <button onclick="fetchCSV()" class="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition shadow w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    ดึงข้อมูลล่าสุด
+                </button>
+            </div>
+        </div>
+
+        <!-- Draw Section -->
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-orange-500 text-center mb-8 min-h-[450px] flex flex-col justify-center items-center relative">
+            
+            <!-- Remaining Count & View Button -->
+            <div class="absolute top-4 right-6 flex flex-col items-end gap-2 z-20">
+                <div class="bg-gray-100 px-4 py-2 rounded-full text-sm font-semibold text-gray-600 border shadow-sm">
+                    เหลือรายชื่อ: <span id="pool-count" class="text-orange-600 text-lg">0</span> คน
+                </div>
+                <button onclick="openRemainingModal()" class="text-sm bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 hover:text-blue-700 px-4 py-1.5 rounded-full shadow-sm transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    ดูรายชื่อที่เหลือ
+                </button>
+            </div>
+
+            <!-- Main Draw Button -->
+            <button id="draw-btn" onclick="startDraw()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-3xl font-bold py-5 px-16 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 mb-10 border-4 border-white ring-4 ring-orange-200">
+                🎲 สุ่มผู้โชคดี! 🎲
+            </button>
+
+            <!-- Display Area -->
+            <div id="draw-area" class="w-full max-w-2xl mx-auto h-64 flex justify-center items-center">
+                
+                <!-- Animating State (Show only IDs) -->
+                <div id="animating-state" class="text-7xl md:text-8xl font-black text-gray-300 tracking-widest font-mono">
+                    ????????
+                </div>
+
+                <!-- Result Card (Hidden Initially) -->
+                <div id="result-card" class="hidden w-full border-4 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 transform scale-95 opacity-0 bg-white">
+                    <!-- Major Header -->
+                    <div id="res-major-bg" class="py-3 px-6 text-2xl font-bold text-center tracking-wide">
+                        <span id="res-major">สาขาวิชา</span>
+                    </div>
+                    <!-- Body -->
+                    <div class="p-8 md:p-12 text-center relative overflow-hidden">
+                        <!-- Decorative background icon -->
+                        <div class="absolute opacity-5 -right-10 -bottom-10 text-[150px]">🎓</div>
+                        
+                        <div id="res-id" class="text-7xl md:text-8xl font-black mb-4 tracking-wider font-mono drop-shadow-sm z-10 relative">
+                            630XXXXX
+                        </div>
+                        <div id="res-name" class="text-3xl md:text-4xl font-semibold text-gray-800 z-10 relative">
+                            ชื่อ นามสกุล
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Hidden Initially) -->
+            <div id="action-buttons" class="hidden flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center">
+                <button onclick="confirmWinner()" class="flex-1 max-w-xs bg-green-500 hover:bg-green-600 text-white px-6 py-4 rounded-xl font-bold text-xl shadow-md flex justify-center items-center gap-2 transform transition hover:-translate-y-1">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    รับรางวัลแล้ว
+                </button>
+                <button onclick="markAbsent()" class="flex-1 max-w-xs bg-gray-500 hover:bg-gray-600 text-white px-6 py-4 rounded-xl font-bold text-xl shadow-md flex justify-center items-center gap-2 transform transition hover:-translate-y-1">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    ข้าม / ไม่มา
+                </button>
+            </div>
+        </div>
+
+        <!-- Lists Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Winners List -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-green-500 flex flex-col max-h-[500px]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                    <h3 class="text-lg font-bold text-green-700 flex items-center gap-2">
+                        🎁 ผู้ได้รับรางวัล
+                    </h3>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold text-sm"><span id="win-count">0</span> คน</span>
+                </div>
+                <ul id="winners-list" class="space-y-3 overflow-y-auto flex-1 pr-2">
+                    <!-- Javascript will inject list here -->
+                </ul>
+            </div>
+
+            <!-- Absentees List -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-gray-400 flex flex-col max-h-[500px]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                    <h3 class="text-lg font-bold text-gray-600 flex items-center gap-2">
+                        ❌ ข้าม / ไม่มารายงานตัว
+                    </h3>
+                    <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-bold text-sm"><span id="absent-count">0</span> คน</span>
+                </div>
+                <ul id="absent-list" class="space-y-3 overflow-y-auto flex-1 pr-2">
+                    <!-- Javascript will inject list here -->
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal รายชื่อที่เหลือ -->
+    <div id="remaining-modal" class="hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[80vh] flex flex-col transform scale-95 transition-transform duration-300" id="remaining-modal-content">
+            <!-- Modal Header -->
+            <div class="p-5 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    📋 รายชื่อผู้ที่รอสุ่ม (<span id="modal-pool-count" class="text-orange-600">0</span> คน)
+                </h3>
+                <button onclick="closeRemainingModal()" class="text-gray-400 hover:text-red-500 transition p-1 rounded-full hover:bg-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- Modal Body (Table) -->
+            <div class="p-0 overflow-y-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-white sticky top-0 z-10 shadow-sm ring-1 ring-gray-200">
+                        <tr>
+                            <th class="p-4 text-gray-600 font-semibold text-center w-16">ลำดับ</th>
+                            <th class="p-4 text-gray-600 font-semibold">รหัสนิสิต</th>
+                            <th class="p-4 text-gray-600 font-semibold">ชื่อ-นามสกุล</th>
+                            <th class="p-4 text-gray-600 font-semibold">สาขาวิชา</th>
+                        </tr>
+                    </thead>
+                    <tbody id="remaining-table-body" class="divide-y divide-gray-100">
+                        <!-- JS will populate this -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-4 border-t bg-gray-50 rounded-b-2xl text-right">
+                <button onclick="closeRemainingModal()" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition shadow">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ตัวแปรและข้อมูล ---
+        
+        // 📌 จุดใส่ลิงก์ Google Sheet แบบ CSV (Publish to the web)
+        const EMBEDDED_CSV_URL = "ใส่ลิงก์_CSV_ของคุณที่นี่";
+
+        // ข้อมูลตัวอย่าง (Mock Data) เผื่อไม่ได้ใส่ Google Sheet
+        const defaultData = [
+            { id: "63040001", name: "นายสมชาย ใจดี", major: "คณิตศาสตร์" },
+            { id: "63040002", name: "นางสาวสมหญิง รักเรียน", major: "สถิติ" },
+            { id: "63040003", name: "นายขยัน หมั่นเพียร", major: "วิทยาการข้อมูลและการวิเคราะห์" },
+            { id: "63040004", name: "นางสาวเรียนดี สีใส", major: "คณิตศาสตร์" },
+            { id: "63040005", name: "นายตั้งใจ ศึกษา", major: "สถิติ" },
+            { id: "63040006", name: "นางสาวมานะ อดทน", major: "วิทยาการข้อมูลและการวิเคราะห์" },
+            { id: "63040007", name: "นายเก่งกล้า สามารถ", major: "คณิตศาสตร์" }
+        ];
+
+        let allData = [];
+        let availablePool = [];
+        let winners = [];
+        let absentees = [];
+        let currentDrawn = null;
+        let isDrawing = false;
+
+        // --- 2. ฟังก์ชันจัดการสีตามสาขา (Theme) ---
+        function getTheme(major) {
+            const m = major.toLowerCase();
+            if(m.includes('คณิต') || m.includes('math')) {
+                // สีแดง
+                return { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-600', badge: 'bg-red-600 text-white' };
+            } else if(m.includes('สถิติ') || m.includes('stat')) {
+                // สีชมพู
+                return { bg: 'bg-pink-50', border: 'border-pink-500', text: 'text-pink-600', badge: 'bg-pink-500 text-white' };
+            } else if(m.includes('ข้อมูล') || m.includes('data')) {
+                // สีฟ้า
+                return { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-600', badge: 'bg-blue-500 text-white' };
+            }
+            // ค่าเริ่มต้น (เทา) กรณีไม่ตรงเงื่อนไข
+            return { bg: 'bg-gray-50', border: 'border-gray-300', text: 'text-gray-800', badge: 'bg-gray-600 text-white' };
+        }
+
+        // --- 3. ฟังก์ชันระบบจัดการ LocalStorage (ป้องกันรีเฟรชแล้วข้อมูลหาย) ---
+        function saveData() {
+            localStorage.setItem('math_nu_draw_data', JSON.stringify({ allData, availablePool, winners, absentees }));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('math_nu_draw_data');
+            if(saved) {
+                const parsed = JSON.parse(saved);
+                allData = parsed.allData || [];
+                availablePool = parsed.availablePool || [];
+                winners = parsed.winners || [];
+                absentees = parsed.absentees || [];
+                return true;
+            }
+            return false;
+        }
+
+        function clearAllData() {
+            if(confirm('🚨 คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลทั้งหมด?\n(รวมถึงรายชื่อที่สุ่มไปแล้ว ข้อมูลจะถูกรีเซ็ตกลับไปเป็นค่าเริ่มต้น)')) {
+                localStorage.removeItem('math_nu_draw_data');
+                allData = [...defaultData];
+                availablePool = [...defaultData];
+                winners = [];
+                absentees = [];
+                currentDrawn = null;
+                resetDrawArea();
+                updateUI();
+                alert('รีเซ็ตข้อมูลเรียบร้อยแล้ว');
+            }
+        }
+
+        // --- 4. ฟังก์ชันดึงและแปลงข้อมูล CSV จาก Google Sheet ---
+        function csvToArray(str, delimiter = ",") {
+            const pattern = new RegExp(`(\\${delimiter}|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^"\\${delimiter}\\r\\n]*))`, "gi");
+            let data = [[]];
+            let matches = null;
+            while (matches = pattern.exec(str)) {
+                let strMatchedDelimiter = matches[1];
+                if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) data.push([]);
+                let strMatchedValue = matches[2] ? matches[2].replace(new RegExp('""', 'g'), '"') : matches[3];
+                data[data.length - 1].push(strMatchedValue);
+            }
+            return data;
+        }
+
+        async function fetchCSV() {
+            const urlInput = EMBEDDED_CSV_URL;
+            if(!urlInput || urlInput === "ใส่ลิงก์_CSV_ของคุณที่นี่") {
+                return alert('กรุณาใส่ลิงก์ Google Sheet (แบบ CSV) ลงในโค้ดตรงตัวแปร EMBEDDED_CSV_URL ก่อนใช้งานครับ');
+            }
+            
+            try {
+                // เปลี่ยนข้อความปุ่มเพื่อบอกสถานะ
+                const btn = document.querySelector('button[onclick="fetchCSV()"]');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> กำลังโหลด...';
+                
+                const response = await fetch(urlInput);
+                if(!response.ok) throw new Error('ไม่สามารถเข้าถึงลิงก์ได้ กรุณาตรวจสอบลิงก์อีกครั้ง');
+                
+                const text = await response.text();
+                const rawData = csvToArray(text);
+                
+                // กรองแถวว่างทิ้ง
+                const filtered = rawData.filter(row => row && row.length >= 3 && row[0] && row[0].trim() !== '');
+                
+                if(filtered.length === 0) throw new Error('ไม่พบข้อมูลในไฟล์ CSV');
+
+                // ข้ามแถว Header (เช็คว่าคอลัมน์แรกมีตัวอักษรไทย/อังกฤษปนอยู่หรือไม่ ซึ่งรหัสนิสิตควรเป็นตัวเลขล้วน)
+                let startIndex = 0;
+                if (/[ก-ฮa-zA-Z]/.test(filtered[0][0])) {
+                    startIndex = 1;
+                }
+                
+                const parsedData = [];
+                for(let i = startIndex; i < filtered.length; i++) {
+                    let majorName = filtered[i][2].trim();
+                    
+                    // แปลงชื่อสาขาจากตัวย่อ (วิทยาการฯ / วิทยาการข้อมูลฯ) ให้เป็นชื่อเต็มอัตโนมัติ
+                    if (majorName.includes('วิทยาการ') || majorName.includes('ข้อมูล')) {
+                        majorName = 'วิทยาการข้อมูลและการวิเคราะห์';
+                    }
+
+                    parsedData.push({
+                        id: filtered[i][0].trim(),
+                        name: filtered[i][1].trim(),
+                        major: majorName
+                    });
+                }
+                
+                allData = parsedData;
+                availablePool = [...allData];
+                winners = [];
+                absentees = [];
+                currentDrawn = null;
+                
+                saveData();
+                resetDrawArea();
+                updateUI();
+                alert(`✅ โหลดข้อมูลสำเร็จแล้วจำนวน ${allData.length} คน`);
+                btn.innerHTML = originalHTML;
+                
+            } catch (e) {
+                alert('เกิดข้อผิดพลาด: ' + e.message);
+                const btn = document.querySelector('button[onclick="fetchCSV()"]');
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> โหลดข้อมูลใหม่';
+            }
+        }
+
+        // --- 5. ฟังก์ชันระบบสุ่ม (Draw Logic) ---
+        function startDraw() {
+            if(availablePool.length === 0) return alert("หมดแล้ว! ไม่มีรายชื่อให้สุ่มแล้วครับ 🎉");
+            
+            isDrawing = true;
+            currentDrawn = null;
+            updateUI();
+            
+            const animatingState = document.getElementById('animating-state');
+            const resultCard = document.getElementById('result-card');
+            const actionBtns = document.getElementById('action-buttons');
+            
+            // ซ่อนการ์ดและปุ่ม โชว์เฉพาะรหัสที่กำลังวิ่ง
+            animatingState.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+            resultCard.classList.remove('scale-100', 'opacity-100');
+            resultCard.classList.add('scale-95', 'opacity-0');
+            actionBtns.classList.add('hidden');
+            
+            let ticks = 0;
+            const maxTicks = 25; // จำนวนครั้งที่เลขกระพริบ (ความนาน)
+            
+            const interval = setInterval(() => {
+                // สุ่มรหัสขึ้นมาโชว์หลอกๆ
+                const randomPerson = availablePool[Math.floor(Math.random() * availablePool.length)];
+                animatingState.innerText = randomPerson.id;
+                ticks++;
+                
+                if(ticks >= maxTicks) {
+                    clearInterval(interval);
+                    finishDraw();
+                }
+            }, 80); // ความเร็วการวิ่ง (ms)
+        }
+
+        function finishDraw() {
+            // เลือกผู้โชคดีตัวจริง
+            const winnerIndex = Math.floor(Math.random() * availablePool.length);
+            currentDrawn = availablePool[winnerIndex];
+            isDrawing = false;
+            
+            // ดึงธีมสีตามสาขา
+            const theme = getTheme(currentDrawn.major);
+            
+            // เตรียมหน้าตาการ์ด
+            const resultCard = document.getElementById('result-card');
+            const resMajorBg = document.getElementById('res-major-bg');
+            const resMajor = document.getElementById('res-major');
+            const resId = document.getElementById('res-id');
+            const resName = document.getElementById('res-name');
+            
+            resultCard.className = `w-full border-4 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 transform ${theme.border} scale-100 opacity-100 bg-white`;
+            resMajorBg.className = `py-3 px-6 text-2xl font-bold text-center tracking-wide ${theme.badge}`;
+            resMajor.innerText = currentDrawn.major;
+            
+            resId.innerText = currentDrawn.id;
+            resId.className = `text-7xl md:text-8xl font-black mb-4 tracking-wider font-mono drop-shadow-sm z-10 relative ${theme.text}`;
+            
+            resName.innerText = currentDrawn.name;
+            
+            // สลับการแสดงผล
+            document.getElementById('animating-state').classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            
+            // โชว์ปุ่มกดยืนยัน (ดีเลย์นิดหน่อยให้ลุ้น)
+            setTimeout(() => {
+                document.getElementById('action-buttons').classList.remove('hidden');
+                // Scroll เบาๆ ไปที่ปุ่ม
+                document.getElementById('action-buttons').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 600);
+            
+            updateUI();
+        }
+
+        // --- 6. ฟังก์ชันจัดการสถานะ (รับรางวัล / ไม่มา) ---
+        function confirmWinner() {
+            if(!currentDrawn) return;
+            winners.push(currentDrawn);
+            removeFromPool();
+            resetDrawArea();
+        }
+
+        function markAbsent() {
+            if(!currentDrawn) return;
+            absentees.push(currentDrawn);
+            removeFromPool();
+            resetDrawArea();
+        }
+
+        function removeFromPool() {
+            availablePool = availablePool.filter(p => p.id !== currentDrawn.id);
+            currentDrawn = null;
+            saveData();
+        }
+
+        function resetDrawArea() {
+            document.getElementById('animating-state').innerText = '????????';
+            document.getElementById('animating-state').classList.remove('hidden');
+            document.getElementById('result-card').classList.add('hidden');
+            document.getElementById('action-buttons').classList.add('hidden');
+            updateUI();
+        }
+
+        // --- ระบบแสดง Popup รายชื่อที่เหลือ ---
+        function openRemainingModal() {
+            renderRemainingTable();
+            const modal = document.getElementById('remaining-modal');
+            const content = document.getElementById('remaining-modal-content');
+            
+            modal.classList.remove('hidden');
+            // Allow display:block to apply before animating opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRemainingModal() {
+            const modal = document.getElementById('remaining-modal');
+            const content = document.getElementById('remaining-modal-content');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // รอ animation จบ
+        }
+
+        function renderRemainingTable() {
+            document.getElementById('modal-pool-count').innerText = availablePool.length;
+            const tbody = document.getElementById('remaining-table-body');
+            tbody.innerHTML = '';
+            
+            if (availablePool.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-500 font-medium">ไม่มีรายชื่อเหลืออยู่</td></tr>';
+                return;
+            }
+
+            availablePool.forEach((person, index) => {
+                const theme = getTheme(person.major);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-500 text-sm text-center">${index + 1}</td>
+                    <td class="p-3 font-mono text-gray-800 font-semibold">${person.id}</td>
+                    <td class="p-3 text-gray-700">${person.name}</td>
+                    <td class="p-3"><span class="text-xs font-bold px-3 py-1 rounded-full ${theme.badge}">${person.major}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- 7. ฟังก์ชันอัปเดตหน้าจอ (UI) ---
+        function updateUI() {
+            // อัปเดตตัวเลขจำนวนคน
+            document.getElementById('pool-count').innerText = availablePool.length;
+            document.getElementById('win-count').innerText = winners.length;
+            document.getElementById('absent-count').innerText = absentees.length;
+            
+            // ล็อกปุ่มสุ่มหากกำลังสุ่ม หรือมีคนโดนสุ่มค้างไว้ยังไม่กดยืนยัน
+            const drawBtn = document.getElementById('draw-btn');
+            if (isDrawing || currentDrawn) {
+                drawBtn.disabled = true;
+                drawBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                drawBtn.classList.remove('hover:scale-105', 'active:scale-95');
+            } else {
+                drawBtn.disabled = false;
+                drawBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                drawBtn.classList.add('hover:scale-105', 'active:scale-95');
+            }
+
+            // เรนเดอร์รายการรายชื่อ
+            renderList('winners-list', winners);
+            renderList('absent-list', absentees);
+        }
+
+        function renderList(elementId, list) {
+            const ul = document.getElementById(elementId);
+            ul.innerHTML = '';
+            
+            if(list.length === 0) {
+                ul.innerHTML = '<li class="text-center text-gray-400 py-4 text-sm">ยังไม่มีข้อมูล</li>';
+                return;
+            }
+
+            // Reverse เพื่อให้คนล่าสุดโชว์บนสุด
+            [...list].reverse().forEach((person, index) => {
+                const theme = getTheme(person.major);
+                const li = document.createElement('li');
+                // จัดสไตล์ให้แถบรายชื่อมีสีขอบบางๆ ตามสาขา
+                li.className = `p-3 rounded-lg border-l-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-white shadow-sm border-gray-200`;
+                li.style.borderLeftColor = getComputedStyle(document.documentElement).getPropertyValue(`--tw-colors-${theme.border.replace('border-', '')}`) || theme.badge.split(' ')[0].replace('bg-', ''); // Fallback สอดคล้องกับ Tailwind
+                
+                // เพื่อความชัวร์ ใช้ class สำหรับขอบซ้ายแทน
+                li.className = `p-3 rounded-lg border-l-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-white shadow-sm ${theme.border}`;
+                
+                li.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gray-100 text-gray-500 font-bold w-8 h-8 rounded-full flex items-center justify-center text-xs">
+                            ${list.length - index}
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-800 font-mono text-lg">${person.id}</span>
+                            <span class="ml-2 text-gray-700">${person.name}</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full ${theme.badge} whitespace-nowrap">${person.major}</span>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        // --- 8. ฟังก์ชันดาวน์โหลดรายงาน ---
+        function downloadResults() {
+            if(winners.length === 0 && absentees.length === 0) return alert('ยังไม่มีข้อมูลให้ดาวน์โหลด');
+            
+            // เติม BOM (\uFEFF) ลงไปตอนต้นไฟล์ เพื่อให้เปิดใน Excel ภาษาไทยไม่เพี้ยน
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            csvContent += "รหัสนิสิต,ชื่อ-นามสกุล,สาขาวิชา,สถานะ\n";
+            
+            winners.forEach(w => { csvContent += `="${w.id}",${w.name},${w.major},ได้รับรางวัล\n`; });
+            absentees.forEach(a => { csvContent += `="${a.id}",${a.name},${a.major},ไม่มา/สละสิทธิ์\n`; });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "รายงานการสุ่ม_ภาควิชาคณิตศาสตร์.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- 9. เริ่มต้นทำงาน (Init) ---
+        window.onload = () => {
+            if(!loadData()) {
+                // หากไม่มีข้อมูลใน LocalStorage ให้ใช้ Mock Data ไปก่อน
+                allData = [...defaultData];
+                availablePool = [...defaultData];
+            }
+            updateUI();
+        };
+    </script>
+</body>
+</html>
