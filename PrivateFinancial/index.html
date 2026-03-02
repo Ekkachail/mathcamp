@@ -45,10 +45,17 @@
                         <i class="fa-solid fa-shield-heart mr-2"></i>
                         กรมธรรม์ประกันภัย
                     </a>
+                    
                     <!-- NEW: Link to SET Page -->
                     <a href="set.html" class="hidden md:flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors ml-2">
                         <i class="fa-solid fa-chart-line mr-2"></i>
                         พอร์ตหุ้น (SET)
+                    </a>
+
+                    <!-- NEW: Link to Housing Page -->
+                    <a href="housing.html" class="hidden md:flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors ml-2">
+                        <i class="fa-solid fa-house mr-2"></i>
+                        ค่างวดบ้าน
                     </a>
                 </div>
                 <div class="flex items-center text-sm text-gray-500">
@@ -186,10 +193,18 @@
                          <h3 class="font-semibold text-gray-800 flex items-center">
                             <i class="fa-solid fa-filter text-indigo-500 mr-2"></i> ค้นหาและกรองข้อมูล
                         </h3>
-                         <!-- Mobile View Link -->
-                        <a href="insurance.html" class="md:hidden text-indigo-600 text-xs font-medium">
-                            ไปหน้าประกัน >
-                        </a>
+                         <!-- Mobile View Links -->
+                        <div class="md:hidden flex items-center gap-3">
+                            <a href="insurance.html" class="text-indigo-600 text-xs font-medium">
+                                หน้าประกัน >
+                            </a>
+                            <a href="set.html" class="text-indigo-600 text-xs font-medium">
+                                หน้าหุ้น >
+                            </a>
+                            <a href="housing.html" class="text-indigo-600 text-xs font-medium">
+                                ค่างวดบ้าน >
+                            </a>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Filter 1: Group Category -->
@@ -725,4 +740,3 @@
     </script>
 </body>
 </html>
-
