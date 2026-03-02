@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Investment Portfolio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse (อ่าน CSV) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Chart.js (วาดกราฟ) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 md:p-6 lg:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header & Controls -->
+        <header class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Portfolio Dashboard</h1>
+                    <p class="text-sm text-slate-500">ติดตามพอร์ตการลงทุนหุ้นไทย</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <!-- Dropdown สำหรับเลือกหุ้น -->
+                <select id="stockSelector" onchange="filterData()" class="flex-1 md:w-48 bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none transition">
+                    <option value="ALL">ดูหุ้นทั้งหมด (All)</option>
+                    <!-- ตัวเลือกหุ้นจะถูกใส่ด้วย Javascript -->
+                </select>
+                
+                <button onclick="fetchData()" class="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition shadow-sm font-medium text-sm whitespace-nowrap">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                <p class="text-sm text-slate-500 mb-1 font-medium flex items-center gap-1.5"><i data-lucide="coins" class="w-4 h-4"></i> ต้นทุนรวม</p>
+                <h2 id="summary-cost" class="text-2xl font-bold text-slate-900">฿0.00</h2>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                <p class="text-sm text-slate-500 mb-1 font-medium flex items-center gap-1.5"><i data-lucide="line-chart" class="w-4 h-4"></i> มูลค่าปัจจุบัน</p>
+                <h2 id="summary-value" class="text-2xl font-bold text-indigo-600">฿0.00</h2>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                <p class="text-sm text-slate-500 mb-1 font-medium flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4"></i> กำไร/ขาดทุน</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 id="summary-pl" class="text-2xl font-bold">฿0.00</h2>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                <p class="text-sm text-slate-500 mb-1 font-medium flex items-center gap-1.5"><i data-lucide="percent" class="w-4 h-4"></i> % ผลตอบแทน</p>
+                <h2 id="summary-pl-percent" class="text-2xl font-bold">0.00%</h2>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Pie Chart (สัดส่วนพอร์ต) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-1">
+                <h3 class="text-base font-semibold text-slate-800 mb-4">สัดส่วนพอร์ตการลงทุน (Asset Allocation)</h3>
+                <div class="chart-container flex items-center justify-center">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Bar Chart (เทียบต้นทุนกับมูลค่า) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+                <h3 id="barChartTitle" class="text-base font-semibold text-slate-800 mb-4">เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน</h3>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-base font-semibold text-slate-800">รายละเอียดหุ้น</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-4 font-semibold">Symbol</th>
+                            <th class="p-4 font-semibold text-right">Qty</th>
+                            <th class="p-4 font-semibold text-right">Cost (ต้นทุน)</th>
+                            <th class="p-4 font-semibold text-right">Price (ปัจจุบัน)</th>
+                            <th class="p-4 font-semibold text-right">Value (มูลค่า)</th>
+                            <th class="p-4 font-semibold text-right">P/L (กำไร/ขาดทุน)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // 🛑 นำลิงก์ CSV จาก Google Sheets มาใส่ตรงนี้ (เผยแพร่ไปยังเว็บ -> CSV)
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=657486162&single=true&output=csv"; 
+
+        // ข้อมูล Mock up (ลอกมาจากรูปที่คุณส่งมาเป๊ะๆ เพื่อให้ทดสอบโค้ดได้ทันที)
+        // สังเกตว่าหัวคอลัมน์ภาษาอังกฤษให้ตรงกับในโค้ด
+        const MOCK_DATA = `Symbol,Cost,Qty,CurrentPr,MarketValu,PL
+ASP,2.73,6900,2.22,15318.00,-3519.00
+BDMS,26.83,1400,21.00,29400.00,-8162.00
+CWT,1.6,19700,0.90,17730.00,-13790.00
+EA,56.16,1300,2.78,3614.00,-69394.00
+ERW,3.2,600,3.00,1800.00,-120.00
+HMPRO,12.03,1000,7.05,7050.00,-4980.00
+LALIN,8.41,13600,4.76,64736.00,-49640.00
+MCS,10.73,7800,9.60,74880.00,-8814.00
+OR,23.27,1400,12.90,18060.00,-14518.00
+SITHAI,1.4,6000,1.04,6240.00,-2160.00
+TNP,4.29,10800,2.88,31104.00,-15228.00`;
+
+        let globalData = [];
+        let allocationChartInstance = null;
+        let performanceChartInstance = null;
+
+        // ฟังก์ชันล้างตัวอักษร ฿ และคอมม่า , ออกจากตัวเลข
+        const cleanNum = (val) => {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            const cleaned = val.toString().replace(/[^0-9.-]+/g, "");
+            return parseFloat(cleaned) || 0;
+        };
+
+        const formatMoney = (num) => {
+            return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+        };
+
+        function fetchData() {
+            document.getElementById('table-body').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">กำลังโหลด...</td></tr>`;
+            
+            const urlToFetch = CSV_URL.startsWith('http') ? CSV_URL : MOCK_DATA;
+            const isMock = !CSV_URL.startsWith('http');
+
+            Papa.parse(urlToFetch, {
+                download: !isMock,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // กรองเฉพาะแถวที่มีชื่อหุ้น (ป้องกันแถวว่าง)
+                    globalData = results.data.filter(row => row.Symbol && row.Symbol.trim() !== '');
+                    populateDropdown();
+                    renderDashboard("ALL");
+                }
+            });
+        }
+
+        function populateDropdown() {
+            const select = document.getElementById('stockSelector');
+            // เก็บ option แรก (ALL) ไว้ นอกนั้นลบหมด
+            select.innerHTML = '<option value="ALL">ดูหุ้นทั้งหมด (All)</option>';
+            
+            globalData.forEach(row => {
+                const opt = document.createElement('option');
+                opt.value = row.Symbol;
+                opt.textContent = row.Symbol;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterData() {
+            const selectedStock = document.getElementById('stockSelector').value;
+            renderDashboard(selectedStock);
+        }
+
+        function renderDashboard(filterSymbol) {
+            let filteredData = globalData;
+            if (filterSymbol !== "ALL") {
+                filteredData = globalData.filter(row => row.Symbol === filterSymbol);
+            }
+
+            let totalCost = 0;
+            let totalValue = 0;
+            let totalPL = 0;
+            let tableHTML = '';
+
+            filteredData.forEach(row => {
+                // ดึงข้อมูลและแปลงเป็นตัวเลขเพียวๆ
+                const symbol = row.Symbol;
+                const costPerUnit = cleanNum(row.Cost);
+                const qty = cleanNum(row.Qty);
+                const currentPrice = cleanNum(row.CurrentPr || row.CurrentPrice); // รองรับชื่อคอลัมน์หลายแบบ
+                
+                // คำนวณใหม่ในเว็บเพื่อความแม่นยำ
+                const costTotal = costPerUnit * qty;
+                const valueTotal = currentPrice * qty;
+                const plTotal = valueTotal - costTotal;
+
+                totalCost += costTotal;
+                totalValue += valueTotal;
+                totalPL += plTotal;
+
+                const plClass = plTotal >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                const plSign = plTotal > 0 ? '+' : '';
+
+                tableHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 font-medium text-slate-800">
+                            <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs">${symbol}</span>
+                        </td>
+                        <td class="p-4 text-right text-slate-600">${new Intl.NumberFormat('th-TH').format(qty)}</td>
+                        <td class="p-4 text-right text-slate-600">฿${formatMoney(costPerUnit)}</td>
+                        <td class="p-4 text-right font-medium text-slate-800">฿${formatMoney(currentPrice)}</td>
+                        <td class="p-4 text-right font-medium text-slate-800">฿${formatMoney(valueTotal)}</td>
+                        <td class="p-4 text-right font-semibold ${plClass}">
+                            ${plSign}${formatMoney(plTotal)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('table-body').innerHTML = tableHTML || `<tr><td colspan="6" class="p-4 text-center">ไม่พบข้อมูล</td></tr>`;
+
+            // อัปเดต Summary
+            document.getElementById('summary-cost').innerText = `฿${formatMoney(totalCost)}`;
+            document.getElementById('summary-value').innerText = `฿${formatMoney(totalValue)}`;
+            
+            const plElem = document.getElementById('summary-pl');
+            plElem.innerText = `${totalPL > 0 ? '+' : ''}฿${formatMoney(totalPL)}`;
+            plElem.className = `text-2xl font-bold ${totalPL >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+
+            const percentElem = document.getElementById('summary-pl-percent');
+            const percent = totalCost > 0 ? (totalPL / totalCost) * 100 : 0;
+            percentElem.innerText = `${percent > 0 ? '+' : ''}${formatMoney(percent)}%`;
+            percentElem.className = `text-2xl font-bold ${percent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+
+            // วาดกราฟ
+            drawCharts(filteredData, filterSymbol);
+        }
+
+        function drawCharts(data, filterSymbol) {
+            // เตรียมข้อมูลสำหรับกราฟ
+            const labels = data.map(row => row.Symbol);
+            const costData = data.map(row => cleanNum(row.Cost) * cleanNum(row.Qty));
+            const valueData = data.map(row => cleanNum(row.CurrentPr || row.CurrentPrice) * cleanNum(row.Qty));
+
+            // 1. วาดกราฟโดนัท (สัดส่วนพอร์ต) 
+            // จะวาดก็ต่อเมื่อเลือก "ALL" หรือมีข้อมูลมากกว่า 1 ตัว
+            const allocationCanvas = document.getElementById('allocationChart');
+            if (allocationChartInstance) allocationChartInstance.destroy();
+
+            if (filterSymbol === "ALL" && data.length > 0) {
+                allocationCanvas.parentElement.style.display = 'flex';
+                allocationChartInstance = new Chart(allocationCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: valueData,
+                            backgroundColor: [
+                                '#4f46e5', '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', 
+                                '#10b981', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { boxWidth: 12, font: { family: 'Prompt' } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) label += ': ';
+                                        label += '฿' + formatMoney(context.raw);
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // ซ่อนกราฟโดนัทถ้าเลือกหุ้นตัวเดียว
+                allocationCanvas.parentElement.innerHTML = '<div class="text-sm text-slate-400">เลือก "ดูหุ้นทั้งหมด" เพื่อดูสัดส่วนพอร์ต</div>';
+                // ต้องสร้าง canvas กลับมาใหม่เผื่อ user เลือก ALL อีกครั้ง
+                setTimeout(() => {
+                    allocationCanvas.parentElement.innerHTML = '<canvas id="allocationChart"></canvas>';
+                }, 100);
+            }
+
+            // 2. วาดกราฟแท่ง (เปรียบเทียบ Cost vs Value)
+            const performanceCanvas = document.getElementById('performanceChart');
+            if (performanceChartInstance) performanceChartInstance.destroy();
+
+            document.getElementById('barChartTitle').innerText = filterSymbol === "ALL" 
+                ? "เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน (ทั้งหมด)" 
+                : `เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน (${filterSymbol})`;
+
+            performanceChartInstance = new Chart(performanceCanvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'ต้นทุน (Cost)',
+                            data: costData,
+                            backgroundColor: '#cbd5e1', // สีเทา
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'มูลค่า (Value)',
+                            data: valueData,
+                            backgroundColor: valueData.map((val, idx) => val >= costData[idx] ? '#10b981' : '#f43f5e'), // เขียวถ้ากำไร แดงถ้าขาดทุน
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '฿' + (value / 1000) + 'k'; // ย่อตัวเลขแกน Y
+                                },
+                                font: { family: 'Prompt' }
+                            }
+                        },
+                        x: { ticks: { font: { family: 'Prompt' } } }
+                    },
+                    plugins: {
+                        legend: { labels: { font: { family: 'Prompt' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ฿' + formatMoney(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // เริ่มต้นโหลดข้อมูล
+        window.onload = fetchData;
+
+    </script>
+</body>
+</html>
