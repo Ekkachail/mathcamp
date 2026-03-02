@@ -74,18 +74,18 @@
 
         <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Nested Doughnut Chart (สัดส่วนพอร์ต ทุน vs ปัจจุบัน) -->
+            <!-- Doughnut Chart (สัดส่วนพอร์ต) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-1">
                 <h3 class="text-base font-semibold text-slate-800 mb-2">สัดส่วนพอร์ตการลงทุน</h3>
-                <p class="text-xs text-slate-500 mb-4">วงนอก: มูลค่าปัจจุบัน | วงใน: ต้นทุน</p>
+                <p id="donutDesc" class="text-xs text-slate-500 mb-4">แสดงมูลค่าปัจจุบันของพอร์ต (ดู P/L ได้เมื่อนำเมาส์ชี้)</p>
                 <div class="chart-container flex items-center justify-center">
                     <canvas id="allocationChart"></canvas>
                 </div>
             </div>
             
-            <!-- Bar Chart (เทียบต้นทุนกับมูลค่า) -->
+            <!-- Bar Chart (กำไร/ขาดทุน) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
-                <h3 id="barChartTitle" class="text-base font-semibold text-slate-800 mb-4">เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน</h3>
+                <h3 id="barChartTitle" class="text-base font-semibold text-slate-800 mb-4">ผลกำไร/ขาดทุน (P/L) แยกตามหุ้น</h3>
                 <div class="chart-container">
                     <canvas id="performanceChart"></canvas>
                 </div>
@@ -258,14 +258,16 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
             const labels = data.map(row => row.Symbol);
             const costData = data.map(row => cleanNum(row.Cost) * cleanNum(row.Qty));
             const valueData = data.map(row => cleanNum(row.CurrentPr || row.CurrentPrice) * cleanNum(row.Qty));
+            
+            // คำนวณ P/L และ % ของแต่ละหุ้นสำหรับนำไปใช้วาดกราฟ
+            const plData = valueData.map((val, i) => val - costData[i]);
+            const percentData = costData.map((cost, i) => cost > 0 ? (plData[i] / cost) * 100 : 0);
 
             // สีสำหรับหุ้นแต่ละตัว
             const baseColors = ['#4f46e5', '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'];
             const chartColors = labels.map((_, i) => baseColors[i % baseColors.length]);
-            // สร้างสีแบบโปร่งใสสำหรับวงแหวนต้นทุน (เพื่อให้ต่างกับวงแหวนมูลค่าปัจจุบัน)
-            const transparentColors = chartColors.map(c => c + '66'); 
 
-            // 1. วาดกราฟโดนัทแบบซ้อน (Nested Doughnut)
+            // 1. วาดกราฟโดนัท (สัดส่วนพอร์ต) - เปลี่ยนกลับเป็นวงเดียวเพื่อความไม่งง
             const allocationCanvas = document.getElementById('allocationChart');
             if (allocationChartInstance) allocationChartInstance.destroy();
 
@@ -277,20 +279,11 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                         labels: labels,
                         datasets: [
                             {
-                                label: 'มูลค่าปัจจุบัน (Value)',
+                                label: 'มูลค่าปัจจุบัน',
                                 data: valueData,
                                 backgroundColor: chartColors,
                                 borderWidth: 2,
-                                borderColor: '#ffffff',
-                                weight: 2 // ให้วงนอกหนากว่าเล็กน้อย
-                            },
-                            {
-                                label: 'ต้นทุน (Cost)',
-                                data: costData,
-                                backgroundColor: transparentColors,
-                                borderWidth: 2,
-                                borderColor: '#ffffff',
-                                weight: 1.5
+                                borderColor: '#ffffff'
                             }
                         ]
                     },
@@ -302,12 +295,12 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) {
-                                            label += ' - ' + context.label + ': ';
-                                        }
-                                        label += '฿' + formatMoney(context.raw);
-                                        return label;
+                                        const idx = context.dataIndex;
+                                        const val = context.raw;
+                                        const pct = percentData[idx];
+                                        const sign = pct >= 0 ? '+' : '';
+                                        // เพิ่ม % P/L เข้าไปใน Tooltip ด้วย
+                                        return ` ${context.label}: ฿${formatMoney(val)} (${sign}${pct.toFixed(2)}%)`;
                                     }
                                 }
                             },
@@ -322,16 +315,16 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                 }, 100);
             }
 
-            // 2. วาดกราฟแท่ง พร้อม % (Bar Chart with DataLabels)
+            // 2. วาดกราฟแท่งแบบซ้อน (Overlapping Bar Chart: Cost vs Value)
             const performanceCanvas = document.getElementById('performanceChart');
             if (performanceChartInstance) performanceChartInstance.destroy();
 
-            document.getElementById('barChartTitle').innerText = filterSymbol === "ALL" 
-                ? "เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน (ทั้งหมด)" 
-                : `เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน (${filterSymbol})`;
-
             // หาค่าสูงสุดเผื่อพื้นที่ให้ตัวเลข % ไม่โดนขอบบนบัง
             const maxValue = Math.max(...costData, ...valueData);
+
+            document.getElementById('barChartTitle').innerText = filterSymbol === "ALL" 
+                ? "เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน" 
+                : `เปรียบเทียบต้นทุน และ มูลค่าปัจจุบัน (${filterSymbol})`;
 
             performanceChartInstance = new Chart(performanceCanvas, {
                 type: 'bar',
@@ -341,13 +334,21 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                         {
                             label: 'ต้นทุน (Cost)',
                             data: costData,
-                            backgroundColor: '#cbd5e1',
+                            backgroundColor: '#e2e8f0', // สีเทาอ่อน
+                            // ปรับแต่งให้แท่งเยื้องกันและเกยกันเล็กน้อย
+                            barPercentage: 1.15, 
+                            categoryPercentage: 0.6,
                             borderRadius: 4
                         },
                         {
-                            label: 'มูลค่า (Value)',
+                            label: 'มูลค่าปัจจุบัน (Value)',
                             data: valueData,
+                            // เขียวถ้ากำไร แดงถ้าขาดทุน
                             backgroundColor: valueData.map((val, idx) => val >= costData[idx] ? '#10b981' : '#f43f5e'),
+                            borderColor: '#ffffff', // เส้นขอบสีขาวช่วยให้เห็นรอยแยกเวลาแท่งเกยกัน
+                            borderWidth: 2,
+                            barPercentage: 1.15,
+                            categoryPercentage: 0.6,
                             borderRadius: 4
                         }
                     ]
@@ -356,23 +357,29 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        padding: { top: 20 } // เพิ่มขอบบนกันตัวหนังสือแหว่ง
+                        padding: { top: 30, bottom: 10 } 
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            suggestedMax: maxValue * 1.15, // ดันกราฟลงมาหน่อย
+                            suggestedMax: maxValue * 1.15,
                             ticks: {
                                 callback: function(value) {
                                     return '฿' + (value / 1000) + 'k';
                                 },
                                 font: { family: 'Prompt' }
+                            },
+                            grid: {
+                                color: '#f1f5f9'
                             }
                         },
                         x: { ticks: { font: { family: 'Prompt' } } }
                     },
                     plugins: {
-                        legend: { labels: { font: { family: 'Prompt' } } },
+                        legend: { 
+                            display: true,
+                            labels: { font: { family: 'Prompt' } }
+                        }, 
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -380,28 +387,25 @@ TNP,4.29,10800,2.88,31104.00,-15228.00`;
                                 }
                             }
                         },
-                        // เปิดใช้งาน Plugin DataLabels เฉพาะกราฟนี้
                         datalabels: {
                             display: function(context) {
-                                // แสดงเฉพาะ Dataset ที่ 2 (มูลค่าปัจจุบัน)
-                                return context.datasetIndex === 1;
+                                return context.datasetIndex === 1; // แสดง % เฉพาะบนแท่ง Value
                             },
-                            align: 'end',
                             anchor: 'end',
+                            align: 'end',
                             offset: 4,
                             font: { family: 'Prompt', size: 11, weight: 'bold' },
                             color: function(context) {
-                                const value = context.dataset.data[context.dataIndex];
+                                const val = context.dataset.data[context.dataIndex];
                                 const cost = context.chart.data.datasets[0].data[context.dataIndex];
-                                return value >= cost ? '#059669' : '#e11d48'; // สีตัวหนังสือ เขียว/แดง
+                                return val >= cost ? '#059669' : '#e11d48'; // สีตัวอักษร
                             },
                             formatter: function(value, context) {
-                                // คำนวณเปอร์เซ็นต์กำไรขาดทุน
                                 const cost = context.chart.data.datasets[0].data[context.dataIndex];
-                                if(cost === 0) return '';
-                                const percent = ((value - cost) / cost) * 100;
-                                const sign = percent > 0 ? '+' : '';
-                                return sign + percent.toFixed(2) + '%';
+                                if (cost === 0) return '';
+                                const pct = ((value - cost) / cost) * 100;
+                                const sign = pct > 0 ? '+' : '';
+                                return sign + pct.toFixed(2) + '%';
                             }
                         }
                     }
