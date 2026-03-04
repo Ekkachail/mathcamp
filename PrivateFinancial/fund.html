@@ -150,6 +150,16 @@
 
                     // ตรวจสอบว่าคอลัมน์แรกมีข้อมูลชื่อกองทุนหรือไม่
                     if (row && row.length >= 2 && row[0].trim() !== "") {
+                        
+                        // ดึงราคาปัจจุบันจากคอลัมน์ที่ 5 (index 4) ถ้ามีข้อมูล
+                        let currentPriceFromSheet = null;
+                        if (row.length > 4 && row[4] && row[4].trim() !== "") {
+                            let parsedPrice = parseFloat(row[4].replace(/,/g, ''));
+                            if (!isNaN(parsedPrice)) {
+                                currentPriceFromSheet = parsedPrice;
+                            }
+                        }
+
                         portfolioData.push({
                             id: index,
                             name: row[0].trim(),
@@ -157,7 +167,7 @@
                             avgPrice: parseFloat((row[1] || '0').replace(/,/g, '')),
                             units: parseFloat((row[2] || '0').replace(/,/g, '')),
                             link: (row[3] || "#").trim(),
-                            currentPrice: null
+                            currentPrice: currentPriceFromSheet
                         });
                     }
                 });
