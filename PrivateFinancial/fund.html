@@ -26,7 +26,7 @@
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-1"><i class="fas fa-chart-line text-blue-600 mr-2"></i> ระบบติดตามพอร์ตลงทุนส่วนตัว</h1>
-                <p class="text-sm text-gray-500">ข้อมูลซิงค์กับ Google Sheets อัตโนมัติ</p>
+                <p class="text-sm text-gray-500">ข้อมูลซิงค์กับ Google Sheets อัตโนมัติ (CSV Data)</p>
             </div>
             
             <button onclick="loadFromSheet()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm w-full md:w-auto">
@@ -90,32 +90,39 @@
     </div>
 
     <script>
-        // ข้อมูล Mockup เริ่มต้น (ถ้ายังไม่ได้เชื่อม Sheet)
-        let portfolioData = [
-            { id: 1, name: "K-USXNDQ-A(A)", avgPrice: 52.4500, units: 1500.54, link: "https://www.google.com/finance", currentPrice: null },
-            { id: 2, name: "SCBSET50", avgPrice: 15.2000, units: 5000.00, link: "https://www.google.com/finance", currentPrice: null },
-            { id: 3, name: "B-INNOTECH", avgPrice: 18.9500, units: 850.25, link: "https://www.google.com/finance", currentPrice: null }
-        ];
+        let portfolioData = [];
 
         // Format ตัวเลข
         const formatMoney = (num) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(num || 0);
         const formatNumber = (num, decimals = 4) => new Intl.NumberFormat('th-TH', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(num || 0);
 
-        // 👇 ฝัง URL ของ Google Sheets ที่นี่ (เอาลิงก์ของคุณมาแทนที่ข้อความข้างในเครื่องหมายคำพูด) 👇
+        // 👇 อัปเดต URL ของ Google Sheets เป็นลิงก์ Publish to CSV ของคุณ 👇
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhtlb9rQlKGTGedKmHvGa6Lh_7CiDSmXUad79QABQGEr3h8Q3_mzWzD_s-We5nNxb8_qdEDDcTVINn/pub?gid=1105199722&single=true&output=csv";
 
-        // ดึง Sheet ID จาก URL
-        function extractSheetId(url) {
-            const regex = /\/d\/([a-zA-Z0-9-_]+)/;
-            const match = url.match(regex);
-            return match ? match[1] : null;
+        // ฟังก์ชันสำหรับแกะข้อมูล CSV
+        function parseCSV(str) {
+            const arr = [];
+            let quote = false;
+            let row = 0, col = 0;
+            for (let c = 0; c < str.length; c++) {
+                let cc = str[c], nc = str[c+1];
+                arr[row] = arr[row] || [];
+                arr[row][col] = arr[row][col] || '';
+                if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+                if (cc == '"') { quote = !quote; continue; }
+                if (cc == ',' && !quote) { ++col; continue; }
+                if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+                if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+                arr[row][col] += cc;
+            }
+            return arr;
         }
 
-        // ดึงข้อมูลจาก Google Sheets
+        // ดึงข้อมูลจาก Google Sheets (อ่านไฟล์ CSV)
         async function loadFromSheet() {
-            const sheetId = extractSheetId(GOOGLE_SHEET_URL);
-            if (!sheetId) {
-                alert("ไม่พบ Sheet ID กรุณาตรวจสอบการตั้งค่า GOOGLE_SHEET_URL ในโค้ด");
+            if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes("ใส่_ID_SHEET_ของคุณที่นี่")) {
+                alert("ไม่พบลิงก์ กรุณาตรวจสอบการตั้งค่า GOOGLE_SHEET_URL ในโค้ด");
                 return;
             }
 
@@ -125,29 +132,26 @@
             document.getElementById('errorState').classList.add('hidden');
 
             try {
-                // ใช้ Google Visualization API เพื่อดึงข้อมูลเป็น JSON
-                const queryUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-                const response = await fetch(queryUrl);
-                const text = await response.text();
+                const response = await fetch(GOOGLE_SHEET_URL);
+                if (!response.ok) throw new Error("ไม่สามารถดาวน์โหลดข้อมูลได้");
                 
-                // ลบคำสั่ง function ที่ครอบ JSON อยู่ออก (google API ส่งกลับมาในรูปแบบ JSONP)
-                const jsonString = text.substring(47, text.length - 2);
-                const json = JSON.parse(jsonString);
-
-                const rows = json.table.rows;
+                const csvText = await response.text();
+                const rows = parseCSV(csvText);
                 portfolioData = [];
 
                 rows.forEach((row, index) => {
-                    // ข้ามแถวหัวตาราง (ถ้าข้อมูลเป็น String ทั้งหมด อาจจะเป็นหัวตาราง)
-                    if (index === 0 && row.c[1] && isNaN(parseFloat(row.c[1].v))) return;
+                    // ข้ามแถวหัวตาราง (แถวแรก)
+                    if (index === 0) return;
 
-                    if (row.c && row.c[0]) {
+                    // ตรวจสอบว่าคอลัมน์แรกมีข้อมูลชื่อกองทุนหรือไม่
+                    if (row && row.length >= 2 && row[0].trim() !== "") {
                         portfolioData.push({
                             id: index,
-                            name: row.c[0]?.v || "ไม่ระบุชื่อ",
-                            avgPrice: parseFloat(row.c[1]?.v || 0),
-                            units: parseFloat(row.c[2]?.v || 0),
-                            link: row.c[3]?.v || "#",
+                            name: row[0].trim(),
+                            // ลบคอมม่าออกจากตัวเลขก่อน (ถ้ามี) แล้วแปลงเป็นตัวเลข
+                            avgPrice: parseFloat((row[1] || '0').replace(/,/g, '')),
+                            units: parseFloat((row[2] || '0').replace(/,/g, '')),
+                            link: (row[3] || "#").trim(),
                             currentPrice: null
                         });
                     }
@@ -157,7 +161,7 @@
 
             } catch (error) {
                 console.error("Error fetching sheet:", error);
-                document.getElementById('errorMessage').innerText = "ดึงข้อมูลไม่สำเร็จ ตรวจสอบว่าแชร์ Sheet เป็น 'ทุกคนที่มีลิงก์' (Public) แล้วหรือไม่";
+                document.getElementById('errorMessage').innerText = "ดึงข้อมูลไม่สำเร็จ ตรวจสอบลิงก์ Google Sheets อีกครั้ง";
                 document.getElementById('errorState').classList.remove('hidden');
             } finally {
                 document.getElementById('loadingState').classList.add('hidden');
@@ -280,12 +284,7 @@
         }
 
         // โหลดข้อมูลจาก Sheet อัตโนมัติเมื่อเปิดหน้าเว็บ
-        // (หากยังไม่ใส่ลิงก์ที่ถูกต้อง มันจะแสดง Mock Data แทนไปก่อน)
-        if(GOOGLE_SHEET_URL.includes("ใส่_ID_SHEET_ของคุณที่นี่")) {
-            renderTable(); 
-        } else {
-            loadFromSheet(); 
-        }
+        loadFromSheet(); 
 
     </script>
 </body>
