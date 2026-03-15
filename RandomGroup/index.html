@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Camp: คณิตลิขิตดวง</title>
+    <title>คณิตลิขิตดวง: สุ่มลำดับคิว</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -64,6 +64,24 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(255,255,255,1);
             text-align: center;
             margin: 20px 0;
+        }
+
+        /* Logo Area */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo-img {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 15px;
+            /* หากรูปไม่แสดง จะเห็นกรอบประบางๆ */
+            border: 2px dashed #dfe4ea;
+            padding: 5px;
         }
 
         /* Header */
@@ -265,6 +283,7 @@
 
         @media (max-width: 600px) {
             .container { padding: 20px; border-radius: 20px;}
+            .logo-img { max-width: 90px; max-height: 90px; }
             h1 { font-size: 2.5rem; }
             h2 { font-size: 1.4rem; }
             .result-box { width: 160px; height: 160px; font-size: 5.5rem; }
@@ -280,7 +299,13 @@
     <div class="math-bg" id="mathBg"></div>
 
     <div class="container">
-        <h1>Math Camp</h1>
+        <!-- Logo Area -->
+        <div class="logo-container">
+            <!-- เปลี่ยน logo.png เป็นชื่อไฟล์รูปโลโก้ที่อยู่ในแฟ้มเดียวกัน -->
+            <img src="logo.png" alt="โลโก้ คณิตลิขิตดวง" class="logo-img" onerror="this.style.border='none'">
+        </div>
+        
+        <h1>คณิตลิขิตดวง</h1>
         <h2>ระบบสุ่มลำดับคิว</h2>
 
         <div class="mode-selector">
