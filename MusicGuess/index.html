@@ -4,56 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>คณิตศาสตร์การละคร</title>
-    <!-- นำเข้า Tailwind CSS สำหรับการตกแต่งให้สวยงามเหมือนแอปพลิเคชัน -->
+    <!-- นำเข้า Tailwind CSS และ Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Prompt:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* เพิ่ม Animation เล็กน้อยให้ดูน่าใช้งาน */
+        /* Animation เล็กน้อยให้ดูน่าใช้งาน */
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .spin-slow { animation: spin 10s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* ปรับแต่ง Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        /* ปรับแต่ง Scrollbar ทั้งหน้าเว็บและกล่องย่อย */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* ========================================= */
+        /* Custom Styles for Album Cover Elements */
+        /* ========================================= */
+        .bg-math-grid {
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 15px 15px;
+        }
+
+        .spotlight {
+            background: radial-gradient(circle at 50% 30%, rgba(255, 215, 0, 0.25) 0%, rgba(0, 0, 0, 0) 60%);
+            mix-blend-mode: screen;
+        }
+
+        .curtain-left {
+            background: linear-gradient(90deg, #450a0a 0%, #7f1d1d 40%, #991b1b 80%, #450a0a 100%);
+            border-bottom-right-radius: 40% 100%;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.8);
+            transform-origin: top left;
+        }
+        
+        .curtain-right {
+            background: linear-gradient(-90deg, #450a0a 0%, #7f1d1d 40%, #991b1b 80%, #450a0a 100%);
+            border-bottom-left-radius: 40% 100%;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.8);
+            transform-origin: top right;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+            50% { transform: translateY(-10px) rotate(10deg); opacity: 0.4; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+        }
+        .math-symbol { animation: float 6s ease-in-out infinite; }
+        .math-symbol:nth-child(2) { animation-delay: 2s; animation-duration: 7s; }
+        .math-symbol:nth-child(3) { animation-delay: 4s; animation-duration: 5s; }
+        .math-symbol:nth-child(4) { animation-delay: 1s; animation-duration: 8s; }
+
+        .font-math { font-family: 'Prompt', sans-serif; letter-spacing: 0.15em; }
+        .font-drama { font-family: 'Playfair Display', serif; font-style: italic; }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen font-sans selection:bg-green-500 selection:text-white flex items-center justify-center p-4">
 
-    <!-- Container หลัก (ปรับเป็นแนวนอน Landscape) -->
-    <div class="bg-gray-800 w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-gray-700 relative h-[600px] flex flex-col">
+    <!-- Container หลัก (ปรับความสูงเล็กน้อยให้รับเนื้อหาได้มากขึ้น) -->
+    <div class="bg-gray-800 w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-gray-700 relative h-[650px] flex flex-col">
         
         <!-- Header -->
         <div class="pt-6 pb-4 px-8 flex justify-between items-center z-10 border-b border-gray-700">
-            <h1 class="text-2xl font-bold tracking-wider text-green-400">คณิตศาสตร์<span class="text-white">การละคร</span></h1>
-            <div class="text-sm font-semibold bg-gray-700 px-4 py-1.5 rounded-full" id="group-counter">กลุ่มที่ 0/8</div>
+            <h1 class="text-2xl font-bold tracking-wider text-green-400 font-math">คณิตศาสตร์<span class="text-white font-drama not-italic">การละคร</span></h1>
+            <div class="text-sm font-semibold bg-gray-700 px-4 py-1.5 rounded-full" id="group-counter">สุ่มไปแล้ว 0/8</div>
         </div>
 
         <!-- หน้าที่ 1: หน้าสุ่มกลุ่ม (Home Screen) -->
         <div id="screen-home" class="flex-1 flex flex-row p-8 fade-in gap-8">
-            <!-- ส่วนซ้าย: ปุ่มสุ่ม -->
+            <!-- ส่วนซ้าย: รูปปก และ ปุ่มสุ่ม -->
             <div class="flex-1 flex flex-col items-center justify-center border-r border-gray-700 pr-8">
-                <div class="w-40 h-40 bg-gradient-to-br from-green-400 to-blue-600 rounded-full flex items-center justify-center mb-8 shadow-lg shadow-green-500/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-                </div>
-                <h2 class="text-3xl font-bold mb-2 text-center">พร้อมหรือยัง?</h2>
-                <p class="text-gray-400 text-center mb-8">สุ่มกลุ่มเพื่อทายชื่อเพลงจากการแสดง</p>
                 
-                <button onclick="randomizeGroup()" id="btn-random" class="w-full max-w-xs bg-green-500 hover:bg-green-400 text-black font-bold text-lg py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-xl shadow-green-500/20 flex items-center justify-center gap-2">
+                <!-- รูปหน้าปกของแอป -->
+                <div class="w-56 h-56 rounded-3xl overflow-hidden mb-6 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.8)] border-4 border-gray-700 relative group bg-math-grid">
+                    <div class="absolute inset-0 pointer-events-none text-white font-serif font-bold select-none text-xs">
+                        <div class="math-symbol absolute top-4 left-6">∫ f(x)dx</div>
+                        <div class="math-symbol absolute top-10 right-8 text-xl">∑</div>
+                        <div class="math-symbol absolute bottom-8 left-6 text-lg">π</div>
+                        <div class="math-symbol absolute top-1/2 right-4 text-[10px]">e^(iπ)+1=0</div>
+                        <div class="math-symbol absolute top-4 left-1/2 text-xl">∞</div>
+                        <div class="math-symbol absolute bottom-4 right-6 text-xs">sin(θ)</div>
+                    </div>
+                    <div class="absolute inset-0 spotlight"></div>
+                    <div class="absolute top-0 left-0 w-1/4 h-[110%] curtain-left transition-transform duration-700 group-hover:-translate-x-3"></div>
+                    <div class="absolute top-0 right-0 w-1/4 h-[110%] curtain-right transition-transform duration-700 group-hover:translate-x-3"></div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pt-4">
+                        <div class="relative w-20 h-20 mb-3 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">
+                            <svg viewBox="0 0 100 100" class="w-full h-full text-yellow-500 fill-transparent stroke-current stroke-[2]">
+                                <path d="M 50 10 A 40 40 0 0 1 90 50 A 40 40 0 0 1 50 90 A 40 40 0 0 1 10 50 A 40 40 0 0 1 50 10" stroke-dasharray="4 4" class="opacity-30" />
+                                <path d="M 50 15 L 25 35 L 25 65 L 50 85" stroke-linejoin="miter" />
+                                <path d="M 35 45 L 42 45" />
+                                <path d="M 32 65 L 45 60" />
+                                <path d="M 50 15 Q 85 20 75 65 Q 65 95 50 85" stroke-linecap="round" />
+                                <path d="M 58 45 Q 62 40 66 45" />
+                                <path d="M 55 60 Q 62 70 70 60" />
+                                <line x1="50" y1="15" x2="50" y2="85" class="stroke-[1] opacity-50" />
+                            </svg>
+                        </div>
+                        <div class="text-center z-20">
+                            <h1 class="text-white font-math text-[1.1rem] font-bold uppercase mb-0 drop-shadow-lg leading-tight">คณิตศาสตร์</h1>
+                            <h2 class="text-yellow-500 font-drama text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">การละคร</h2>
+                            <div class="mt-3 flex items-center justify-center gap-1.5 text-gray-300 text-[9px] font-math tracking-widest uppercase">
+                                <span>—</span><span>The Logic of Emotion</span><span>—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-1 text-center">พร้อมหรือยัง?</h2>
+                <p class="text-gray-400 text-center text-sm mb-5">สุ่มกลุ่มเพื่อทายชื่อเพลงจากการแสดง</p>
+                
+                <button onclick="randomizeGroup()" id="btn-random" class="w-full max-w-xs bg-green-500 hover:bg-green-400 text-black font-bold text-lg py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-xl shadow-green-500/20 flex items-center justify-center gap-2 mb-5">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.27l-5.42 5.42"/></svg>
                     สุ่มกลุ่มถัดไป
                 </button>
+
+                <!-- ส่วนจัดการกลุ่มแบบ Manual -->
+                <div class="w-full max-w-xs bg-gray-900/50 p-3 rounded-xl border border-gray-700">
+                    <p class="text-xs text-gray-400 text-center mb-2">กลุ่มที่ยังไม่สุ่ม (คลิกเพื่อตัดออก)</p>
+                    <div id="available-container" class="flex flex-wrap justify-center gap-1.5">
+                        <!-- ปุ่มกลุ่มที่ยังไม่สุ่มจะมาแสดงที่นี่ -->
+                    </div>
+                </div>
             </div>
             
             <!-- ส่วนขวา: ประวัติการสุ่ม -->
             <div class="flex-1 flex flex-col pl-4">
-                <h3 class="text-xl font-bold mb-4 text-gray-300 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    ลำดับกลุ่มที่สุ่มไปแล้ว
-                </h3>
-                <div id="history-container" class="grid grid-cols-2 gap-3 overflow-y-auto pr-2 pb-4 h-[400px] content-start">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-300 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        ประวัติการสุ่ม
+                    </h3>
+                    <p class="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded-md">คลิกเพื่อคืนค่า</p>
+                </div>
+                
+                <div id="history-container" class="grid grid-cols-2 gap-3 overflow-y-auto pr-2 pb-4 h-full content-start">
                     <!-- รายการประวัติจะถูกเพิ่มด้วย JavaScript -->
                     <div class="col-span-2 text-center text-gray-500 mt-10 text-sm">ยังไม่มีกลุ่มที่ถูกสุ่ม</div>
                 </div>
@@ -61,53 +153,67 @@
         </div>
 
         <!-- หน้าที่ 2: หน้าคำถาม (Question Screen) -->
-        <div id="screen-question" class="flex-1 flex flex-row p-8 hidden fade-in gap-8">
+        <div id="screen-question" class="flex-1 flex flex-row p-8 hidden fade-in gap-8 overflow-hidden">
             <!-- ส่วนซ้าย: รูปภาพและชื่อกลุ่ม -->
-            <div class="flex-1 flex flex-col items-center justify-center border-r border-gray-700 pr-8">
-                <h2 id="display-group-name" class="text-center text-3xl font-bold mb-6 text-gray-200">กลุ่ม A</h2>
+            <div class="flex-1 flex flex-col items-center justify-center border-r border-gray-700 pr-8 relative">
+                <h2 id="display-group-name" class="text-center text-4xl font-bold mb-8 text-gray-100 drop-shadow-md">กลุ่ม A</h2>
                 
                 <!-- ภาพหน้าปก (Album Cover) -->
-                <div class="relative w-72 h-72 mx-auto mb-4">
-                    <img id="album-cover" src="" alt="Album Cover" class="w-full h-full object-cover rounded-2xl shadow-2xl shadow-black/50 border-2 border-gray-700" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&auto=format&fit=crop';">
-                    <!-- วงกลมตรงกลาง (แผ่นเสียง) จะโชว์ตอนเล่นเพลง -->
-                    <div id="record-hole" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-900 rounded-full border-4 border-gray-800"></div>
-                </div>
-            </div>
-
-            <!-- ส่วนขวา: ตัวเลือกและผลลัพธ์ -->
-            <div class="flex-1 flex flex-col justify-center pl-4 h-full">
-                <div class="text-left mb-4">
-                    <h3 class="text-xl font-medium text-gray-400">เพลงนี้คือเพลงอะไร?</h3>
-                </div>
-
-                <!-- ตัวเลือก 4 ข้อ -->
-                <div id="choices-container" class="grid grid-cols-1 gap-3 mb-6">
-                    <!-- ปุ่มจะถูกสร้างที่นี่ผ่าน JavaScript -->
-                </div>
-
-                <!-- ส่วนแสดงผลหลังตอบ (เฉลยและเครื่องเล่นเพลง) -->
-                <div id="result-container" class="hidden flex-col items-center mt-auto fade-in">
-                    <!-- ตัวเล่น Audio ที่ซ่อนอยู่ เราจะควบคุมผ่าน JS -->
-                    <audio id="audio-player" src=""></audio>
+                <div class="relative w-72 h-72 mx-auto mb-4 cursor-pointer group" id="cover-container">
+                    <img id="album-cover" src="" alt="Album Cover" class="w-full h-full object-cover rounded-3xl shadow-2xl shadow-black/60 border-4 border-gray-700 group-hover:border-green-400 transition-all duration-300" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&auto=format&fit=crop';">
                     
-                    <div class="w-full bg-gray-700/50 rounded-xl p-4 mb-4 flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-green-400 font-bold mb-1" id="result-status">คำตอบที่ถูกต้อง!</p>
-                            <p class="font-bold text-xl text-white truncate w-56" id="correct-song-name">ชื่อเพลง</p>
-                        </div>
-                        <!-- Animation กราฟเสียง (โชว์ตอนเล่น) -->
-                        <div class="flex items-end gap-1.5 h-8">
-                            <div class="w-2 bg-green-500 rounded-t h-3 animate-[bounce_1s_infinite]"></div>
-                            <div class="w-2 bg-green-500 rounded-t h-6 animate-[bounce_1.2s_infinite]"></div>
-                            <div class="w-2 bg-green-500 rounded-t h-8 animate-[bounce_0.8s_infinite]"></div>
-                            <div class="w-2 bg-green-500 rounded-t h-4 animate-[bounce_1.1s_infinite]"></div>
-                        </div>
+                    <!-- Overlay แสดงข้อความคลิกเพื่อดูตัวเลือก -->
+                    <div id="click-hint-overlay" class="absolute inset-0 bg-black/60 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2 animate-bounce text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+                        <span class="font-bold text-lg">คลิกเพื่อดูตัวเลือก</span>
                     </div>
 
-                    <button onclick="goToHome()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-4 rounded-full transition-colors flex justify-center items-center gap-2 shadow-lg text-lg">
-                        กลับไปสุ่มกลุ่มถัดไป
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </button>
+                    <!-- วงกลมตรงกลาง (แผ่นเสียง) จะโชว์ตอนเล่นเพลง -->
+                    <div id="record-hole" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-900 rounded-full border-4 border-gray-800 shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)] z-20"></div>
+                </div>
+                
+                <p id="static-hint-text" class="text-green-400 text-sm font-semibold animate-pulse mt-2">👆 คลิกที่รูปปกเพื่อเปิดคำถาม</p>
+            </div>
+
+            <!-- ส่วนขวา: ตัวเลือกและผลลัพธ์ (เพิ่ม overflow-y-auto ป้องกันตกขอบ) -->
+            <div class="flex-1 flex flex-col pl-4 h-full overflow-y-auto pb-4 pr-2">
+                <!-- ส่วนคำถาม (ซ่อนไว้ก่อน) -->
+                <div id="question-area" class="hidden w-full transition-all duration-500 fade-in flex-col justify-center min-h-full">
+                    <div class="text-left mb-4">
+                        <h3 class="text-2xl font-bold text-gray-200">เพลงนี้คือเพลงอะไร?</h3>
+                        <p class="text-gray-400 text-sm">เลือกคำตอบที่ตรงกับการแสดง</p>
+                    </div>
+
+                    <!-- ตัวเลือก 4 ข้อ -->
+                    <div id="choices-container" class="grid grid-cols-1 gap-2.5 mb-6">
+                        <!-- ปุ่มจะถูกสร้างที่นี่ผ่าน JavaScript -->
+                    </div>
+
+                    <!-- ส่วนแสดงผลหลังตอบ (เฉลยและเครื่องเล่นเพลง) -->
+                    <div id="result-container" class="hidden flex-col items-center mt-2 fade-in">
+                        <!-- ตัวเล่น Audio ที่ซ่อนอยู่ เราจะควบคุมผ่าน JS -->
+                        <audio id="audio-player" src=""></audio>
+                        
+                        <div class="w-full bg-gray-700/80 rounded-2xl p-4 mb-4 flex items-center justify-between border border-gray-600 shadow-xl">
+                            <div class="overflow-hidden pr-2">
+                                <p class="text-xs text-green-400 font-bold mb-1" id="result-status">คำตอบที่ถูกต้อง!</p>
+                                <p class="font-bold text-lg text-white truncate w-full" id="correct-song-name">ชื่อเพลง</p>
+                            </div>
+                            <!-- Animation กราฟเสียง (โชว์ตอนเล่น) -->
+                            <div class="flex items-end gap-1.5 h-6 shrink-0">
+                                <div class="w-1.5 bg-green-500 rounded-t h-3 animate-[bounce_1s_infinite]"></div>
+                                <div class="w-1.5 bg-green-500 rounded-t h-5 animate-[bounce_1.2s_infinite]"></div>
+                                <div class="w-1.5 bg-green-500 rounded-t h-6 animate-[bounce_0.8s_infinite]"></div>
+                                <div class="w-1.5 bg-green-500 rounded-t h-4 animate-[bounce_1.1s_infinite]"></div>
+                            </div>
+                        </div>
+
+                        <!-- ปุ่มกลับหน้าหลัก (ปรับให้เห็นชัดและอยู่ด้านล่างสุดเสมอ) -->
+                        <button onclick="goToHome()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3.5 rounded-full transition-colors flex justify-center items-center gap-2 shadow-lg text-lg ring-4 ring-white/20">
+                            กลับไปหน้าหลัก
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,85 +222,81 @@
 
     <script>
         // ==========================================
-        // ส่วนการตั้งค่าข้อมูล (แก้ไขข้อมูลเพลงและรูปได้ที่นี่)
-        // ==========================================
-        // 1. image: ระบุชื่อไฟล์รูปภาพที่อยู่ในโฟลเดอร์เดียวกับเว็บ เช่น 'group_a.jpg'
-        // 2. audioUrl: ระบุลิงก์ไฟล์เสียง (.mp3, .wav) หากไม่มีให้ปล่อยว่าง หรือใช้ลิงก์ตัวอย่าง
+        // ส่วนการตั้งค่าข้อมูล
         // ==========================================
         const allGroupsData = [
-            {
-                id: 'A',
-                name: 'กลุ่ม A',
+            { 
+                id: 'A', 
+                name: 'กลุ่ม A', 
                 image: 'group_a.jpg', 
-                correctSong: 'นะหน้าทอง - Joey Phuwasit',
-                choices: ['นะหน้าทอง - Joey Phuwasit', 'ซ่อนกลิ่น - Palmy', 'เลือดกรุ๊ปบี - Chokun', 'ทรงอย่างแบด - Paper Planes'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // ลิงก์ตัวอย่าง
+                correctSong: 'กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 
+                choices: ['กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 'จื่อบ่ - ก้านตอง ทุ่งเงิน', 'ทานตะวัน - พงษ์สิทธิ์ คำภีร์', 'ดอกกระเจียวบาน - ก้อง ห้วยไร่'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' 
             },
-            {
-                id: 'B',
-                name: 'กลุ่ม B',
-                image: 'group_b.jpg',
-                correctSong: 'ทรงอย่างแบด - Paper Planes',
-                choices: ['เสแสร้ง - Paper Planes', 'ทรงอย่างแบด - Paper Planes', 'วัดปะหล่ะ? - 4EVE', 'พี่ชอบหนูที่สุดเลย - PONCHET'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+            { 
+                id: 'B', 
+                name: 'กลุ่ม B', 
+                image: 'group_b.jpg', 
+                correctSong: 'คนบ้านเดียวกัน - ไผ่ พงศธร', 
+                choices: ['คนบ้านเดียวกัน - ไผ่ พงศธร', 'ข้างกัน - Three Man Down', 'จี่หอย - พี สะเดิด', 'กลับบ้าน - ก้อง ห้วยไร่ (หรือเวอร์ชันของ ปราง ปรางทิพย์)'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' 
             },
-            {
-                id: 'C',
-                name: 'กลุ่ม C',
-                image: 'group_c.jpg',
-                correctSong: 'เลือดกรุ๊ปบี - Bood Group',
-                choices: ['โต๊ะริม - NONT TANONT', 'เลือดกรุ๊ปบี - Bood Group', 'พิง - NONT TANONT', 'สลักจิต - ป๊อบ ปองกูล'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+            { 
+                id: 'C', 
+                name: 'กลุ่ม C', 
+                image: 'group_c.jpg', 
+                correctSong: 'รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 
+                choices: ['รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 'เพื่อนสนิท - Endorphine', 'รักแรกพบ - Tattoo Colour', 'ผู้โชคดี (The Lucky One) - 9x9 (Nine by Nine)'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' 
             },
-            {
-                id: 'D',
-                name: 'กลุ่ม D',
-                image: 'group_d.jpg',
-                correctSong: 'Stand by หล่อ - New Country',
-                choices: ['Stand by หล่อ - New Country', 'ฉลามชอบงับคุณ - Bonnadol', 'ถ้าเราเจอกันอีก - Tilly Birds', 'ลืมแทบไม่ลง - SARAN'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'
+            { 
+                id: 'D', 
+                name: 'กลุ่ม D', 
+                image: 'group_d.jpg', 
+                correctSong: 'คุณนายตื่นสาย - TEMI Feat. KiRANA', 
+                choices: ['คุณนายตื่นสาย - TEMI Feat. KiRANA', 'ผู้บ่าวตื่นสาย - จินตหรา พูนลาภ', 'ตื่นจากฝัน - BAY6IX x LALA', 'เธอคือกาแฟในตอนเช้า - No One Else'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' 
             },
-            {
-                id: 'E',
-                name: 'กลุ่ม E',
-                image: 'group_e.jpg',
-                correctSong: 'วัดปะหล่ะ? - 4EVE',
-                choices: ['ข้อยกเว้น - 4EVE', 'วัดปะหล่ะ? - 4EVE', 'รักนะต้าววาฬ - นุ๊ก ธนดล', 'ทน - SPRITE x GUYGEEGEE'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
+            { 
+                id: 'E', 
+                name: 'กลุ่ม E', 
+                image: 'group_e.jpg', 
+                correctSong: 'ฝนตกไหม - Three Man Down', 
+                choices: ['ฝนตกไหม - Three Man Down', 'ในวันที่ฝนพรำ - Lipta', 'ฝนตกที่หน้าต่าง - Loso', 'ฤดูที่ฉันเหงา - Flure'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' 
             },
-            {
-                id: 'F',
-                name: 'กลุ่ม F',
-                image: 'group_f.jpg',
-                correctSong: 'พี่ชอบหนูที่สุดเลย - PONCHET',
-                choices: ['พี่ชอบหนูที่สุดเลย - PONCHET', 'พิจารณา - Musketeers', 'วาดไว้ - BOWKYLION', 'รักแท้ - NuNew'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'
+            { 
+                id: 'F', 
+                name: 'กลุ่ม F', 
+                image: 'group_f.jpg', 
+                correctSong: 'จำเลยรัก - F.HERO ft. Txrbo', 
+                choices: ['จำเลยรัก - F.HERO ft. Txrbo', 'จำเลยหัวใจ - Ballad', 'จงรัก - อัสนี-วสันต์', 'จำเก่ง - F.HERO x Tilly Birds'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' 
             },
-            {
-                id: 'G',
-                name: 'กลุ่ม G',
-                image: 'group_g.jpg',
-                correctSong: 'โต๊ะริม - NONT TANONT',
-                choices: ['พิง - NONT TANONT', 'ทุกนาทีที่สวยงาม - NONT TANONT', 'โต๊ะริม - NONT TANONT', 'วันเกิดฉันปีนี้ - Three Man Down'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'
+            { 
+                id: 'G', 
+                name: 'กลุ่ม G', 
+                image: 'group_g.jpg', 
+                correctSong: 'ทน - SPRITE x GUYGEEGEE', 
+                choices: ['ทน - SPRITE x GUYGEEGEE', 'หยอก หยอก - LUSS', 'ขยัน - วิษณุ เทศขยัน', 'ใจฉันตามเธอไป - YOUNGOHM'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' 
             },
-            {
-                id: 'H',
-                name: 'กลุ่ม H',
-                image: 'group_h.jpg',
-                correctSong: 'สลักจิต - ป๊อบ ปองกูล',
-                choices: ['ภาพจำ - ป๊อบ ปองกูล', 'สลักจิต - ป๊อบ ปองกูล', 'ปล่อย - ป๊อบ ปองกูล', 'Undo - ป๊อบ ปองกูล'],
-                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'
+            { 
+                id: 'H', 
+                name: 'กลุ่ม H', 
+                image: 'group_h.jpg', 
+                correctSong: 'เพ้อเจ้อ - ALARM9', 
+                choices: ['เพ้อเจ้อ - ALARM9', 'แพ้ใจ - ใหม่ เจริญปุระ', 'อยากให้รู้ว่าเหงา - เจ เจตริน/หนุ่ม กะลา', 'เป็นไปได้มั้ย - HAVE A NICE DAY'], 
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' 
             }
         ];
 
         // ==========================================
         // ส่วนควบคุมลอจิกของระบบ
         // ==========================================
-        let availableGroups = [...allGroupsData]; // คัดลอกข้อมูลมาเพื่อสุ่มและตัดออก
-        let playedHistory = []; // เก็บประวัติกลุ่มที่เล่นไปแล้ว
+        let availableGroups = [...allGroupsData]; 
+        let playedHistory = []; 
         let currentGroup = null;
-        let playedCount = 0;
         let totalGroups = allGroupsData.length;
 
         // ดึง Element จาก DOM
@@ -203,6 +305,7 @@
         const displayGroupName = document.getElementById('display-group-name');
         const albumCover = document.getElementById('album-cover');
         const recordHole = document.getElementById('record-hole');
+        const questionArea = document.getElementById('question-area');
         const choicesContainer = document.getElementById('choices-container');
         const resultContainer = document.getElementById('result-container');
         const audioPlayer = document.getElementById('audio-player');
@@ -211,9 +314,41 @@
         const groupCounter = document.getElementById('group-counter');
         const btnRandom = document.getElementById('btn-random');
         const historyContainer = document.getElementById('history-container');
+        const availableContainer = document.getElementById('available-container');
+        const coverContainer = document.getElementById('cover-container');
+        const clickHintOverlay = document.getElementById('click-hint-overlay');
+        const staticHintText = document.getElementById('static-hint-text');
 
-        // ฟังก์ชันอัปเดตประวัติในหน้าแรก
+        function updateAvailableUI() {
+            availableContainer.innerHTML = '';
+            availableGroups.forEach(group => {
+                const btn = document.createElement('button');
+                btn.className = "px-2.5 py-1 bg-gray-700 hover:bg-red-500/80 text-gray-300 text-xs font-semibold rounded-lg transition-colors border border-gray-600 flex items-center gap-1 shadow-sm";
+                btn.title = `คลิกเพื่อนำ ${group.name} ออกจากการสุ่ม`;
+                btn.innerHTML = `<span>${group.id}</span><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
+                btn.onclick = () => removeGroupFromPool(group.id);
+                availableContainer.appendChild(btn);
+            });
+
+            if (availableGroups.length === 0) {
+                btnRandom.innerHTML = "สุ่มครบทุกกลุ่มแล้ว! (คลิกเริ่มใหม่)";
+                btnRandom.onclick = resetGame;
+                btnRandom.classList.replace('bg-green-500', 'bg-blue-500');
+                btnRandom.classList.replace('hover:bg-green-400', 'hover:bg-blue-400');
+            } else {
+                btnRandom.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.27l-5.42 5.42"/></svg>
+                    สุ่มกลุ่มถัดไป
+                `;
+                btnRandom.onclick = randomizeGroup;
+                btnRandom.classList.replace('bg-blue-500', 'bg-green-500');
+                btnRandom.classList.replace('hover:bg-blue-400', 'hover:bg-green-400');
+            }
+        }
+
         function updateHistoryUI() {
+            groupCounter.innerText = `สุ่มไปแล้ว ${playedHistory.length}/${totalGroups}`;
+
             if (playedHistory.length === 0) {
                 historyContainer.innerHTML = '<div class="col-span-2 text-center text-gray-500 mt-10 text-sm">ยังไม่มีกลุ่มที่ถูกสุ่ม</div>';
                 return;
@@ -222,21 +357,47 @@
             historyContainer.innerHTML = '';
             playedHistory.forEach((group, index) => {
                 const historyItem = document.createElement('div');
-                historyItem.className = "bg-gray-700/50 p-3 rounded-xl flex items-center gap-3 border border-gray-600 fade-in";
+                historyItem.className = "group bg-gray-700/50 hover:bg-green-600/20 p-3 rounded-xl flex items-center gap-3 border border-gray-600 hover:border-green-500/50 fade-in cursor-pointer transition-all";
+                historyItem.title = "คลิกเพื่อคืนค่ากลุ่มนี้กลับไปสุ่มใหม่";
+                historyItem.onclick = () => restoreGroupToPool(group.id);
+                
                 historyItem.innerHTML = `
-                    <div class="w-10 h-10 rounded-full bg-gray-600 flex-shrink-0 overflow-hidden border border-gray-500">
+                    <div class="w-10 h-10 rounded-full bg-gray-600 flex-shrink-0 overflow-hidden border border-gray-500 group-hover:border-green-400 transition-colors">
                         <img src="${group.image}" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=100&auto=format&fit=crop';" class="w-full h-full object-cover">
                     </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs text-gray-400 font-semibold mb-0.5">ลำดับที่ ${index + 1}</p>
+                    <div class="overflow-hidden flex-1">
+                        <p class="text-xs text-gray-400 font-semibold mb-0.5 group-hover:text-green-300 transition-colors">ลำดับที่ ${index + 1}</p>
                         <p class="text-sm font-bold text-white truncate">${group.name}</p>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 text-green-400 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                     </div>
                 `;
                 historyContainer.appendChild(historyItem);
             });
         }
 
-        // ฟังก์ชันสลับตำแหน่งใน Array (Fisher-Yates Shuffle)
+        function removeGroupFromPool(groupId) {
+            const index = availableGroups.findIndex(g => g.id === groupId);
+            if (index > -1) {
+                const group = availableGroups.splice(index, 1)[0];
+                playedHistory.push(group);
+                updateAvailableUI();
+                updateHistoryUI();
+            }
+        }
+
+        function restoreGroupToPool(groupId) {
+            const index = playedHistory.findIndex(g => g.id === groupId);
+            if (index > -1) {
+                const group = playedHistory.splice(index, 1)[0];
+                availableGroups.push(group);
+                availableGroups.sort((a, b) => a.id.localeCompare(b.id));
+                updateAvailableUI();
+                updateHistoryUI();
+            }
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -245,146 +406,135 @@
             return array;
         }
 
-        // ฟังก์ชันเริ่มสุ่มกลุ่ม
         function randomizeGroup() {
-            if (availableGroups.length === 0) {
-                // เล่นครบแล้ว
-                btnRandom.innerHTML = "เล่นครบทุกกลุ่มแล้ว! (คลิกเพื่อเริ่มใหม่)";
-                btnRandom.onclick = resetGame;
-                btnRandom.classList.replace('bg-green-500', 'bg-blue-500');
-                btnRandom.classList.replace('hover:bg-green-400', 'hover:bg-blue-400');
-                return;
-            }
+            if (availableGroups.length === 0) return;
 
-            // สุ่ม Index
             const randomIndex = Math.floor(Math.random() * availableGroups.length);
             currentGroup = availableGroups[randomIndex];
             
-            // เพิ่มลงในประวัติ
             playedHistory.push(currentGroup);
-            
-            // ลบกลุ่มที่สุ่มได้ออกจาก Array จะได้ไม่ซ้ำ
             availableGroups.splice(randomIndex, 1);
             
-            playedCount++;
-            groupCounter.innerText = `กลุ่มที่ ${playedCount}/${totalGroups}`;
-
             showQuestionScreen();
         }
 
-        // ฟังก์ชันแสดงหน้าคำถาม
         function showQuestionScreen() {
             // ซ่อนหน้าแรก โชว์หน้าคำถาม
             screenHome.classList.add('hidden');
             screenQuestion.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
             
-            // รีเซ็ตอนิเมชั่น
+            // รีเซ็ตหน้าต่างย่อย ให้ซ่อนเฉลยและปิดกล่องคำถามก่อน
+            resultContainer.classList.add('hidden');
+            resultContainer.classList.remove('flex');
+            questionArea.classList.add('hidden');
+            questionArea.classList.remove('flex');
+            
+            // รีเซ็ตสถานะหน้าปก ให้กดได้
             albumCover.classList.remove('rounded-full', 'spin-slow');
             recordHole.classList.add('hidden');
+            coverContainer.classList.add('cursor-pointer', 'group');
+            coverContainer.onclick = revealChoices;
+            
+            // เปิดแจ้งเตือนให้กด
+            clickHintOverlay.classList.remove('hidden');
+            staticHintText.classList.remove('hidden');
 
-            // ใส่ข้อมูล
-            displayGroupName.innerText = `กำลังแสดง: ${currentGroup.name}`;
+            displayGroupName.innerText = `การแสดงของ: ${currentGroup.name}`;
             albumCover.src = currentGroup.image;
 
-            // สร้างปุ่มตัวเลือก
+            // สร้างปุ่มตัวเลือกล่วงหน้า
             choicesContainer.innerHTML = '';
-            let shuffledChoices = shuffleArray([...currentGroup.choices]); // สลับข้อ
+            let shuffledChoices = shuffleArray([...currentGroup.choices]);
             
             shuffledChoices.forEach(choice => {
                 const button = document.createElement('button');
                 button.innerText = choice;
-                button.className = "choice-btn w-full bg-gray-700 hover:bg-gray-600 text-left px-5 py-4 rounded-xl text-sm font-medium transition-all border border-transparent focus:outline-none";
+                button.className = "choice-btn w-full bg-gray-700 hover:bg-gray-600 text-left px-5 py-3.5 rounded-xl text-md font-medium transition-all border border-transparent focus:outline-none shadow-sm";
                 button.onclick = () => handleAnswer(choice, button);
                 choicesContainer.appendChild(button);
             });
         }
 
-        // ฟังก์ชันตรวจคำตอบ
+        function revealChoices() {
+            // ปิดสถานะการกด
+            coverContainer.onclick = null;
+            coverContainer.classList.remove('cursor-pointer', 'group');
+            clickHintOverlay.classList.add('hidden');
+            staticHintText.classList.add('hidden');
+
+            // แสดงคำถามและตัวเลือก
+            questionArea.classList.remove('hidden');
+            questionArea.classList.add('flex');
+        }
+
         function handleAnswer(selectedChoice, selectedButton) {
-            // ปิดการกดปุ่มทั้งหมด
             const buttons = document.querySelectorAll('.choice-btn');
             buttons.forEach(btn => btn.disabled = true);
 
             const isCorrect = (selectedChoice === currentGroup.correctSong);
 
-            // เปลี่ยนสีปุ่ม
             buttons.forEach(btn => {
                 if (btn.innerText === currentGroup.correctSong) {
-                    // ไฮไลท์ข้อถูกเป็นสีเขียว
                     btn.classList.replace('bg-gray-700', 'bg-green-500/20');
                     btn.classList.replace('hover:bg-gray-600', 'bg-green-500/20');
                     btn.classList.add('border-green-500', 'text-green-400');
                 } else if (btn === selectedButton && !isCorrect) {
-                    // ไฮไลท์ข้อผิดเป็นสีแดง
                     btn.classList.replace('bg-gray-700', 'bg-red-500/20');
                     btn.classList.replace('hover:bg-gray-600', 'bg-red-500/20');
                     btn.classList.add('border-red-500', 'text-red-400');
                 } else {
-                    // ปุ่มอื่นลดความสว่างลง
                     btn.classList.add('opacity-40');
                 }
             });
 
-            // ตั้งค่าข้อความผลลัพธ์
             if (isCorrect) {
                 resultStatus.innerText = "🎉 ทายถูกต้อง!";
-                resultStatus.className = "text-xs font-bold mb-1 text-green-400";
+                resultStatus.className = "text-sm font-bold mb-1 text-green-400";
             } else {
                 resultStatus.innerText = "❌ ทายผิด!";
-                resultStatus.className = "text-xs font-bold mb-1 text-red-400";
+                resultStatus.className = "text-sm font-bold mb-1 text-red-400";
             }
 
-            // แสดงหน้าเฉลยและเล่นเพลง
             showResult();
         }
 
-        // ฟังก์ชันแสดงผลและเล่นเพลง
         function showResult() {
             correctSongName.innerText = currentGroup.correctSong;
+            
+            // เปิดกล่องเฉลย + ปุ่มกลับหน้าแรก
             resultContainer.classList.remove('hidden');
+            resultContainer.classList.add('flex');
 
-            // เปลี่ยนรูปภาพให้ดูเหมือนแผ่นเสียงกำลังหมุน
             albumCover.classList.add('rounded-full', 'spin-slow');
             recordHole.classList.remove('hidden');
 
-            // เล่นเพลง
             if(currentGroup.audioUrl) {
                 audioPlayer.src = currentGroup.audioUrl;
-                audioPlayer.play().catch(e => console.log("Audio play blocked by browser. User interaction needed."));
+                audioPlayer.play().catch(e => console.log("Audio play blocked by browser."));
             }
         }
 
-        // ฟังก์ชันกลับไปหน้าหลัก
         function goToHome() {
-            // หยุดเพลง
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
 
-            // อัปเดต UI ประวัติ
+            updateAvailableUI();
             updateHistoryUI();
 
-            // สลับหน้าจอ
+            // สลับกลับไปหน้าแรก
             screenQuestion.classList.add('hidden');
             screenHome.classList.remove('hidden');
         }
 
-        // ฟังก์ชันเริ่มเกมใหม่ทั้งหมด
         function resetGame() {
             availableGroups = [...allGroupsData];
             playedHistory = [];
-            playedCount = 0;
-            groupCounter.innerText = `กลุ่มที่ 0/${totalGroups}`;
-            updateHistoryUI();
             
-            btnRandom.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.27l-5.42 5.42"/></svg>
-                สุ่มกลุ่มถัดไป
-            `;
-            btnRandom.onclick = randomizeGroup;
-            btnRandom.classList.replace('bg-blue-500', 'bg-green-500');
-            btnRandom.classList.replace('hover:bg-blue-400', 'hover:bg-green-400');
+            updateAvailableUI();
+            updateHistoryUI();
         }
+
+        resetGame();
 
     </script>
 </body>
