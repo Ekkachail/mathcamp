@@ -222,74 +222,62 @@
 
     <script>
         // ==========================================
-        // ส่วนการตั้งค่าข้อมูลเพลงแบบไฟล์ Local
+        // 1. ชุดโจทย์ทั้งหมด 1-8 (แก้ไขชื่อเพลง, ตัวเลือก และไฟล์เสียงได้ที่นี่)
         // ==========================================
-        const allGroupsData = [
-            { 
-                id: 'A', 
-                name: 'กลุ่ม A', 
-                image: 'group_a.jpg', 
-                correctSong: 'กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 
-                choices: ['กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 'จื่อบ่ - ก้านตอง ทุ่งเงิน', 'ทานตะวัน - พงษ์สิทธิ์ คำภีร์', 'ดอกกระเจียวบาน - ก้อง ห้วยไร่'], 
-                audioUrl: 'audio_a.mp3' 
-            },
-            { 
-                id: 'B', 
-                name: 'กลุ่ม B', 
-                image: 'group_b.jpg', 
-                correctSong: 'คนบ้านเดียวกัน - ไผ่ พงศธร', 
-                choices: ['คนบ้านเดียวกัน - ไผ่ พงศธร', 'ข้างกัน - Three Man Down', 'จี่หอย - พี สะเดิด', 'กลับบ้าน - ก้อง ห้วยไร่ (หรือเวอร์ชันของ ปราง ปรางทิพย์)'], 
-                audioUrl: 'audio_b.mp3' 
-            },
-            { 
-                id: 'C', 
-                name: 'กลุ่ม C', 
-                image: 'group_c.jpg', 
-                correctSong: 'รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 
-                choices: ['รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 'เพื่อนสนิท - Endorphine', 'รักแรกพบ - Tattoo Colour', 'ผู้โชคดี (The Lucky One) - 9x9 (Nine by Nine)'], 
-                audioUrl: 'audio_c.mp3' 
-            },
-            { 
-                id: 'D', 
-                name: 'กลุ่ม D', 
-                image: 'group_d.jpg', 
-                correctSong: 'คุณนายตื่นสาย - TEMI Feat. KiRANA', 
-                choices: ['คุณนายตื่นสาย - TEMI Feat. KiRANA', 'ผู้บ่าวตื่นสาย - จินตหรา พูนลาภ', 'ตื่นจากฝัน - BAY6IX x LALA', 'เธอคือกาแฟในตอนเช้า - No One Else'], 
-                audioUrl: 'audio_d.mp3' 
-            },
-            { 
-                id: 'E', 
-                name: 'กลุ่ม E', 
-                image: 'group_e.jpg', 
-                correctSong: 'ฝนตกไหม - Three Man Down', 
-                choices: ['ฝนตกไหม - Three Man Down', 'ในวันที่ฝนพรำ - Lipta', 'ฝนตกที่หน้าต่าง - Loso', 'ฤดูที่ฉันเหงา - Flure'], 
-                audioUrl: 'audio_e.mp3' 
-            },
-            { 
-                id: 'F', 
-                name: 'กลุ่ม F', 
-                image: 'group_f.jpg', 
-                correctSong: 'จำเลยรัก - F.HERO ft. Txrbo', 
-                choices: ['จำเลยรัก - F.HERO ft. Txrbo', 'จำเลยหัวใจ - Ballad', 'จงรัก - อัสนี-วสันต์', 'จำเก่ง - F.HERO x Tilly Birds'], 
-                audioUrl: 'audio_f.mp3' 
-            },
-            { 
-                id: 'G', 
-                name: 'กลุ่ม G', 
-                image: 'group_g.jpg', 
-                correctSong: 'ทน - SPRITE x GUYGEEGEE', 
-                choices: ['ทน - SPRITE x GUYGEEGEE', 'หยอก หยอก - LUSS', 'นิทาน - MUSKETEERS', 'ใจฉันตามเธอไป - YOUNGOHM'], 
-                audioUrl: 'audio_g.mp3' 
-            },
-            { 
-                id: 'H', 
-                name: 'กลุ่ม H', 
-                image: 'group_h.jpg', 
-                correctSong: 'เพ้อเจ้อ - ALARM9', 
-                choices: ['เพ้อเจ้อ - ALARM9', 'แพ้ใจ - ใหม่ เจริญปุระ', 'อยากให้รู้ว่าเหงา - เจ เจตริน/หนุ่ม กะลา', 'เป็นไปได้มั้ย - HAVE A NICE DAY'], 
-                audioUrl: 'audio_h.mp3' 
-            }
+        const questionSets = {
+            1: { correctSong: 'กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', choices: ['กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 'จื่อบ่ - ก้านตอง ทุ่งเงิน', 'ทานตะวัน - พงษ์สิทธิ์ คำภีร์', 'ดอกกระเจียวบาน - ก้อง ห้วยไร่'], audioUrl: 'audio_a.mp3' },
+            2: { correctSong: 'คนบ้านเดียวกัน - ไผ่ พงศธร', choices: ['คนบ้านเดียวกัน - ไผ่ พงศธร', 'ข้างกัน - Three Man Down', 'จี่หอย - พี สะเดิด', 'กลับบ้าน - ก้อง ห้วยไร่ (หรือเวอร์ชันของ ปราง ปรางทิพย์)'], audioUrl: 'audio_b.mp3' },
+            3: { correctSong: 'รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', choices: ['รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 'เพื่อนสนิท - Endorphine', 'รักแรกพบ - Tattoo Colour', 'ผู้โชคดี (The Lucky One) - 9x9 (Nine by Nine)'], audioUrl: 'audio_c.mp3' },
+            4: { correctSong: 'คุณนายตื่นสาย - TEMI Feat. KiRANA', choices: ['คุณนายตื่นสาย - TEMI Feat. KiRANA', 'ผู้บ่าวตื่นสาย - จินตหรา พูนลาภ', 'ตื่นจากฝัน - BAY6IX x LALA', 'เธอคือกาแฟในตอนเช้า - No One Else'], audioUrl: 'audio_d.mp3' },
+            5: { correctSong: 'ฝนตกไหม - Three Man Down', choices: ['ฝนตกไหม - Three Man Down', 'ในวันที่ฝนพรำ - Lipta', 'ฝนตกที่หน้าต่าง - Loso', 'ฤดูที่ฉันเหงา - Flure'], audioUrl: 'audio_e.mp3' },
+            6: { correctSong: 'จำเลยรัก - F.HERO ft. Txrbo', choices: ['จำเลยรัก - F.HERO ft. Txrbo', 'จำเลยหัวใจ - Ballad', 'จงรัก - อัสนี-วสันต์', 'จำเก่ง - F.HERO x Tilly Birds'], audioUrl: 'audio_f.mp3' },
+            7: { correctSong: 'ทน - SPRITE x GUYGEEGEE', choices: ['ทน - SPRITE x GUYGEEGEE', 'หยอก หยอก - LUSS', 'นิทาน - MUSKETEERS', 'ใจฉันตามเธอไป - YOUNGOHM'], audioUrl: 'audio_g.mp3' },
+            8: { correctSong: 'เพ้อเจ้อ - ALARM9', choices: ['เพ้อเจ้อ - ALARM9', 'แพ้ใจ - ใหม่ เจริญปุระ', 'อยากให้รู้ว่าเหงา - เจ เจตริน/หนุ่ม กะลา', 'เป็นไปได้มั้ย - HAVE A NICE DAY'], audioUrl: 'audio_h.mp3' }
+        };
+
+        // ==========================================
+        // 2. จับคู่ กลุ่ม A-H กับ ชุดโจทย์ (หากต้องการสลับชุดโจทย์ ให้เปลี่ยนตัวเลขด้านหลังได้เลย)
+        // ==========================================
+        const groupAssignments = {
+            'A': 1,
+            'B': 2,
+            'C': 3,
+            'D': 4,
+            'E': 5,
+            'F': 6,
+            'G': 7,
+            'H': 8
+        };
+
+        // ==========================================
+        // 3. ข้อมูลกลุ่มพื้นฐาน
+        // ==========================================
+        const baseGroups = [
+            { id: 'A', name: 'กลุ่ม A', image: 'group_a.jpg' },
+            { id: 'B', name: 'กลุ่ม B', image: 'group_b.jpg' },
+            { id: 'C', name: 'กลุ่ม C', image: 'group_c.jpg' },
+            { id: 'D', name: 'กลุ่ม D', image: 'group_d.jpg' },
+            { id: 'E', name: 'กลุ่ม E', image: 'group_e.jpg' },
+            { id: 'F', name: 'กลุ่ม F', image: 'group_f.jpg' },
+            { id: 'G', name: 'กลุ่ม G', image: 'group_g.jpg' },
+            { id: 'H', name: 'กลุ่ม H', image: 'group_h.jpg' }
         ];
+
+        // ==========================================
+        // ส่วนรวบรวมข้อมูลทั้งหมดเข้าด้วยกัน
+        // ==========================================
+        const allGroupsData = baseGroups.map(group => {
+            const questionSetId = groupAssignments[group.id];
+            const questionData = questionSets[questionSetId];
+            return {
+                id: group.id,
+                name: group.name,
+                image: group.image,
+                correctSong: questionData.correctSong,
+                choices: [...questionData.choices],
+                audioUrl: questionData.audioUrl
+            };
+        });
 
         // ==========================================
         // ส่วนควบคุมลอจิกของระบบ
@@ -529,7 +517,21 @@
         }
 
         function resetGame() {
-            availableGroups = [...allGroupsData];
+            // ต้องเริ่มต้นใหม่จากการจับคู่ให้เป็นปัจจุบันที่สุด
+            const freshGroupsData = baseGroups.map(group => {
+                const questionSetId = groupAssignments[group.id];
+                const questionData = questionSets[questionSetId];
+                return {
+                    id: group.id,
+                    name: group.name,
+                    image: group.image,
+                    correctSong: questionData.correctSong,
+                    choices: [...questionData.choices],
+                    audioUrl: questionData.audioUrl
+                };
+            });
+            
+            availableGroups = [...freshGroupsData];
             playedHistory = [];
             
             updateAvailableUI();
