@@ -66,22 +66,41 @@
             margin: 20px 0;
         }
 
+        /* Header Section (New Layout for Large Logo) */
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
         /* Logo Area */
         .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
+            flex: 0 0 auto;
         }
         
         .logo-img {
-            max-width: 120px;
-            max-height: 120px;
-            object-fit: contain;
-            border-radius: 15px;
-            /* หากรูปไม่แสดง จะเห็นกรอบประบางๆ */
-            border: 2px dashed #dfe4ea;
-            padding: 5px;
+            width: 100%;
+            max-width: 320px; /* ขนาดโลโก้ใหญ่และโดดเด่น */
+            height: auto;
+            object-fit: cover;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .logo-img:hover {
+            transform: scale(1.03);
+        }
+
+        /* Title Area */
+        .title-container {
+            flex: 1 1 300px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         /* Header */
@@ -94,20 +113,20 @@
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
             letter-spacing: 2px;
+            line-height: 1.2;
         }
         h2 {
             font-size: 1.8rem;
             color: var(--secondary);
-            margin: 0 0 30px 0;
+            margin: 0 0 25px 0;
             font-weight: 600;
         }
 
         /* Mode Selector */
         .mode-selector {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 15px;
-            margin-bottom: 30px;
         }
         .mode-btn {
             background: #fff;
@@ -283,7 +302,10 @@
 
         @media (max-width: 600px) {
             .container { padding: 20px; border-radius: 20px;}
-            .logo-img { max-width: 90px; max-height: 90px; }
+            .header-section { gap: 20px; flex-direction: column; text-align: center; }
+            .title-container { text-align: center; align-items: center; }
+            .mode-selector { justify-content: center; }
+            .logo-img { max-width: 220px; }
             h1 { font-size: 2.5rem; }
             h2 { font-size: 1.4rem; }
             .result-box { width: 160px; height: 160px; font-size: 5.5rem; }
@@ -299,18 +321,22 @@
     <div class="math-bg" id="mathBg"></div>
 
     <div class="container">
-        <!-- Logo Area -->
-        <div class="logo-container">
-            <!-- เปลี่ยน logo.png เป็นชื่อไฟล์รูปโลโก้ที่อยู่ในแฟ้มเดียวกัน -->
-            <img src="logo.png" alt="โลโก้ คณิตลิขิตดวง" class="logo-img" onerror="this.style.border='none'">
-        </div>
-        
-        <h1>คณิตลิขิตดวง</h1>
-        <h2>ระบบสุ่มลำดับคิว</h2>
+        <div class="header-section">
+            <!-- Logo Area -->
+            <div class="logo-container">
+                <img src="logo.jpg" alt="โลโก้ คณิตลิขิตดวง" class="logo-img">
+            </div>
+            
+            <!-- Title Area -->
+            <div class="title-container">
+                <h1>คณิตลิขิตดวง</h1>
+                <h2>ระบบสุ่มลำดับคิว</h2>
 
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="setMode(1)" id="btn-mode1">กลุ่ม A - H</button>
-            <button class="mode-btn" onclick="setMode(2)" id="btn-mode2">กลุ่มย่อย A1 - H2</button>
+                <div class="mode-selector">
+                    <button class="mode-btn active" onclick="setMode(1)" id="btn-mode1">กลุ่ม A - H</button>
+                    <button class="mode-btn" onclick="setMode(2)" id="btn-mode2">กลุ่มย่อย A1 - H2</button>
+                </div>
+            </div>
         </div>
 
         <div class="result-area">
