@@ -842,7 +842,7 @@
 
         <!-- Slide 9: Real Game 2 -->
         <div class="slide game-slide" id="slide-game2">
-            <h2 style="color: #ff4757;">🔥 ออกรางวัลจริง: ชุดที่ 2</h2>
+            <h2 style="color: #ff4757;">🔥 ออกรางวัลจริง: ชุดที่ 2 (ชุดสุดท้าย)</h2>
             
             <div class="scoreboard-banner">
                 <div class="score-round">งวดที่ <span id="round-display-game2">1</span></div>
@@ -860,22 +860,22 @@
             </div>
 
             <div class="code-display">
-                <!-- 8639 -->
+                <!-- 8573 -->
                 <div class="digit-wrapper">
                     <div class="digit-box" id="digit-game2-0">?</div>
                     <button class="btn-reveal" onclick="checkAndToggle('game2', 0, 8)">เปิดเลข</button>
                 </div>
                 <div class="digit-wrapper">
                     <div class="digit-box" id="digit-game2-1">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game2', 1, 6)">เปิดเลข</button>
+                    <button class="btn-reveal" onclick="checkAndToggle('game2', 1, 5)">เปิดเลข</button>
                 </div>
                 <div class="digit-wrapper">
                     <div class="digit-box" id="digit-game2-2">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game2', 2, 3)">เปิดเลข</button>
+                    <button class="btn-reveal" onclick="checkAndToggle('game2', 2, 7)">เปิดเลข</button>
                 </div>
                 <div class="digit-wrapper">
                     <div class="digit-box" id="digit-game2-3">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game2', 3, 9)">เปิดเลข</button>
+                    <button class="btn-reveal" onclick="checkAndToggle('game2', 3, 3)">เปิดเลข</button>
                 </div>
             </div>
 
@@ -891,62 +891,6 @@
                     <div class="security-section">
                         <span class="lock-icon" style="color:#ff4757;">🔒</span>
                         <input type="password" class="input-pass" id="pass-game2" placeholder="รหัสลับ">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 10: Real Game 3 -->
-        <div class="slide game-slide" id="slide-game3">
-            <h2 style="color: #ff4757;">🔥 ออกรางวัลจริง: ชุดที่ 3 (ชุดสุดท้าย)</h2>
-            
-            <div class="scoreboard-banner">
-                <div class="score-round">งวดที่ <span id="round-display-game3">1</span></div>
-                <div class="score-reward tier-1" id="reward-banner-game3">💰 <span id="reward-game3">1,500</span> ฿</div>
-
-                <div class="reward-scale-container" id="scale-game3">
-                    <div class="reward-scale">
-                        <div class="scale-progress-bar"></div>
-                        <div class="scale-mark active" style="border-color:#ff4757; color:#ff4757;">1,500</div>
-                        <div class="scale-mark">1,000</div>
-                        <div class="scale-mark">500</div>
-                        <div class="scale-mark">0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="code-display">
-                <!-- 8573 -->
-                <div class="digit-wrapper">
-                    <div class="digit-box" id="digit-game3-0">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game3', 0, 8)">เปิดเลข</button>
-                </div>
-                <div class="digit-wrapper">
-                    <div class="digit-box" id="digit-game3-1">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game3', 1, 5)">เปิดเลข</button>
-                </div>
-                <div class="digit-wrapper">
-                    <div class="digit-box" id="digit-game3-2">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game3', 2, 7)">เปิดเลข</button>
-                </div>
-                <div class="digit-wrapper">
-                    <div class="digit-box" id="digit-game3-3">?</div>
-                    <button class="btn-reveal" onclick="checkAndToggle('game3', 3, 3)">เปิดเลข</button>
-                </div>
-            </div>
-
-            <div class="admin-panel">
-                <div class="admin-label">Admin Controls</div>
-                <div class="admin-tools">
-                    <div class="round-selector">
-                        <button class="btn-circle" onclick="adjustRound('game3', -1)">-</button>
-                        <span id="round-game3" style="min-width: 25px; text-align: center;">1</span>
-                        <button class="btn-circle" onclick="adjustRound('game3', 1)">+</button>
-                    </div>
-                    <div class="separator"></div>
-                    <div class="security-section">
-                        <span class="lock-icon" style="color:#ff4757;">🔒</span>
-                        <input type="password" class="input-pass" id="pass-game3" placeholder="รหัสลับ">
                     </div>
                 </div>
             </div>
@@ -1086,8 +1030,7 @@
     const gameState = {
         'practice': { round: 1 },
         'game1': { round: 1 },
-        'game2': { round: 1 },
-        'game3': { round: 1 }
+        'game2': { round: 1 }
     };
 
     function updateBackgroundBySlide() {
