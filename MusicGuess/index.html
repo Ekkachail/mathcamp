@@ -153,17 +153,17 @@
         </div>
 
         <!-- หน้าที่ 2: หน้าคำถาม (Question Screen) -->
-        <div id="screen-question" class="flex-1 flex flex-row p-8 hidden fade-in gap-8 overflow-hidden">
-            <!-- ส่วนซ้าย: รูปภาพและชื่อกลุ่ม -->
-            <div class="flex-1 flex flex-col items-center justify-center border-r border-gray-700 pr-8 relative">
+        <div id="screen-question" class="flex-1 flex flex-row p-8 hidden fade-in overflow-hidden w-full relative">
+            <!-- ส่วนซ้าย: รูปภาพและชื่อกลุ่ม (ปรับให้สามารถขยายเต็มหน้าจอ หรือหดเหลือครึ่งจอได้) -->
+            <div id="left-panel" class="w-full flex flex-col items-center justify-center relative transition-all duration-700 ease-in-out">
                 <h2 id="display-group-name" class="text-center text-4xl font-bold mb-8 text-gray-100 drop-shadow-md">กลุ่ม A</h2>
                 
                 <!-- ภาพหน้าปก (Album Cover) -->
-                <div class="relative w-72 h-72 mx-auto mb-4 cursor-pointer group" id="cover-container">
-                    <img id="album-cover" src="" alt="Album Cover" class="w-full h-full object-cover rounded-3xl shadow-2xl shadow-black/60 border-4 border-gray-700 group-hover:border-green-400 transition-all duration-300" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&auto=format&fit=crop';">
+                <div class="relative w-72 h-72 mx-auto mb-4 group" id="cover-container">
+                    <img id="album-cover" src="" alt="Album Cover" class="w-full h-full object-cover rounded-3xl shadow-2xl shadow-black/60 border-4 border-gray-700 transition-all duration-300" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&auto=format&fit=crop';">
                     
                     <!-- Overlay แสดงข้อความคลิกเพื่อดูตัวเลือก -->
-                    <div id="click-hint-overlay" class="absolute inset-0 bg-black/60 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                    <div id="click-hint-overlay" class="absolute inset-0 bg-black/60 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 transition-opacity backdrop-blur-sm hidden">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2 animate-bounce text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
                         <span class="font-bold text-lg">คลิกเพื่อดูตัวเลือก</span>
                     </div>
@@ -172,11 +172,11 @@
                     <div id="record-hole" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gray-900 rounded-full border-4 border-gray-800 shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)] z-20"></div>
                 </div>
                 
-                <p id="static-hint-text" class="text-green-400 text-sm font-semibold animate-pulse mt-2">👆 คลิกที่รูปปกเพื่อเปิดคำถาม</p>
+                <p id="static-hint-text" class="text-green-400 text-sm font-semibold animate-pulse mt-2 hidden">👆 คลิกที่รูปปกเพื่อเปิดคำถาม</p>
             </div>
 
-            <!-- ส่วนขวา: ตัวเลือกและผลลัพธ์ (เพิ่ม overflow-y-auto ป้องกันตกขอบ) -->
-            <div class="flex-1 flex flex-col pl-4 h-full overflow-y-auto pb-4 pr-2">
+            <!-- ส่วนขวา: ตัวเลือกและผลลัพธ์ (เริ่มแรกจะซ่อนและมีความกว้างเป็น 0) -->
+            <div id="right-panel" class="w-0 opacity-0 overflow-hidden flex flex-col h-full transition-all duration-700 ease-in-out">
                 <!-- ส่วนคำถาม (ซ่อนไว้ก่อน) -->
                 <div id="question-area" class="hidden w-full transition-all duration-500 fade-in flex-col justify-center min-h-full">
                     <div class="text-left mb-4">
@@ -225,13 +225,13 @@
         // 1. ชุดโจทย์ทั้งหมด 1-8 (แก้ไขชื่อเพลง, ตัวเลือก และไฟล์เสียงได้ที่นี่)
         // ==========================================
         const questionSets = {
-            1: { correctSong: 'กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', choices: ['กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 'จื่อบ่ - ก้านตอง ทุ่งเงิน', 'ทานตะวัน - พงษ์สิทธิ์ คำภีร์', 'ดอกกระเจียวบาน - ก้อง ห้วยไร่'], audioUrl: 'audio_a.mp3' },
-            2: { correctSong: 'คนบ้านเดียวกัน - ไผ่ พงศธร', choices: ['คนบ้านเดียวกัน - ไผ่ พงศธร', 'ข้างกัน - Three Man Down', 'จี่หอย - พี สะเดิด', 'กลับบ้าน - ก้อง ห้วยไร่ (หรือเวอร์ชันของ ปราง ปรางทิพย์)'], audioUrl: 'audio_b.mp3' },
-            3: { correctSong: 'รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', choices: ['รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 'เพื่อนสนิท - Endorphine', 'รักแรกพบ - Tattoo Colour', 'ผู้โชคดี (The Lucky One) - 9x9 (Nine by Nine)'], audioUrl: 'audio_c.mp3' },
-            4: { correctSong: 'คุณนายตื่นสาย - TEMI Feat. KiRANA', choices: ['คุณนายตื่นสาย - TEMI Feat. KiRANA', 'ผู้บ่าวตื่นสาย - จินตหรา พูนลาภ', 'ตื่นจากฝัน - BAY6IX x LALA', 'เธอคือกาแฟในตอนเช้า - No One Else'], audioUrl: 'audio_d.mp3' },
-            5: { correctSong: 'ฝนตกไหม - Three Man Down', choices: ['ฝนตกไหม - Three Man Down', 'ในวันที่ฝนพรำ - Lipta', 'ฝนตกที่หน้าต่าง - Loso', 'ฤดูที่ฉันเหงา - Flure'], audioUrl: 'audio_e.mp3' },
-            6: { correctSong: 'จำเลยรัก - F.HERO ft. Txrbo', choices: ['จำเลยรัก - F.HERO ft. Txrbo', 'จำเลยหัวใจ - Ballad', 'จงรัก - อัสนี-วสันต์', 'จำเก่ง - F.HERO x Tilly Birds'], audioUrl: 'audio_f.mp3' },
-            7: { correctSong: 'ทน - SPRITE x GUYGEEGEE', choices: ['ทน - SPRITE x GUYGEEGEE', 'หยอก หยอก - LUSS', 'นิทาน - MUSKETEERS', 'ใจฉันตามเธอไป - YOUNGOHM'], audioUrl: 'audio_g.mp3' },
+            1: { correctSong: 'กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', choices: ['กุหลาบ - F.HERO x ก้านตอง ทุ่งเงิน x SARAN', 'จื่อบ่ - ก้านตอง ทุ่งเงิน', 'ทานตะวัน - พงษ์สิทธิ์ คำภีร์', 'ดอกกระเจียวบาน - ก้อง ห้วยไร่'], audioUrl: 'audio_a.m4a' },
+            2: { correctSong: 'คนบ้านเดียวกัน - ไผ่ พงศธร', choices: ['คนบ้านเดียวกัน - ไผ่ พงศธร', 'ข้างกัน - Three Man Down', 'จี่หอย - พี สะเดิด', 'กลับบ้าน - ก้อง ห้วยไร่ (หรือเวอร์ชันของ ปราง ปรางทิพย์)'], audioUrl: 'audio_b.m4a' },
+            3: { correctSong: 'รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', choices: ['รักติดไซเรน - ไอซ์ พาริส & แพรวา ณิชาภัทร', 'เพื่อนสนิท - Endorphine', 'รักแรกพบ - Tattoo Colour', 'ผู้โชคดี (The Lucky One) - 9x9 (Nine by Nine)'], audioUrl: 'audio_c.m4a' },
+            4: { correctSong: 'คุณนายตื่นสาย - TEMI Feat. KiRANA', choices: ['คุณนายตื่นสาย - TEMI Feat. KiRANA', 'ผู้บ่าวตื่นสาย - จินตหรา พูนลาภ', 'ตื่นจากฝัน - BAY6IX x LALA', 'เธอคือกาแฟในตอนเช้า - No One Else'], audioUrl: 'audio_d.m4a' },
+            5: { correctSong: 'ฝนตกไหม - Three Man Down', choices: ['ฝนตกไหม - Three Man Down', 'ในวันที่ฝนพรำ - Lipta', 'ฝนตกที่หน้าต่าง - Loso', 'ฤดูที่ฉันเหงา - Flure'], audioUrl: 'audio_e.m4a' },
+            6: { correctSong: 'จำเลยรัก - F.HERO ft. Txrbo', choices: ['จำเลยรัก - F.HERO ft. Txrbo', 'จำเลยหัวใจ - Ballad', 'จงรัก - อัสนี-วสันต์', 'จำเก่ง - F.HERO x Tilly Birds'], audioUrl: 'audio_f.m4a' },
+            7: { correctSong: 'ทน - SPRITE x GUYGEEGEE', choices: ['ทน - SPRITE x GUYGEEGEE', 'หยอก หยอก - LUSS', 'นิทาน - MUSKETEERS', 'ใจฉันตามเธอไป - YOUNGOHM'], audioUrl: 'audio_g.m4a' },
             8: { correctSong: 'เพ้อเจ้อ - ALARM9', choices: ['เพ้อเจ้อ - ALARM9', 'แพ้ใจ - ใหม่ เจริญปุระ', 'อยากให้รู้ว่าเหงา - เจ เจตริน/หนุ่ม กะลา', 'เป็นไปได้มั้ย - HAVE A NICE DAY'], audioUrl: 'audio_h.m4a' }
         };
 
@@ -239,14 +239,14 @@
         // 2. จับคู่ กลุ่ม A-H กับ ชุดโจทย์ (หากต้องการสลับชุดโจทย์ ให้เปลี่ยนตัวเลขด้านหลังได้เลย)
         // ==========================================
         const groupAssignments = {
-            'A': 8,
+            'A': 1,
             'B': 2,
             'C': 3,
             'D': 4,
             'E': 5,
             'F': 6,
             'G': 7,
-            'H': 1
+            'H': 8
         };
 
         // ==========================================
@@ -290,6 +290,8 @@
         // ดึง Element จาก DOM
         const screenHome = document.getElementById('screen-home');
         const screenQuestion = document.getElementById('screen-question');
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
         const displayGroupName = document.getElementById('display-group-name');
         const albumCover = document.getElementById('album-cover');
         const recordHole = document.getElementById('record-hole');
@@ -407,9 +409,13 @@
         }
 
         function showQuestionScreen() {
-            // ซ่อนหน้าแรก โชว์หน้าคำถาม
+            // ซ่อนหน้าแรก โชว์หน้าสุ่ม
             screenHome.classList.add('hidden');
             screenQuestion.classList.remove('hidden');
+            
+            // รีเซ็ต Layout ให้หน้าปกอยู่ตรงกลางเต็มจอ (ซ่อนตัวเลือกไว้)
+            leftPanel.className = "w-full flex flex-col items-center justify-center relative transition-all duration-700 ease-in-out";
+            rightPanel.className = "w-0 opacity-0 overflow-hidden flex flex-col h-full transition-all duration-700 ease-in-out pl-0";
             
             // รีเซ็ตหน้าต่างย่อย ให้ซ่อนเฉลยและปิดกล่องคำถามก่อน
             resultContainer.classList.add('hidden');
@@ -417,20 +423,54 @@
             questionArea.classList.add('hidden');
             questionArea.classList.remove('flex');
             
-            // รีเซ็ตสถานะหน้าปก ให้กดได้
+            // ปิดการกดหน้าปกไว้ก่อนระหว่างสุ่ม
+            coverContainer.onclick = null;
+            coverContainer.classList.remove('cursor-pointer', 'group');
             albumCover.classList.remove('rounded-full', 'spin-slow');
             recordHole.classList.add('hidden');
-            coverContainer.classList.add('cursor-pointer', 'group');
-            coverContainer.onclick = revealChoices;
             
-            // เปิดแจ้งเตือนให้กด
-            clickHintOverlay.classList.remove('hidden');
-            staticHintText.classList.remove('hidden');
+            // ซ่อนข้อความคลิก
+            clickHintOverlay.classList.add('hidden');
+            clickHintOverlay.classList.remove('group-hover:opacity-100');
+            staticHintText.classList.add('hidden');
 
+            // เริ่ม Animation สุ่มกลุ่มที่ดูตื่นเต้น
+            let shuffleCount = 0;
+            const maxShuffles = 15; // จำนวนรอบสลับภาพ
+            const shuffleSpeed = 120; // ความเร็วสลับ (ms)
+            
+            // Effect ขยายและสว่างขึ้นนิดหน่อยตอนสุ่ม
+            albumCover.classList.add('scale-105', 'brightness-125');
+
+            const shuffleInterval = setInterval(() => {
+                const randomG = baseGroups[Math.floor(Math.random() * baseGroups.length)];
+                displayGroupName.innerText = `กำลังสุ่ม...`;
+                albumCover.src = randomG.image;
+                
+                shuffleCount++;
+                if (shuffleCount >= maxShuffles) {
+                    clearInterval(shuffleInterval);
+                    finishShuffle();
+                }
+            }, shuffleSpeed);
+        }
+
+        function finishShuffle() {
+            // เอา Effect ขยายออก
+            albumCover.classList.remove('scale-105', 'brightness-125');
+            
+            // แสดงข้อมูลกลุ่มที่สุ่มได้จริงๆ
             displayGroupName.innerText = `การแสดงของ: ${currentGroup.name}`;
             albumCover.src = currentGroup.image;
 
-            // สร้างปุ่มตัวเลือกล่วงหน้า
+            // เปิดให้ผู้ใช้คลิกได้
+            coverContainer.classList.add('cursor-pointer', 'group');
+            coverContainer.onclick = revealChoices;
+            clickHintOverlay.classList.remove('hidden');
+            clickHintOverlay.classList.add('group-hover:opacity-100');
+            staticHintText.classList.remove('hidden');
+
+            // สร้างปุ่มตัวเลือกล่วงหน้าไว้ในหน่วยความจำ
             choicesContainer.innerHTML = '';
             let shuffledChoices = shuffleArray([...currentGroup.choices]);
             
@@ -448,11 +488,18 @@
             coverContainer.onclick = null;
             coverContainer.classList.remove('cursor-pointer', 'group');
             clickHintOverlay.classList.add('hidden');
+            clickHintOverlay.classList.remove('group-hover:opacity-100');
             staticHintText.classList.add('hidden');
 
-            // แสดงคำถามและตัวเลือก
-            questionArea.classList.remove('hidden');
-            questionArea.classList.add('flex');
+            // เปลี่ยน Layout อนิเมชั่นดันรูปปกไปทางซ้าย และเปิดตัวเลือกทางขวา
+            leftPanel.className = "w-1/2 flex flex-col items-center justify-center border-r border-gray-700 pr-8 relative transition-all duration-700 ease-in-out";
+            rightPanel.className = "w-1/2 opacity-100 flex flex-col pl-8 h-full overflow-y-auto pb-4 pr-2 transition-all duration-700 ease-in-out";
+
+            // แสดงคำถามและตัวเลือก (หน่วงเวลาให้ Slide เสร็จก่อนค่อยโชว์ตัวเลือก)
+            setTimeout(() => {
+                questionArea.classList.remove('hidden');
+                questionArea.classList.add('flex');
+            }, 400);
         }
 
         function handleAnswer(selectedChoice, selectedButton) {
