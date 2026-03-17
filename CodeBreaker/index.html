@@ -7,13 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #ff4757;
-            --gold-color: #ffa502;
-            --success-color: #2ed573;
-            --wrong-color: #ff6b81;
-            --text-main: #2d3436;
-            --card-bg: rgba(255, 255, 255, 0.75);
+            --primary-color: #1e272e;
+            --accent-color: #00d8d6;
+            --gold-color: #ffa801;
+            --success-color: #0be881;
+            --wrong-color: #ff3f34;
+            --text-main: #1e272e;
+            --card-bg: rgba(255, 255, 255, 0.85);
             --border-light: rgba(255, 255, 255, 0.9);
         }
 
@@ -27,7 +27,7 @@
             align-items: center;
             overflow: hidden;
             color: var(--text-main);
-            background-color: #fdfbfb;
+            background-color: #f1f2f6;
         }
 
         /* ----------------------------------
@@ -36,7 +36,7 @@
         .dynamic-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
-            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #ffecd2, #fcb69f);
+            background: linear-gradient(-45deg, #0984e3, #00cec9, #74b9ff, #81ecec);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             transition: filter 1s ease;
@@ -58,9 +58,9 @@
         
         /* Tier Background Transitions */
         body.tier-1 .dynamic-bg, body.tier-1 .bg-elements-container { filter: hue-rotate(0deg); }
-        body.tier-2 .dynamic-bg, body.tier-2 .bg-elements-container { filter: hue-rotate(200deg); } /* Pink turns to Blue/Cyan */
-        body.tier-3 .dynamic-bg, body.tier-3 .bg-elements-container { filter: hue-rotate(100deg) brightness(0.95); } /* Pink turns to Green/Yellow */
-        body.tier-0 .dynamic-bg, body.tier-0 .bg-elements-container { filter: grayscale(100%) brightness(0.7); } /* Game Over / 0 reward */
+        body.tier-2 .dynamic-bg, body.tier-2 .bg-elements-container { filter: hue-rotate(220deg); } /* เปลี่ยนเป็นโทนม่วง/ชมพู */
+        body.tier-3 .dynamic-bg, body.tier-3 .bg-elements-container { filter: hue-rotate(120deg) brightness(0.9); } /* เปลี่ยนเป็นโทนเขียว/ส้ม */
+        body.tier-0 .dynamic-bg, body.tier-0 .bg-elements-container { filter: grayscale(100%) brightness(0.7); } /* Game Over */
 
         .bg-element {
             position: absolute;
@@ -74,14 +74,14 @@
         .square { border-radius: 25px; }
         .diamond { border-radius: 20px; transform: rotate(45deg); }
 
-        .bg-element:nth-child(1) { width: 180px; height: 180px; top: 5%; left: 8%; animation-duration: 12s; background: linear-gradient(135deg, rgba(255, 154, 158, 0.6), rgba(254, 207, 239, 0.6)); }
-        .bg-element:nth-child(2) { width: 120px; height: 120px; top: 65%; left: 5%; animation-duration: 18s; animation-delay: 2s; background: linear-gradient(135deg, rgba(255, 208, 196, 0.6), rgba(255, 154, 158, 0.6)); }
-        .bg-element:nth-child(3) { width: 220px; height: 220px; top: 25%; right: 5%; animation-duration: 22s; animation-delay: 1s; background: linear-gradient(135deg, rgba(161, 196, 253, 0.5), rgba(194, 233, 251, 0.5)); }
-        .bg-element:nth-child(4) { width: 140px; height: 140px; bottom: -5%; left: 40%; animation-duration: 15s; animation-delay: 3s; background: linear-gradient(135deg, rgba(253, 203, 110, 0.5), rgba(255, 118, 117, 0.5)); }
-        .bg-element:nth-child(5) { width: 90px; height: 90px; top: 15%; right: 30%; animation-duration: 11s; animation-delay: 5s; background: linear-gradient(135deg, rgba(162, 155, 254, 0.6), rgba(108, 92, 231, 0.6)); }
-        .bg-element:nth-child(6) { width: 70px; height: 70px; bottom: 25%; right: 15%; animation-duration: 14s; animation-delay: 4s; background: linear-gradient(135deg, rgba(85, 239, 196, 0.6), rgba(0, 184, 148, 0.6)); }
-        .bg-element:nth-child(7) { width: 110px; height: 110px; top: 45%; left: 25%; animation-duration: 17s; animation-delay: 2s; background: linear-gradient(135deg, rgba(253, 121, 168, 0.6), rgba(232, 67, 147, 0.6)); }
-        .bg-element:nth-child(8) { width: 150px; height: 150px; top: -5%; right: 40%; animation-duration: 19s; animation-delay: 1s; background: linear-gradient(135deg, rgba(255, 234, 167, 0.6), rgba(253, 203, 110, 0.6)); }
+        .bg-element:nth-child(1) { width: 180px; height: 180px; top: 5%; left: 8%; animation-duration: 12s; background: linear-gradient(135deg, rgba(9, 132, 227, 0.6), rgba(116, 185, 255, 0.6)); }
+        .bg-element:nth-child(2) { width: 120px; height: 120px; top: 65%; left: 5%; animation-duration: 18s; animation-delay: 2s; background: linear-gradient(135deg, rgba(0, 206, 201, 0.6), rgba(129, 236, 236, 0.6)); }
+        .bg-element:nth-child(3) { width: 220px; height: 220px; top: 25%; right: 5%; animation-duration: 22s; animation-delay: 1s; background: linear-gradient(135deg, rgba(108, 92, 231, 0.5), rgba(162, 155, 254, 0.5)); }
+        .bg-element:nth-child(4) { width: 140px; height: 140px; bottom: -5%; left: 40%; animation-duration: 15s; animation-delay: 3s; background: linear-gradient(135deg, rgba(253, 203, 110, 0.5), rgba(255, 234, 167, 0.5)); }
+        .bg-element:nth-child(5) { width: 90px; height: 90px; top: 15%; right: 30%; animation-duration: 11s; animation-delay: 5s; background: linear-gradient(135deg, rgba(9, 132, 227, 0.6), rgba(0, 206, 201, 0.6)); }
+        .bg-element:nth-child(6) { width: 70px; height: 70px; bottom: 25%; right: 15%; animation-duration: 14s; animation-delay: 4s; background: linear-gradient(135deg, rgba(0, 184, 148, 0.6), rgba(85, 239, 196, 0.6)); }
+        .bg-element:nth-child(7) { width: 110px; height: 110px; top: 45%; left: 25%; animation-duration: 17s; animation-delay: 2s; background: linear-gradient(135deg, rgba(232, 67, 147, 0.6), rgba(253, 121, 168, 0.6)); }
+        .bg-element:nth-child(8) { width: 150px; height: 150px; top: -5%; right: 40%; animation-duration: 19s; animation-delay: 1s; background: linear-gradient(135deg, rgba(108, 92, 231, 0.6), rgba(129, 236, 236, 0.6)); }
 
         @keyframes floatRandom {
             0% { transform: translate(0, 0) rotate(0deg) scale(1); }
@@ -168,6 +168,27 @@
             transform: scale(1.03);
         }
 
+        /* Banner Area */
+        .banner-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .banner-img {
+            width: 100%;
+            max-width: 720px; /* จำกัดความกว้างไม่ให้ล้นการ์ด */
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .banner-img:hover {
+            transform: scale(1.02);
+        }
+
         /* Title Area */
         .title-container {
             flex: 1 1 300px;
@@ -188,11 +209,11 @@
         h1 { 
             font-size: 3.5rem; 
             margin-top: 0;
-            background: linear-gradient(135deg, #ff4757, #ffa502, #ff4757);
+            background: linear-gradient(135deg, #0984e3, #00cec9, #0984e3);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 3px 3px 6px rgba(255,71,87,0.25);
+            text-shadow: 3px 3px 6px rgba(9, 132, 227, 0.25);
             line-height: 1.2;
             animation: shine 3s linear infinite;
             text-transform: uppercase;
@@ -200,9 +221,9 @@
         @keyframes shine { to { background-position: 200% center; } }
         
         h2 { 
-            font-size: 1.8rem; color: #6c5ce7; font-weight: 700; position: relative; display: inline-block;
+            font-size: 1.8rem; color: #0984e3; font-weight: 700; position: relative; display: inline-block;
         }
-        h2::after { content: ''; position: absolute; bottom: -5px; left: 10%; width: 80%; height: 5px; background: linear-gradient(90deg, #ff6b81, #ffa502); border-radius: 3px; }
+        h2::after { content: ''; position: absolute; bottom: -5px; left: 10%; width: 80%; height: 5px; background: linear-gradient(90deg, #0984e3, #00cec9); border-radius: 3px; }
         
         p, li { font-size: 1.25rem; line-height: 1.6; color: var(--text-main); font-weight: 600; }
         
@@ -342,7 +363,7 @@
         .score-round span { color: #6c5ce7; font-size: 1.8rem; margin-left: 10px;}
 
         .score-reward {
-            background: linear-gradient(135deg, #ffa502, #ff4757);
+            background: linear-gradient(135deg, #0984e3, #00cec9);
             color: white;
             padding: 10px 35px;
             border-radius: 20px;
@@ -351,7 +372,7 @@
             font-weight: 700;
             display: flex;
             align-items: center;
-            box-shadow: 0 15px 30px rgba(255, 71, 87, 0.4);
+            box-shadow: 0 15px 30px rgba(9, 132, 227, 0.4);
             border: 2px solid rgba(255,255,255,0.4);
             transition: all 0.5s ease;
             animation: pulse-glow 2s infinite alternate;
@@ -390,7 +411,7 @@
         .scale-progress-bar {
             position: absolute;
             top: 50%; left: 0; height: 6px;
-            background: #ff4757;
+            background: #0984e3;
             transform: translateY(-50%);
             border-radius: 3px;
             z-index: 2;
@@ -479,15 +500,28 @@
            BIG ACTION BUTTON (Slide 4)
            ---------------------------------- */
         .btn-massive {
-            background: linear-gradient(135deg, #ffa502, #ff4757);
+            background: linear-gradient(135deg, #0984e3, #00cec9);
             color: white; border: none; padding: 15px 40px; border-radius: 30px;
             font-size: 1.5rem; font-weight: bold; font-family: 'Chakra Petch', sans-serif;
-            cursor: pointer; box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+            cursor: pointer; box-shadow: 0 10px 20px rgba(9, 132, 227, 0.3);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin: 10px 0 20px 0; display: inline-flex; align-items: center; gap: 10px;
         }
-        .btn-massive:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px rgba(255, 71, 87, 0.5); }
+        .btn-massive:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px rgba(9, 132, 227, 0.5); }
         .btn-massive:active { transform: scale(0.95); }
+
+        /* ปุ่มเฉลยทั้งหมด (Reveal All) */
+        .btn-reveal-all {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white; border: none; padding: 8px 20px;
+            border-radius: 20px; font-family: 'Chakra Petch', sans-serif;
+            font-weight: 700; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+            transition: all 0.3s;
+        }
+        .btn-reveal-all:hover {
+            transform: translateY(-2px); box-shadow: 0 8px 15px rgba(108, 92, 231, 0.4);
+        }
 
         /* Rewards Cards */
         .reward-cards { display: flex; gap: 15px; width: 100%; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
@@ -545,6 +579,7 @@
             .header-section { gap: 20px; flex-direction: column; text-align: center; }
             .title-container { text-align: center; align-items: center; }
             .logo-img { max-width: 200px; }
+            .banner-img { border-radius: 15px; }
             .slide { padding: 30px 20px; }
             h1 { font-size: 2.8rem; }
             h2 { font-size: 1.8rem; }
@@ -580,20 +615,10 @@
         
         <!-- Slide 1: Title -->
         <div class="slide active">
-            <div class="header-section">
-                <!-- Logo Area -->
-                <div class="logo-container">
-                    <img src="logo.jpg" alt="โลโก้ คณิตลิขิตดวง" class="logo-img" onerror="this.style.display='none'">
-                </div>
-                
-                <!-- Title Area -->
-                <div class="title-container">
-                    <h1>คณิตลิขิตดวง</h1>
-                    <h2 style="color: #6c5ce7;">ภารกิจพิชิตรหัสลับ 4 หลัก</h2>
-                </div>
+            <div class="banner-container">
+                <img src="banner.png" alt="แบนเนอร์กิจกรรม" class="banner-img" onerror="this.style.display='none'">
             </div>
-            <p style="font-size: 1.4rem; margin-top: 10px; font-weight: 700; color: #2d3436;">เกมคณิตศาสตร์ท้าสมอง ประลองดวงและไหวพริบ!</p>
-            <div class="box" style="background: linear-gradient(135deg, rgba(255, 165, 2, 0.15), rgba(255, 255, 255, 0.9)); border-color: #ffa502;">
+            <div class="box" style="background: linear-gradient(135deg, rgba(255, 165, 2, 0.15), rgba(255, 255, 255, 0.9)); border-color: #ffa502; margin-top: 30px;">
                 กดปุ่ม "ถัดไป" เพื่อเรียนรู้วิธีเล่น 👇
             </div>
         </div>
@@ -729,7 +754,7 @@
 
         <!-- Slide 7: Practice Mode -->
         <div class="slide game-slide" id="slide-practice">
-            <h2 style="color: #6c5ce7;">🧪 โหมดทดลองออกรางวัล</h2>
+            <h2 style="color: #0984e3;">🧪 โหมดทดลองออกรางวัล</h2>
             
             <div class="scoreboard-banner">
                 <div class="score-round">งวดที่ <span id="round-display-practice">1</span></div>
@@ -739,7 +764,7 @@
                 <div class="reward-scale-container" id="scale-practice">
                     <div class="reward-scale">
                         <div class="scale-progress-bar"></div>
-                        <div class="scale-mark active" style="border-color:#ff4757; color:#ff4757;">1,500</div>
+                        <div class="scale-mark active" style="border-color:#0984e3; color:#0984e3;">1,500</div>
                         <div class="scale-mark">1,000</div>
                         <div class="scale-mark">500</div>
                         <div class="scale-mark">0</div>
@@ -777,16 +802,17 @@
                     </div>
                     <div class="separator"></div>
                     <div class="security-section">
-                        <span class="lock-icon">🔒</span>
+                        <span class="lock-icon" style="color:var(--primary-color);">🔒</span>
                         <input type="password" class="input-pass" id="pass-practice" placeholder="รหัสลับ">
                     </div>
+                    <button class="btn-reveal-all" onclick="checkAndToggleAll('practice', [2, 7, 4, 1])">ปลดทั้งหมด</button>
                 </div>
             </div>
         </div>
 
         <!-- Slide 8: Real Game 1 -->
         <div class="slide game-slide" id="slide-game1">
-            <h2 style="color: #ff4757;">🔥 ออกรางวัลจริง: ชุดที่ 1</h2>
+            <h2 style="color: #0984e3;">🔥 ออกรางวัลจริง: ชุดที่ 1</h2>
             
             <div class="scoreboard-banner">
                 <div class="score-round">งวดที่ <span id="round-display-game1">1</span></div>
@@ -795,7 +821,7 @@
                 <div class="reward-scale-container" id="scale-game1">
                     <div class="reward-scale">
                         <div class="scale-progress-bar"></div>
-                        <div class="scale-mark active" style="border-color:#ff4757; color:#ff4757;">1,500</div>
+                        <div class="scale-mark active" style="border-color:#0984e3; color:#0984e3;">1,500</div>
                         <div class="scale-mark">1,000</div>
                         <div class="scale-mark">500</div>
                         <div class="scale-mark">0</div>
@@ -833,16 +859,17 @@
                     </div>
                     <div class="separator"></div>
                     <div class="security-section">
-                        <span class="lock-icon" style="color:#ff4757;">🔒</span>
+                        <span class="lock-icon" style="color:var(--primary-color);">🔒</span>
                         <input type="password" class="input-pass" id="pass-game1" placeholder="รหัสลับ">
                     </div>
+                    <button class="btn-reveal-all" onclick="checkAndToggleAll('game1', [1, 6, 4, 8])">ปลดทั้งหมด</button>
                 </div>
             </div>
         </div>
 
         <!-- Slide 9: Real Game 2 -->
         <div class="slide game-slide" id="slide-game2">
-            <h2 style="color: #ff4757;">🔥 ออกรางวัลจริง: ชุดที่ 2 (ชุดสุดท้าย)</h2>
+            <h2 style="color: #0984e3;">🔥 ออกรางวัลจริง: ชุดที่ 2 (ชุดสุดท้าย)</h2>
             
             <div class="scoreboard-banner">
                 <div class="score-round">งวดที่ <span id="round-display-game2">1</span></div>
@@ -851,7 +878,7 @@
                 <div class="reward-scale-container" id="scale-game2">
                     <div class="reward-scale">
                         <div class="scale-progress-bar"></div>
-                        <div class="scale-mark active" style="border-color:#ff4757; color:#ff4757;">1,500</div>
+                        <div class="scale-mark active" style="border-color:#0984e3; color:#0984e3;">1,500</div>
                         <div class="scale-mark">1,000</div>
                         <div class="scale-mark">500</div>
                         <div class="scale-mark">0</div>
@@ -889,9 +916,10 @@
                     </div>
                     <div class="separator"></div>
                     <div class="security-section">
-                        <span class="lock-icon" style="color:#ff4757;">🔒</span>
+                        <span class="lock-icon" style="color:var(--primary-color);">🔒</span>
                         <input type="password" class="input-pass" id="pass-game2" placeholder="รหัสลับ">
                     </div>
+                    <button class="btn-reveal-all" onclick="checkAndToggleAll('game2', [8, 5, 7, 3])">ปลดทั้งหมด</button>
                 </div>
             </div>
         </div>
@@ -1056,8 +1084,8 @@
         const progressBar = scaleContainer.querySelector('.scale-progress-bar');
         
         let activeIndex = 0;
-        let color = 'var(--accent-color)'; // default red
-        if (currentRound <= 3) { activeIndex = 0; color = '#ff4757'; }
+        let color = '#0984e3'; // Changed red to new base color (blue)
+        if (currentRound <= 3) { activeIndex = 0; color = '#0984e3'; }
         else if (currentRound <= 6) { activeIndex = 1; color = '#ffa502'; }
         else if (currentRound <= 9) { activeIndex = 2; color = '#2ed573'; }
         else { activeIndex = 3; color = '#a4b0be'; }
@@ -1173,6 +1201,58 @@
             box.innerText = "?";
             btn.classList.remove('active');
             btn.innerText = "เปิดเลข";
+        }
+    }
+
+    // ฟังก์ชันใหม่สำหรับปุ่ม "ปลดทั้งหมด"
+    function checkAndToggleAll(gameId, values) {
+        const passInput = document.getElementById(`pass-${gameId}`);
+        
+        // ตรวจสอบว่าเปิดหมดแล้วหรือยัง
+        let allRevealed = true;
+        for(let i=0; i<4; i++){
+            if(!document.getElementById(`digit-${gameId}-${i}`).classList.contains('revealed')) {
+                allRevealed = false;
+                break;
+            }
+        }
+
+        // ถ้าเปิดหมดแล้ว ให้ซ่อนทั้งหมดทันที (ไม่ต้องใช้รหัส)
+        if (allRevealed) {
+            for(let i=0; i<4; i++){
+                toggleRevealUI(gameId, i, values[i], false);
+            }
+            return;
+        }
+
+        // ถ้ายืนยันรหัสถูกต้อง ให้เปิดทั้งหมด
+        if (passInput.value.trim() === '00') {
+            for(let i=0; i<4; i++){
+                const box = document.getElementById(`digit-${gameId}-${i}`);
+                if (!box.classList.contains('revealed')) {
+                    box.classList.add('shake');
+                    setTimeout(() => {
+                        box.classList.remove('shake');
+                        toggleRevealUI(gameId, i, values[i], true);
+                    }, 300);
+                }
+            }
+            setTimeout(() => { passInput.value = ''; }, 350);
+        } else {
+            // Visual feedback error
+            const secSection = passInput.parentElement;
+            secSection.style.border = '1px solid var(--accent-color)';
+            secSection.style.background = 'rgba(255, 71, 87, 0.1)';
+            passInput.classList.add('shake');
+            
+            setTimeout(() => {
+                secSection.style.border = '1px solid transparent';
+                secSection.style.background = '#f1f2f6';
+                passInput.classList.remove('shake');
+            }, 500);
+            
+            passInput.value = '';
+            passInput.focus();
         }
     }
 
