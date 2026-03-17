@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>M-survival: โรงเรียนนครสวรรค์</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,17 +14,33 @@
     <style>
         body {
             font-family: 'Prompt', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            transition: background 0.5s ease;
         }
+        /* Theme: Sunny */
+        body.theme-sunny {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Theme: Rainy */
+        body.theme-rainy {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
         .survival-title {
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
+
+        /* Weather Toggle Button Transition */
+        .toggle-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         /* Animation for wrong answer */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -34,58 +50,73 @@
         .shake-anim {
             animation: shake 0.5s;
         }
+
         /* Animation for success image */
         @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .pop-in {
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
+<body class="theme-sunny flex items-center justify-center p-4 md:p-8">
 
-    <!-- Main Container -->
-    <div class="glass-panel w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative">
+    <!-- Main Container (Responsive for Mobile & iPad) -->
+    <div class="glass-panel w-full max-w-md md:max-w-lg lg:max-w-xl rounded-[2rem] shadow-2xl overflow-hidden relative transition-all duration-300">
         
-        <!-- Decorative Circle -->
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
+        <!-- Decorative Elements -->
+        <div id="deco1" class="absolute -top-10 -right-10 w-40 h-40 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500"></div>
+        <div id="deco2" class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500" style="animation-delay: 1s;"></div>
 
-        <div class="p-8 relative z-10 flex flex-col items-center">
+        <div class="p-6 md:p-10 relative z-10 flex flex-col items-center">
             
             <!-- Header Section -->
-            <div class="text-center mb-8">
-                <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold tracking-wide mb-2">
-                    NSSC GAME ZONE
+            <div class="text-center mb-6">
+                <span class="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-xs md:text-sm font-bold tracking-wider mb-3 shadow-sm">
+                    <i class="fa-solid fa-school mr-1"></i> โรงเรียนนครสวรรค์
                 </span>
-                <h1 class="survival-title text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-1">
+                <h1 class="survival-title text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
                     M-survival
                 </h1>
-                <p class="text-gray-500 font-medium text-sm">โรงเรียนนครสวรรค์</p>
+                <p class="text-gray-500 font-medium text-sm md:text-base">เลือกสภาพอากาศและกรอกรหัสเพื่อเอาชีวิตรอด</p>
             </div>
 
             <!-- Game Interface -->
-            <div class="w-full space-y-6">
+            <div class="w-full space-y-5">
                 
+                <!-- Weather Toggle Section -->
+                <div class="bg-gray-100/80 p-1.5 rounded-2xl flex w-full relative shadow-inner">
+                    <!-- Sunny Button -->
+                    <button id="btnSunny" onclick="setWeather('sunny')" 
+                            class="toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-orange-500 shadow-md transform scale-100">
+                        <i class="fa-solid fa-sun text-lg"></i> แดดออก (ฝนไม่ตก)
+                    </button>
+                    <!-- Rainy Button -->
+                    <button id="btnRainy" onclick="setWeather('rainy')" 
+                            class="toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 text-gray-500 bg-transparent shadow-none transform scale-95 hover:text-blue-500">
+                        <i class="fa-solid fa-cloud-showers-heavy text-lg"></i> ฝนตก
+                    </button>
+                </div>
+
                 <!-- Input Area -->
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-lock text-gray-400"></i>
+                <div class="relative mt-2">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-lock text-gray-400 text-xl"></i>
                     </div>
                     <input type="text" 
                            id="codeInput" 
                            maxlength="4" 
                            inputmode="numeric" 
                            placeholder="กรอกรหัส 4 หลัก" 
-                           class="w-full pl-10 pr-4 py-4 bg-gray-50 border-2 border-gray-200 text-gray-800 text-2xl font-bold text-center rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all tracking-[0.5em] placeholder:tracking-normal placeholder:text-base placeholder:font-normal placeholder:text-gray-400"
+                           class="w-full pl-12 pr-4 py-4 md:py-5 bg-gray-50 border-2 border-gray-200 text-gray-800 text-3xl md:text-4xl font-bold text-center rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all tracking-[0.5em] placeholder:tracking-normal placeholder:text-lg placeholder:font-normal placeholder:text-gray-400"
                            onkeypress="handleKeyPress(event)">
                 </div>
 
                 <!-- Action Button -->
-                <button onclick="checkCode()" 
-                        class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:translate-y-0 flex items-center justify-center gap-2 text-lg">
+                <button id="submitBtn" onclick="checkCode()" 
+                        class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 md:py-5 px-6 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:translate-y-0 flex items-center justify-center gap-2 text-lg md:text-xl">
                     <span>ส่งคำตอบ</span>
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -95,32 +126,44 @@
             <div id="resultArea" class="w-full mt-6 hidden">
                 
                 <!-- Error Message Container -->
-                <div id="errorContainer" class="hidden text-center p-4 bg-red-50 rounded-xl border border-red-100">
-                    <i class="fa-solid fa-circle-xmark text-4xl text-red-500 mb-2 block"></i>
-                    <p id="errorText" class="text-red-600 font-bold text-lg"></p>
+                <div id="errorContainer" class="hidden text-center p-4 bg-red-50 rounded-2xl border border-red-200 shadow-inner">
+                    <i class="fa-solid fa-circle-xmark text-4xl md:text-5xl text-red-500 mb-2 block"></i>
+                    <p id="errorText" class="text-red-600 font-bold text-lg md:text-xl"></p>
                 </div>
 
                 <!-- Success Image Container -->
-                <div id="successContainer" class="hidden flex flex-col items-center">
-                    <div class="relative w-full rounded-2xl overflow-hidden shadow-lg border-4 border-white pop-in">
-                        <div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                            <i class="fa-solid fa-check"></i> ถูกต้อง
+                <div id="successContainer" class="hidden flex flex-col items-center w-full">
+                    <div class="relative w-full rounded-2xl overflow-hidden shadow-xl border-4 border-white pop-in bg-gray-100">
+                        
+                        <!-- Status Badge -->
+                        <div id="weatherBadge" class="absolute top-3 left-3 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-full shadow-md z-10 flex items-center gap-1">
+                            <!-- จะถูกเติมด้วย JS -->
                         </div>
+                        <div class="absolute top-3 right-3 bg-green-500 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-full shadow-md z-10 flex items-center gap-1">
+                            <i class="fa-solid fa-check-circle"></i> รหัสถูกต้อง
+                        </div>
+
                         <!-- Image Element -->
                         <img id="resultImage" 
-                             src="" 
                              alt="Result" 
-                             class="w-full h-auto object-cover max-h-[60vh]"
-                             onerror="this.src='https://placehold.co/600x400/indigo/white?text=Image+Not+Found'; this.nextElementSibling.classList.remove('hidden');">
+                             class="w-full h-auto object-contain max-h-[50vh] md:max-h-[60vh] bg-white">
                         
-                        <!-- Fallback Text (Will show only if image fails) -->
-                        <p class="hidden text-xs text-center text-gray-400 py-1">Mathematics NU</p>
+                        <!-- Fallback Text (Will show only if image fails to load) -->
+                        <div id="fallbackText" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-100 p-4 text-center">
+                            <i class="fa-regular fa-image text-4xl text-gray-300 mb-2"></i>
+                            <p class="text-sm font-bold text-gray-500">ไม่พบไฟล์รูปภาพ</p>
+                            <p id="missingFileName" class="text-xs text-gray-400 mt-1 font-mono bg-gray-200 px-2 py-1 rounded"></p>
+                        </div>
                     </div>
-                    <p class="mt-3 text-indigo-700 font-bold text-lg">ยินดีด้วย! คุณรอดแล้ว</p>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-indigo-700 font-bold text-xl md:text-2xl mb-1">ยินดีด้วย! คุณรอดแล้ว 🎉</p>
+                        <p class="text-gray-500 text-sm">Mathematics NU x โรงเรียนนครสวรรค์</p>
+                    </div>
                     
                     <!-- Reset Button -->
-                    <button onclick="resetGame()" class="mt-4 text-gray-400 hover:text-gray-600 text-sm underline">
-                        ลองรหัสอื่น
+                    <button onclick="resetGame()" class="mt-5 px-6 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-full text-sm font-bold transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> เล่นอีกครั้ง
                     </button>
                 </div>
 
@@ -128,23 +171,98 @@
         </div>
 
         <!-- Footer -->
-        <div class="bg-gray-50 px-6 py-3 text-center border-t border-gray-100">
-            <p class="text-xs text-gray-400">© M-survival NSSC System</p>
+        <div class="bg-gray-50/80 px-6 py-4 text-center border-t border-gray-100 backdrop-blur-sm">
+            <p class="text-xs text-gray-400 font-medium">© M-survival NSSC System</p>
         </div>
     </div>
 
     <script>
-        // ข้อมูลตามที่กำหนด
+        // ==========================================
+        // ข้อมูลเกม (แก้ไขรูปภาพและรหัสได้ที่นี่)
+        // ==========================================
         const validCodes = ["2859", "5438", "2857", "2417"];
-        const validImages = ["pic1.png", "pic2.png", "pic3.png", "pic4.png"];
-        const errorMessages = ["ว้ายผิด", "อาจจะยังนะ", "ลองใหม่ไหม", "ไม่ถูกจ้า"];
+        
+        // รูปภาพกรณี: แดดออก (ฝนไม่ตก)
+        const sunnyImages = ["sunny_pic1.png", "sunny_pic2.png", "sunny_pic3.png", "sunny_pic4.png"];
+        
+        // รูปภาพกรณี: ฝนตก
+        const rainyImages = ["rainy_pic1.png", "rainy_pic2.png", "rainy_pic3.png", "rainy_pic4.png"];
+        
+        // ข้อความเมื่อตอบผิด
+        const errorMessages = ["ว้ายผิด", "อาจจะยังนะ", "ลองใหม่ไหม", "ไม่ถูกจ้า", "รหัสนี้ยังไม่รอด!"];
 
+        // ==========================================
+        // ตัวแปรสถานะ
+        // ==========================================
+        let currentWeather = 'sunny'; // 'sunny' หรือ 'rainy'
+
+        // Elements
+        const body = document.body;
         const inputField = document.getElementById('codeInput');
         const resultArea = document.getElementById('resultArea');
         const errorContainer = document.getElementById('errorContainer');
         const successContainer = document.getElementById('successContainer');
         const errorText = document.getElementById('errorText');
         const resultImage = document.getElementById('resultImage');
+        const btnSunny = document.getElementById('btnSunny');
+        const btnRainy = document.getElementById('btnRainy');
+        const deco1 = document.getElementById('deco1');
+        const deco2 = document.getElementById('deco2');
+        const submitBtn = document.getElementById('submitBtn');
+        const weatherBadge = document.getElementById('weatherBadge');
+        const fallbackText = document.getElementById('fallbackText');
+        const missingFileName = document.getElementById('missingFileName');
+
+        // ใช้ Event Listener จัดการภาพที่โหลดไม่สำเร็จ เพื่อป้องกัน ReferenceError
+        resultImage.addEventListener('error', function() {
+            if (!this.getAttribute('src')) return; // ป้องกัน error ตอนโหลดครั้งแรก
+            
+            this.classList.add('hidden');
+            fallbackText.classList.remove('hidden');
+            
+            const src = this.getAttribute('src');
+            const fileName = src ? src.split('/').pop() : 'unknown';
+            missingFileName.textContent = fileName;
+        });
+
+        // ฟังก์ชันเปลี่ยนสภาพอากาศ
+        function setWeather(weather) {
+            currentWeather = weather;
+            
+            // รีเซ็ตเกมทุกครั้งที่เปลี่ยนสภาพอากาศ
+            resetGame(false);
+
+            if (weather === 'sunny') {
+                // UI สำหรับแดดออก
+                body.className = 'theme-sunny flex items-center justify-center p-4 md:p-8';
+                
+                btnSunny.className = "toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-orange-500 shadow-md transform scale-100";
+                btnRainy.className = "toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 text-gray-500 bg-transparent shadow-none transform scale-95 hover:text-blue-500";
+                
+                deco1.className = "absolute -top-10 -right-10 w-40 h-40 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500";
+                deco2.className = "absolute -bottom-10 -left-10 w-40 h-40 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500";
+                
+                submitBtn.className = "w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 md:py-5 px-6 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:translate-y-0 flex items-center justify-center gap-2 text-lg md:text-xl";
+                
+                weatherBadge.className = "absolute top-3 left-3 bg-orange-500 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-full shadow-md z-10 flex items-center gap-1";
+                weatherBadge.innerHTML = '<i class="fa-solid fa-sun"></i> แดดออก';
+
+            } else {
+                // UI สำหรับฝนตก
+                body.className = 'theme-rainy flex items-center justify-center p-4 md:p-8';
+                
+                btnRainy.className = "toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 bg-white text-blue-600 shadow-md transform scale-100";
+                btnSunny.className = "toggle-btn flex-1 py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 text-gray-500 bg-transparent shadow-none transform scale-95 hover:text-orange-500";
+                
+                deco1.className = "absolute -top-10 -right-10 w-40 h-40 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500";
+                deco2.className = "absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse transition-colors duration-500";
+                
+                submitBtn.className = "w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-4 md:py-5 px-6 rounded-2xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:translate-y-0 flex items-center justify-center gap-2 text-lg md:text-xl";
+                
+                weatherBadge.className = "absolute top-3 left-3 bg-blue-600 text-white text-xs md:text-sm font-bold px-3 py-1.5 rounded-full shadow-md z-10 flex items-center gap-1";
+                weatherBadge.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy"></i> ฝนตก';
+            }
+        }
 
         // ฟังก์ชันเมื่อกด Enter
         function handleKeyPress(event) {
@@ -153,23 +271,28 @@
             }
         }
 
+        // ตรวจสอบรหัส
         function checkCode() {
             const userCode = inputField.value.trim();
+
+            if(userCode.length === 0) return;
 
             // Reset การแสดงผลเก่า
             resultArea.classList.remove('hidden');
             errorContainer.classList.add('hidden');
             successContainer.classList.add('hidden');
             inputField.classList.remove('shake-anim');
+            fallbackText.classList.add('hidden');
+            resultImage.classList.remove('hidden');
 
             // ตรวจสอบความถูกต้อง
             const index = validCodes.indexOf(userCode);
 
             if (index !== -1) {
-                // กรณีตอบถูก (Found match)
-                showSuccess(validImages[index]);
+                // เลือกรูปตามสภาพอากาศที่กำลังเลือกอยู่
+                const imageToLoad = currentWeather === 'sunny' ? sunnyImages[index] : rainyImages[index];
+                showSuccess(imageToLoad);
             } else {
-                // กรณีตอบผิด
                 showError();
             }
         }
@@ -177,9 +300,6 @@
         function showSuccess(imageName) {
             // ตั้งค่ารูปภาพ
             resultImage.src = imageName;
-            
-            // รีเซ็ตการแสดงผล fallback (ซ่อนข้อความ Mathematics NU ก่อน ถ้าเคยโชว์)
-            resultImage.nextElementSibling.classList.add('hidden'); 
             
             // แสดงผล
             successContainer.classList.remove('hidden');
@@ -202,17 +322,23 @@
                 inputField.classList.remove('shake-anim');
             }, 500);
 
-            // เคลียร์ค่า input (เลือกได้ว่าจะเคลียร์ไหม)
             inputField.value = '';
             inputField.focus();
         }
 
-        function resetGame() {
+        // เริ่มเกมใหม่ / รีเซ็ตฟิลด์
+        function resetGame(focusInput = true) {
             inputField.value = '';
             resultArea.classList.add('hidden');
-            inputField.focus();
+            if(focusInput) {
+                inputField.focus();
+            }
         }
+
+        // Initial setup (รันเมื่อโหลดหน้าเว็บเสร็จ)
+        window.onload = function() {
+            setWeather('sunny');
+        };
     </script>
 </body>
 </html>
-
