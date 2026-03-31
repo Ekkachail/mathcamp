@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบวิเคราะห์ข้อมูลการลงทะเบียนเรียน</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ฟอนต์ -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PapaParse (อ่าน CSV) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Vis Network (สำหรับวาดกราฟ) -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans Thai', sans-serif; }
+        #network-graph { width: 100%; height: 700px; border: 1px solid #e5e7eb; border-radius: 0.5rem; background-color: #f9fafb; }
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                CourseNetwork Analytics
+            </h1>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-gray-700">ภาคเรียน:</label>
+                    <select id="global-term-select" class="border-gray-300 rounded-md text-sm py-1 pl-2 pr-8 focus:ring-blue-500 focus:border-blue-500 border" onchange="handleTermChange()">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="ต้น" selected>ต้น</option>
+                        <option value="ปลาย">ปลาย</option>
+                    </select>
+                </div>
+                <div id="data-status" class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">กำลังโหลด...</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+            <nav class="flex -mb-px space-x-8">
+                <button onclick="switchTab('graph-tab')" id="btn-graph-tab" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">📊 กราฟความสัมพันธ์รายวิชา</button>
+                <button onclick="switchTab('student-tab')" id="btn-student-tab" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">👤 ค้นหาข้อมูลนิสิต</button>
+                <button onclick="switchTab('course-tab')" id="btn-course-tab" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">📝 รายชื่อนิสิตรายวิชา</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto w-full">
+        
+        <!-- ================= TAB 1: GRAPH ================= -->
+        <div id="graph-tab" class="tab-content h-full flex flex-col">
+            <div class="bg-white p-4 rounded-t-xl border border-b-0 border-gray-200 shadow-sm flex flex-wrap gap-4 items-end">
+                <!-- กรองสาขา -->
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ตัดสาขาที่ไม่ต้องการออก (เว้นว่างคือดูทั้งหมด)</label>
+                    <div class="flex flex-wrap gap-2" id="major-filters">
+                        <!-- Checkboxes สาขาจะถูกสร้างด้วย JS -->
+                    </div>
+                </div>
+                
+                <!-- จัดการรายวิชาในกราฟ -->
+                <div class="flex-1 min-w-[300px] border-l pl-4 border-gray-200">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">จัดการรายวิชาในกราฟ</label>
+                    <div class="flex space-x-2 mb-2">
+                        <button onclick="toggleAllNodes(false)" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded text-sm border border-red-200 transition">ลบวิชาทั้งหมด</button>
+                        <button onclick="toggleAllNodes(true)" class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded text-sm border border-green-200 transition">เพิ่มวิชาทั้งหมด</button>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="course-input" list="course-datalist" placeholder="พิมพ์รหัส/ชื่อวิชา เพื่อจัดการ..." class="w-full border-gray-300 rounded text-sm py-1.5 px-3 border focus:ring-blue-500 focus:border-blue-500">
+                            <datalist id="course-datalist"></datalist>
+                        </div>
+                        <button onclick="manageNodeFromInput('add')" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 rounded text-sm transition">เพิ่ม</button>
+                        <button onclick="manageNodeFromInput('remove')" class="bg-gray-500 text-white hover:bg-gray-600 px-3 py-1.5 rounded text-sm transition">ตัดออก</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- พื้นที่วาดกราฟ -->
+            <div class="relative flex-1 bg-white rounded-b-xl border border-gray-200 shadow-sm">
+                <div id="network-graph"></div>
+                <!-- คำอธิบายกราฟ -->
+                <div class="absolute bottom-4 left-4 bg-white/90 p-3 rounded shadow border border-gray-200 text-xs backdrop-blur-sm">
+                    <div class="font-bold mb-2">คำอธิบายเส้นเชื่อม (Shared Students)</div>
+                    <div class="flex items-center mb-1"><div class="w-4 h-1 bg-red-500 mr-2"></div> นิสิตสาขาคณิตศาสตร์</div>
+                    <div class="flex items-center mb-1"><div class="w-4 h-1 bg-green-500 mr-2"></div> นิสิตสาขาสถิติ</div>
+                    <div class="flex items-center"><div class="w-4 h-1 bg-yellow-400 mr-2"></div> นิสิตสาขาอื่นๆ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: STUDENT SEARCH ================= -->
+        <div id="student-tab" class="tab-content hidden">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-lg font-bold mb-4">ค้นหาวิชาที่ลงทะเบียนของนิสิต</h2>
+                <div class="flex space-x-2 mb-6 max-w-md">
+                    <input type="text" id="student-search-input" placeholder="พิมพ์รหัสนิสิต หรือ ชื่อ-นามสกุล..." class="flex-1 border-gray-300 rounded-md border px-4 py-2 focus:ring-blue-500 focus:border-blue-500" onkeyup="if(event.key === 'Enter') searchStudent()">
+                    <button onclick="searchStudent()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">ค้นหา</button>
+                </div>
+                
+                <div id="student-result-container" class="hidden">
+                    <div class="bg-blue-50 rounded-lg p-4 mb-4 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-800" id="res-student-name">นายทดสอบ</h3>
+                            <p class="text-blue-600 text-sm">สาขา: <span id="res-student-major"></span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-blue-600">ลงทะเบียน (ภาค <span id="res-student-term"></span>)</p>
+                            <p class="text-2xl font-bold text-blue-800"><span id="res-student-count">0</span> วิชา</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสวิชา</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อวิชา</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-courses-tbody" class="bg-white divide-y divide-gray-200">
+                                <!-- ข้อมูลแทรกด้วย JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: COURSE ROSTER ================= -->
+        <div id="course-tab" class="tab-content hidden">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h2 class="text-lg font-bold mb-4">ตรวจสอบรายชื่อนิสิตตามรายวิชา</h2>
+                <div class="flex space-x-2 mb-6 max-w-lg">
+                    <input type="text" id="course-search-input" list="course-datalist" placeholder="พิมพ์หรือเลือก รหัสวิชา/ชื่อวิชา..." class="flex-1 border-gray-300 rounded-md border px-4 py-2 focus:ring-blue-500 focus:border-blue-500" onchange="viewCourseRoster()">
+                    <button onclick="viewCourseRoster()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">ดูรายชื่อ</button>
+                    <button onclick="viewAllCourses()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md border hover:bg-gray-200 transition">ดูทุกวิชา</button>
+                </div>
+
+                <div id="course-roster-container">
+                    <!-- โครงสร้างตารางรายชื่อแทรกด้วย JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ================= CONFIGURATION =================
+        // เปลี่ยน URL ตรงนี้เป็น URL ของ Google Sheet ที่ Publish to Web แบบ CSV
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2n3uMndnk1NQElScgt0WyRP1zjNeq3SndNTqU8IhElP3M3G5sUWT-hZZkzIxojfLgHjSkPjkKlPLK/pub?gid=0&single=true&output=csv';
+        
+        // ข้อมูลตัวอย่างสำหรับทดสอบ (จะถูกใช้ถ้าโหลด CSV ไม่สำเร็จ)
+        const MOCK_DATA = `รหัสวิชา,ชื่อวิชา,สาขา,นิสิต,ภาคเรียน
+252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66310325 กัญญาณี แช่มเดช,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66310929 จุฑาภรณ์ วิวัฒน์ยุวะถาวร,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66311315 ญาณิศา ว่องไว,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,สถิติ,66400001 สมชาย รักสถิติ,ต้น
+252111,แคลคูลัส 1,คณิตศาสตร์,66310325 กัญญาณี แช่มเดช,ต้น
+252111,แคลคูลัส 1,สถิติ,66400001 สมชาย รักสถิติ,ต้น
+252111,แคลคูลัส 1,วิทยาการคอมพิวเตอร์,66500002 สมหญิง โค้ดดิ่ง,ต้น
+252112,แคลคูลัส 2,คณิตศาสตร์,66310929 จุฑาภรณ์ วิวัฒน์ยุวะถาวร,ต้น
+252112,แคลคูลัส 2,สถิติ,66400001 สมชาย รักสถิติ,ต้น`;
+
+        // ================= GLOBAL STATE =================
+        let rawData = [];
+        let networkInstance = null;
+        let activeNodes = new Set(); // เก็บ ID ของวิชาที่ถูกเลือกให้แสดงบนกราฟ
+        let excludedMajors = new Set(); // เก็บชื่อสาขาที่ถูกติ๊กออกไม่นำมาพิจารณา
+
+        // ================= INITIALIZATION =================
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`btn-${tabId}`).classList.add('active');
+
+            if(tabId === 'graph-tab' && networkInstance) {
+                networkInstance.fit(); // จัดกึ่งกลางกราฟเมื่อสลับแท็บกลับมา
+            }
+        }
+
+        // ================= DATA FETCHING & PARSING =================
+        function fetchData() {
+            const statusEl = document.getElementById('data-status');
+            
+            Papa.parse(GOOGLE_SHEET_CSV_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processData(results.data);
+                    statusEl.textContent = 'เชื่อมต่อสำเร็จ';
+                    statusEl.className = 'text-xs px-2 py-1 rounded bg-green-100 text-green-800';
+                },
+                error: function(err) {
+                    console.warn("ไม่สามารถดึงข้อมูลจาก Google Sheets ได้ จะใช้ข้อมูลจำลองแทน", err);
+                    Papa.parse(MOCK_DATA, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            processData(results.data);
+                            statusEl.textContent = 'ใช้ข้อมูลจำลอง (Demo)';
+                            statusEl.className = 'text-xs px-2 py-1 rounded bg-orange-100 text-orange-800';
+                        }
+                    });
+                }
+            });
+        }
+
+        function processData(data) {
+            // ทำความสะอาดและจัดฟอร์แมตข้อมูล
+            rawData = data.map(row => {
+                // แยกรหัสนิสิตและชื่อออกจากกัน (จากรูปแบบ "66310325 ชื่อ นามสกุล")
+                const studentStr = (row['นิสิต'] || '').trim();
+                const spaceIndex = studentStr.indexOf(' ');
+                let stuId = studentStr, stuName = '';
+                
+                if(spaceIndex > -1) {
+                    stuId = studentStr.substring(0, spaceIndex);
+                    stuName = studentStr.substring(spaceIndex + 1);
+                }
+
+                return {
+                    courseCode: (row['รหัสวิชา'] || '').trim(),
+                    courseName: (row['ชื่อวิชา'] || '').trim(),
+                    major: (row['สาขา'] || '').trim(),
+                    studentId: stuId,
+                    studentName: stuName,
+                    term: (row['ภาคเรียน'] || '').trim()
+                };
+            }).filter(row => row.courseCode && row.studentId); // กรองแถวว่างทิ้ง
+
+            setupFilters();
+            viewAllCourses(); // หน้า Roster โชว์ทั้งหมดตอนเริ่ม
+            drawGraph();
+        }
+
+        function setupFilters() {
+            // สร้าง Datalist สำหรับ Course Autocomplete
+            const datalist = document.getElementById('course-datalist');
+            const uniqueCourses = {};
+            rawData.forEach(r => {
+                if(!uniqueCourses[r.courseCode]) {
+                    uniqueCourses[r.courseCode] = r.courseName;
+                    activeNodes.add(r.courseCode); // เริ่มต้นให้แสดงทุกวิชาบนกราฟ
+                }
+            });
+
+            datalist.innerHTML = '';
+            for (const [code, name] of Object.entries(uniqueCourses)) {
+                let option = document.createElement('option');
+                option.value = code;
+                option.text = name;
+                datalist.appendChild(option);
+            }
+
+            // สร้าง Checkbox สำหรับกรองสาขา
+            const majorContainer = document.getElementById('major-filters');
+            const majors = [...new Set(rawData.map(r => r.major))].filter(Boolean);
+            majorContainer.innerHTML = '';
+            majors.forEach(major => {
+                let lbl = document.createElement('label');
+                lbl.className = "inline-flex items-center bg-gray-100 px-2 py-1 rounded text-xs cursor-pointer hover:bg-gray-200 transition";
+                lbl.innerHTML = `
+                    <input type="checkbox" class="form-checkbox h-3 w-3 text-blue-600 mr-1" value="${major}" checked onchange="toggleMajorFilter(this)">
+                    <span class="text-gray-700">${major}</span>
+                `;
+                majorContainer.appendChild(lbl);
+            });
+        }
+
+        function handleTermChange() {
+            drawGraph();
+            viewAllCourses(); // อัปเดตตารางให้ตรงกับเทอม
+            document.getElementById('student-result-container').classList.add('hidden'); // ซ่อนผลการค้นหาเด็กไปก่อน
+        }
+
+        function toggleMajorFilter(checkbox) {
+            if (checkbox.checked) {
+                excludedMajors.delete(checkbox.value);
+            } else {
+                excludedMajors.add(checkbox.value);
+            }
+            drawGraph();
+        }
+
+        // ================= GRAPH LOGIC =================
+        function toggleAllNodes(show) {
+            const term = document.getElementById('global-term-select').value;
+            activeNodes.clear();
+            if (show) {
+                rawData.forEach(r => {
+                    if (term === 'all' || r.term === term) activeNodes.add(r.courseCode);
+                });
+            }
+            drawGraph();
+        }
+
+        function manageNodeFromInput(action) {
+            const inputVal = document.getElementById('course-input').value.trim();
+            if(!inputVal) return;
+            
+            // ค้นหาว่า input ตรงกับรหัสหรือชื่อไหม
+            const matchedRow = rawData.find(r => r.courseCode === inputVal || r.courseName === inputVal || `${r.courseCode} ${r.courseName}`.includes(inputVal));
+            
+            if(matchedRow) {
+                if(action === 'add') activeNodes.add(matchedRow.courseCode);
+                else activeNodes.delete(matchedRow.courseCode);
+                
+                document.getElementById('course-input').value = ''; // ล้างช่อง
+                drawGraph();
+            } else {
+                alert('ไม่พบรายวิชานี้ในระบบ');
+            }
+        }
+
+        function drawGraph() {
+            const term = document.getElementById('global-term-select').value;
+            
+            // 1. กรองข้อมูลเบื้องต้น (เทอม และ สาขาที่โดนตัดออก)
+            const filteredData = rawData.filter(r => 
+                (term === 'all' || r.term === term) && 
+                !excludedMajors.has(r.major) &&
+                activeNodes.has(r.courseCode)
+            );
+
+            // 2. เตรียม Nodes (รายวิชา)
+            const nodesMap = new Map();
+            const courseStudents = {}; // { courseCode: { studentId: major } } เพื่อหาเส้นเชื่อม
+
+            filteredData.forEach(row => {
+                // สร้าง Node
+                if (!nodesMap.has(row.courseCode)) {
+                    nodesMap.set(row.courseCode, {
+                        id: row.courseCode,
+                        label: `${row.courseCode}\n${row.courseName}`,
+                        shape: 'box',
+                        color: { background: '#ffffff', border: '#cbd5e1' },
+                        font: { face: 'Noto Sans Thai', size: 14 }
+                    });
+                }
+                
+                // เก็บข้อมูลนิสิตในแต่ละวิชา
+                if (!courseStudents[row.courseCode]) courseStudents[row.courseCode] = {};
+                courseStudents[row.courseCode][row.studentId] = row.major;
+            });
+
+            const nodesArray = Array.from(nodesMap.values());
+
+            // 3. คำนวณ Edges (เส้นเชื่อมระหว่างวิชา)
+            const edgesArray = [];
+            const courseCodes = Object.keys(courseStudents);
+
+            // วนลูปจับคู่ทุกวิชา (A จับ B)
+            for (let i = 0; i < courseCodes.length; i++) {
+                for (let j = i + 1; j < courseCodes.length; j++) {
+                    const cA = courseCodes[i];
+                    const cB = courseCodes[j];
+                    
+                    const studentsA = courseStudents[cA];
+                    const studentsB = courseStudents[cB];
+                    
+                    // หานิสิตที่ลงทั้ง 2 วิชา
+                    let mathCount = 0;
+                    let statCount = 0;
+                    let otherCount = 0;
+
+                    for (const stuId in studentsA) {
+                        if (studentsB[stuId]) {
+                            // ลงทั้งคู่! เช็คสาขา
+                            const major = studentsA[stuId];
+                            if (major === 'คณิตศาสตร์') mathCount++;
+                            else if (major === 'สถิติ') statCount++;
+                            else otherCount++;
+                        }
+                    }
+
+                    // สร้างเส้นเชื่อม (สามารถมีหลายเส้นระหว่าง A-B ได้เพราะใช้ vis.js)
+                    const baseEdgeProps = { from: cA, to: cB, font: { align: 'top', strokeWidth: 3, strokeColor: '#ffffff' } };
+
+                    if (mathCount > 0) {
+                        edgesArray.push({ ...baseEdgeProps, label: String(mathCount), color: { color: '#ef4444' }, width: Math.min(mathCount, 10) }); // สีแดง
+                    }
+                    if (statCount > 0) {
+                        edgesArray.push({ ...baseEdgeProps, label: String(statCount), color: { color: '#22c55e' }, width: Math.min(statCount, 10) }); // สีเขียว
+                    }
+                    if (otherCount > 0) {
+                        edgesArray.push({ ...baseEdgeProps, label: String(otherCount), color: { color: '#facc15' }, width: Math.min(otherCount, 10) }); // สีเหลือง
+                    }
+                }
+            }
+
+            // 4. วาดกราฟ
+            const container = document.getElementById('network-graph');
+            const data = { nodes: nodesArray, edges: edgesArray };
+            const options = {
+                edges: {
+                    smooth: {
+                        type: 'dynamic', // สำคัญ: ทำให้เส้น 2 เส้นระหว่างจุดโค้งแยกออกจากกัน
+                    }
+                },
+                physics: {
+                    stabilization: false,
+                    barnesHut: {
+                        gravitationalConstant: -2000,
+                        springConstant: 0.04,
+                        springLength: 150
+                    }
+                },
+                interaction: { hover: true, tooltipDelay: 200 }
+            };
+
+            if (networkInstance) {
+                networkInstance.destroy(); // ล้างของเก่าทิ้งก่อนวาดใหม่
+            }
+            networkInstance = new vis.Network(container, data, options);
+        }
+
+        // ================= STUDENT SEARCH LOGIC =================
+        function searchStudent() {
+            const term = document.getElementById('global-term-select').value;
+            const query = document.getElementById('student-search-input').value.trim().toLowerCase();
+            const resContainer = document.getElementById('student-result-container');
+            const tbody = document.getElementById('student-courses-tbody');
+            
+            if(!query) return;
+
+            // ค้นหานิสิต
+            const studentCourses = rawData.filter(r => 
+                (term === 'all' || r.term === term) &&
+                (r.studentId.toLowerCase().includes(query) || r.studentName.toLowerCase().includes(query))
+            );
+
+            if (studentCourses.length === 0) {
+                alert(`ไม่พบข้อมูลนิสิต "${query}" ในภาคเรียนที่เลือก`);
+                resContainer.classList.add('hidden');
+                return;
+            }
+
+            // แสดงข้อมูลคนแรกที่เจอ
+            const studentInfo = studentCourses[0];
+            document.getElementById('res-student-name').textContent = `${studentInfo.studentId} ${studentInfo.studentName}`;
+            document.getElementById('res-student-major').textContent = studentInfo.major || '-';
+            document.getElementById('res-student-term').textContent = term === 'all' ? 'ทั้งหมด' : term;
+            document.getElementById('res-student-count').textContent = studentCourses.length;
+
+            tbody.innerHTML = '';
+            studentCourses.forEach(c => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${c.courseCode}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${c.courseName} <span class="text-xs text-gray-400 ml-2">(${c.term})</span></td>
+                    </tr>
+                `;
+            });
+
+            resContainer.classList.remove('hidden');
+        }
+
+        // ================= COURSE ROSTER LOGIC =================
+        function viewAllCourses() {
+            document.getElementById('course-search-input').value = '';
+            renderCourseRoster(null);
+        }
+
+        function viewCourseRoster() {
+            const inputVal = document.getElementById('course-search-input').value.trim();
+            renderCourseRoster(inputVal);
+        }
+
+        function renderCourseRoster(courseQuery) {
+            const term = document.getElementById('global-term-select').value;
+            const container = document.getElementById('course-roster-container');
+            
+            // กรองเทอม และ วิชา(ถ้ามีการค้นหา)
+            const filteredData = rawData.filter(r => {
+                const matchTerm = (term === 'all' || r.term === term);
+                if (!courseQuery) return matchTerm;
+                
+                const queryStr = courseQuery.toLowerCase();
+                return matchTerm && (r.courseCode.toLowerCase().includes(queryStr) || r.courseName.toLowerCase().includes(queryStr));
+            });
+
+            if(filteredData.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 bg-gray-50 rounded border border-dashed">ไม่พบข้อมูลรายวิชาที่ค้นหาในภาคเรียนนี้</div>`;
+                return;
+            }
+
+            // จัดกลุ่มตามวิชา -> สาขา -> นิสิต
+            const coursesObj = {};
+            filteredData.forEach(r => {
+                const cKey = `${r.courseCode} : ${r.courseName}`;
+                if(!coursesObj[cKey]) coursesObj[cKey] = { total: 0, majors: {} };
+                
+                if(!coursesObj[cKey].majors[r.major]) coursesObj[cKey].majors[r.major] = [];
+                
+                coursesObj[cKey].majors[r.major].push(`${r.studentId} ${r.studentName}`);
+                coursesObj[cKey].total++;
+            });
+
+            // สร้าง HTML ตาราง
+            let html = '';
+            for (const [courseName, data] of Object.entries(coursesObj)) {
+                html += `
+                    <div class="mb-8 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                        <div class="bg-blue-600 px-4 py-3 text-white flex justify-between items-center">
+                            <h3 class="font-bold text-lg">${courseName}</h3>
+                            <span class="bg-blue-800 text-blue-100 text-xs px-2 py-1 rounded-full font-medium">รวม ${data.total} คน</span>
+                        </div>
+                `;
+
+                // เรียงตามสาขา
+                const sortedMajors = Object.keys(data.majors).sort();
+                
+                sortedMajors.forEach(major => {
+                    const students = data.majors[major].sort(); // เรียงรหัสนิสิตในสาขา
+                    
+                    html += `
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 font-semibold text-gray-700 flex justify-between">
+                            <span>สาขา: ${major}</span>
+                            <span class="text-sm text-gray-500">${students.length} คน</span>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-b border-gray-100">
+                            <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    `;
+                    
+                    students.forEach((stu, index) => {
+                        html += `<li class="text-sm text-gray-600"><span class="text-gray-400 w-6 inline-block">${index+1}.</span> ${stu}</li>`;
+                    });
+
+                    html += `</ul></div>`;
+                });
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>
