@@ -38,6 +38,15 @@
     <style>
         body { font-family: 'Kanit', sans-serif; }
     </style>
+
+    <!-- แก้ไขข้อผิดพลาด ResizeObserver (ไม่มีผลกระทบกับการทำงานหลัก แต่ช่วยลด Error ใน Console) -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.message === 'ResizeObserver loop limit exceeded' || e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+                e.stopImmediatePropagation();
+            }
+        });
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-800">
     <!-- จุดที่ React จะนำ UI มาแสดง -->
@@ -59,8 +68,7 @@
         // ==========================================
         // ตั้งค่า URL ของ Google Sheet (ต้องเผยแพร่เป็น CSV)
         // ==========================================
-        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2n3uMndnk1NQElScgt0WyRP1zjNeq3SndNTqU8IhElP3M3G5sUWT-hZZkzIxojfLgHjSkPjkKlPLK/pub?gid=0&single=true&output=csv'; // <-- นำลิงก์ CSV มาวางตรงนี้ (เช่น 'https://docs.google.com/spreadsheets/d/e/.../pub?output=csv')
-
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2n3uMndnk1NQElScgt0WyRP1zjNeq3SndNTqU8IhElP3M3G5sUWT-hZZkzIxojfLgHjSkPjkKlPLK/pub?gid=0&single=true&output=csv';
         // --- ข้อมูลจำลอง (Mock Data) ใช้ในกรณีที่ยังไม่มีลิงก์หรือโหลดไม่สำเร็จ ---
         const MOCK_DATA = [
             { courseCode: '252111', courseName: 'แคลคูลัส 1', major: 'คณิตศาสตร์', student: '66310325 กัญญาณี แช่มเดช', semester: 'ต้น' },
