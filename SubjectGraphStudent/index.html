@@ -28,6 +28,9 @@ const MOCK_DATA = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('search');
+  
+  // หากเชื่อมต่อ Google Sheets จริง แนะนำให้เปลี่ยน MOCK_DATA ตรงนี้เป็น Array ว่าง `[]` 
+  // เช่น const [data, setData] = useState([]);
   const [data, setData] = useState(MOCK_DATA);
   const [visLoaded, setVisLoaded] = useState(false);
 
@@ -36,6 +39,48 @@ export default function App() {
   const [selectedSemester, setSelectedSemester] = useState('ต้น');
   const [excludedMajors, setExcludedMajors] = useState([]);
   const [selectedCourseForList, setSelectedCourseForList] = useState('all');
+
+  // ============================================================================
+  // 🚀 ตำแหน่งสำหรับดึงข้อมูลจาก Google Sheets (นำ Comment ออกเพื่อใช้งานจริง)
+  // ============================================================================
+  /*
+  useEffect(() => {
+    // 1. นำ URL ที่ได้จาก Google Sheets -> เผยแพร่ทางเว็บ (Publish to web) -> เลือกรูปแบบ CSV มาใส่
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv';
+
+    const fetchSheetData = async () => {
+      try {
+        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        const csvText = await response.text();
+
+        // 2. แปลงข้อมูล CSV ให้อยู่ในรูปแบบ Array of Objects เหมือน MOCK_DATA
+        // วิธีแบบง่าย (แยกระหว่างบรรทัดและลูกน้ำ) *หมายเหตุ: หากข้อมูลในเซลล์มีลูกน้ำ ควรใช้ไลบรารีอย่าง PapaParse แทน
+        const rows = csvText.split('\n').slice(1); // ตัดบรรทัดแรก (Header) ออก
+        
+        const formattedData = rows.map(row => {
+          // สมมติว่าคอลัมน์ใน Sheet เรียงตามนี้: รหัสวิชา, ชื่อวิชา, สาขา, นิสิต, ภาคเรียน
+          const cols = row.split(','); 
+          return {
+            courseCode: cols[0]?.trim(),
+            courseName: cols[1]?.trim(),
+            major: cols[2]?.trim(),
+            student: cols[3]?.trim(),
+            semester: cols[4]?.trim()
+          };
+        }).filter(item => item.courseCode); // กรองบรรทัดที่ว่างเปล่าทิ้ง
+
+        // 3. นำข้อมูลที่แปลงแล้วไปใส่ใน State
+        setData(formattedData);
+        
+      } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลจาก Google Sheets:', error);
+      }
+    };
+
+    fetchSheetData();
+  }, []);
+  */
+  // ============================================================================
 
   const graphRef = useRef(null);
   const networkRef = useRef(null);
