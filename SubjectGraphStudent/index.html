@@ -69,6 +69,7 @@
         // ตั้งค่า URL ของ Google Sheet (ต้องเผยแพร่เป็น CSV)
         // ==========================================
         const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2n3uMndnk1NQElScgt0WyRP1zjNeq3SndNTqU8IhElP3M3G5sUWT-hZZkzIxojfLgHjSkPjkKlPLK/pub?gid=0&single=true&output=csv';
+        
         // --- ข้อมูลจำลอง (Mock Data) ใช้ในกรณีที่ยังไม่มีลิงก์หรือโหลดไม่สำเร็จ ---
         const MOCK_DATA = [
             { courseCode: '252111', courseName: 'แคลคูลัส 1', major: 'คณิตศาสตร์', student: '66310325 กัญญาณี แช่มเดช', semester: 'ต้น' },
@@ -306,7 +307,7 @@
                 font: { face: 'Kanit, sans-serif' }
                 }));
 
-                const MAJOR_COLORS = { 'คณิตศาสตร์': '#ef4444', 'สถิติ': '#ec4899' };
+                const MAJOR_COLORS = { 'คณิตศาสตร์': '#ef4444', 'สถิติ': '#ec4899', 'วิทยาการคอมพิวเตอร์': '#10b981' };
 
                 const edges = Object.keys(edgesCount).map(key => {
                 const [from, to, major] = key.split('|');
@@ -396,7 +397,7 @@
                     </div>
 
                     {activeTab === 'search' && (
-                        // ส่วนค้นหา (เหมือนเดิม)
+                        // ส่วนค้นหา
                         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
                             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
@@ -449,7 +450,7 @@
                     )}
 
                     {activeTab === 'course-list' && (
-                        // ส่วนรายชื่อตามรายวิชา (เหมือนเดิม)
+                        // ส่วนรายชื่อตามรายวิชา
                         <div className="space-y-6">
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                             <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
@@ -508,147 +509,173 @@
 
                     {activeTab === 'graph' && (
                     <div className="flex flex-col space-y-6 relative">
-                        {/* แผงควบคุมด้านบน (ย้ายมาจากด้านข้าง) */}
+                        {/* แผงควบคุมด้านบน */}
                         <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h3 className="font-semibold mb-4 flex items-center gap-2 text-lg border-b pb-2 border-slate-100">
                                 <FilterIcon className="w-5 h-5 text-indigo-600" /> แผงควบคุมและตัวกรองข้อมูล
                             </h3>
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {/* คอลัมน์ 1: ตั้งค่าหลัก (ภาคเรียน + สาขา) */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">เลือกภาคเรียน</label>
-                                        <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                                            {uniqueSemesters.map(sem => <option key={sem} value={sem}>ภาคเรียน: {sem}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">ซ่อนนิสิตแยกตามสาขา</label>
-                                        <div className="space-y-1.5 max-h-32 overflow-y-auto p-1 bg-slate-50 rounded border border-slate-100">
-                                            {uniqueMajors.map(major => (
-                                            <label key={major} className="flex items-center gap-2 cursor-pointer hover:bg-white p-1 rounded transition-colors">
-                                                <input type="checkbox" checked={excludedMajors.includes(major)} onChange={() => toggleMajorExclusion(major)} className="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
-                                                <span className="text-sm text-slate-700">ซ่อนสาขา {major}</span>
-                                            </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* คอลัมน์ 2: ค้นหาเพื่อตัดหรือเพิ่มวิชา */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">ค้นหาเพื่อตัดวิชา (ซ่อนจุด)</label>
-                                        <div className="relative">
-                                            <input type="text" value={excludeInput} onChange={handleExcludeInputChange} onBlur={() => setTimeout(() => setExcludeSuggestions([]), 200)} placeholder="พิมพ์รหัสหรือชื่อวิชา เพื่อตัดออก..." className="w-full p-2 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-400 outline-none text-sm" />
-                                            {excludeSuggestions.length > 0 && (
-                                                <ul className="absolute z-10 w-full bg-white border border-slate-200 shadow-lg max-h-48 overflow-y-auto rounded-md mt-1">
-                                                    {excludeSuggestions.map(c => (
-                                                        <li key={c.code} onClick={() => confirmExcludeCourse(c.code)} className="p-2 cursor-pointer text-sm hover:bg-red-50 flex justify-between items-center group border-b last:border-0 border-slate-50">
-                                                            <span className="truncate">{c.code} {c.name}</span>
-                                                            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">ตัดออก</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">ค้นหาเพื่อเพิ่มวิชา (เปิดจุดที่ซ่อน)</label>
-                                        <div className="relative">
-                                            <input type="text" value={includeInput} onChange={handleIncludeInputChange} onBlur={() => setTimeout(() => setIncludeSuggestions([]), 200)} placeholder="พิมพ์รหัสหรือชื่อวิชา เพื่อดึงกลับมา..." className="w-full p-2 border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-400 outline-none text-sm" />
-                                            {includeSuggestions.length > 0 && (
-                                                <ul className="absolute z-10 w-full bg-white border border-slate-200 shadow-lg max-h-48 overflow-y-auto rounded-md mt-1">
-                                                    {includeSuggestions.map(c => (
-                                                        <li key={c.code} onClick={() => confirmIncludeCourse(c.code)} className="p-2 cursor-pointer text-sm hover:bg-emerald-50 flex justify-between items-center group border-b last:border-0 border-slate-50">
-                                                            <span className="truncate line-through text-slate-400">{c.code} {c.name}</span>
-                                                            <span className="text-xs bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">ดึงกลับมา</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* คอลัมน์ 3: รายการเช็คบ็อกซ์จุดทั้งหมด */}
-                                <div className="flex flex-col h-full">
-                                    <div className="flex justify-between items-end mb-1">
-                                        <label className="block text-sm font-medium text-slate-700">เลือกแสดงวิชา ({graphAvailableCoursesList.length - excludedGraphCourses.length}/{graphAvailableCoursesList.length})</label>
-                                    </div>
-                                    <div className="flex gap-2 mb-2">
-                                        <button onClick={() => setExcludedGraphCourses([])} className="flex-1 py-1 px-2 bg-emerald-50 text-emerald-700 text-xs font-medium rounded border border-emerald-100 hover:bg-emerald-100 transition-colors">
-                                            เพิ่มกลับทั้งหมด
-                                        </button>
-                                        <button onClick={() => setExcludedGraphCourses(graphAvailableCoursesList.map(c => c.code))} className="flex-1 py-1 px-2 bg-red-50 text-red-700 text-xs font-medium rounded border border-red-100 hover:bg-red-100 transition-colors">
-                                            ตัดออกทั้งหมด
-                                        </button>
-                                    </div>
-                                    <div className="flex-1 min-h-[120px] max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50/50">
-                                        {graphAvailableCoursesList.map(course => (
-                                        <label key={course.code} className="flex items-start gap-2 cursor-pointer hover:bg-white p-1.5 rounded border border-transparent hover:border-slate-200 transition-all">
-                                            <input type="checkbox" checked={!excludedGraphCourses.includes(course.code)} onChange={() => toggleCourseExclusion(course.code)} className="w-4 h-4 mt-0.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 flex-shrink-0" />
-                                            <span className="text-sm text-slate-700 leading-tight">{course.code} <span className="text-slate-500">{course.name}</span></span>
-                                        </label>
+                                {/* 1. เลือกภาคเรียน */}
+                                <div>
+                                    <h4 className="font-medium text-slate-700 mb-3 text-sm">1. เลือกภาคเรียน</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {uniqueSemesters.map(sem => (
+                                            <button 
+                                                key={sem} 
+                                                onClick={() => setSelectedSemester(sem)} 
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${selectedSemester === sem ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                                            >
+                                                {sem}
+                                            </button>
                                         ))}
                                     </div>
+                                </div>
+
+                                {/* 2. เลือกสาขาที่จะซ่อน */}
+                                <div>
+                                    <h4 className="font-medium text-slate-700 mb-3 text-sm">2. เลือกสาขาที่จะ<span className="text-red-500">ซ่อน</span>จากกราฟ</h4>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                        {uniqueMajors.map(major => (
+                                            <label key={major} className="flex items-center gap-2 cursor-pointer group">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={excludedMajors.includes(major)} 
+                                                    onChange={() => toggleMajorExclusion(major)} 
+                                                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" 
+                                                />
+                                                <span className={`text-sm ${excludedMajors.includes(major) ? 'text-slate-400 line-through' : 'text-slate-700 group-hover:text-indigo-600'}`}>{major}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 3. จัดการรายวิชา */}
+                                <div>
+                                    <h4 className="font-medium text-slate-700 mb-3 text-sm">3. จัดการรายวิชาในกราฟ</h4>
+                                    
+                                    {/* Input ค้นหาเพื่อซ่อน */}
+                                    <div className="relative mb-3">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <SearchIcon className="h-4 w-4 text-slate-400" />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            value={excludeInput} 
+                                            onChange={handleExcludeInputChange} 
+                                            placeholder="พิมพ์ชื่อ/รหัสวิชา เพื่อซ่อน..." 
+                                            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                                        />
+                                        
+                                        {excludeSuggestions.length > 0 && (
+                                            <ul className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                                {excludeSuggestions.map(c => (
+                                                    <li key={c.code} onClick={() => confirmExcludeCourse(c.code)} className="px-3 py-2 text-sm hover:bg-red-50 cursor-pointer flex justify-between items-center group">
+                                                        <span className="truncate">{c.code} {c.name}</span>
+                                                        <span className="text-xs text-red-500 opacity-0 group-hover:opacity-100 font-medium bg-red-100 px-2 py-0.5 rounded">ซ่อน</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    {/* Input ค้นหาเพื่อแสดงกลับ */}
+                                    <div className="relative mb-4">
+                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <SearchIcon className="h-4 w-4 text-slate-400" />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            value={includeInput} 
+                                            onChange={handleIncludeInputChange} 
+                                            placeholder="พิมพ์ชื่อ/รหัสวิชา เพื่อแสดงกลับ..." 
+                                            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                                        />
+                                        
+                                        {includeSuggestions.length > 0 && (
+                                            <ul className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                                {includeSuggestions.map(c => (
+                                                    <li key={c.code} onClick={() => confirmIncludeCourse(c.code)} className="px-3 py-2 text-sm hover:bg-green-50 cursor-pointer flex justify-between items-center group">
+                                                        <span className="truncate">{c.code} {c.name}</span>
+                                                        <span className="text-xs text-green-600 opacity-0 group-hover:opacity-100 font-medium bg-green-100 px-2 py-0.5 rounded">แสดง</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    {/* รายชื่อวิชาที่ถูกซ่อน */}
+                                    {excludedGraphCourses.length > 0 && (
+                                        <div className="mt-2">
+                                            <p className="text-xs font-semibold text-slate-500 mb-2">วิชาที่ถูกซ่อนอยู่ ({excludedGraphCourses.length})</p>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {excludedGraphCourses.map(code => {
+                                                    const cInfo = uniqueCourses.find(c => c.code === code);
+                                                    return (
+                                                        <span key={code} className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded border border-slate-200 hover:bg-slate-200 transition-colors">
+                                                            <span className="truncate max-w-[120px]" title={cInfo ? cInfo.name : ''}>{code}</span>
+                                                            <button onClick={() => confirmIncludeCourse(code)} className="text-slate-400 hover:text-red-600 focus:outline-none ml-1" title="นำกลับมาแสดง">
+                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                            </button>
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* กล่องแสดงกราฟ (รองรับโหมดเต็มจอ) */}
-                        <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-slate-50 p-4 flex flex-col' : 'bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-[650px]'} transition-all duration-300`}>
-                            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white rounded-t-xl shadow-sm z-10">
-                                <div>
-                                    <h2 className="font-semibold text-slate-800 flex items-center gap-2">
-                                        เครือข่ายความสัมพันธ์รายวิชา <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">ภาค{selectedSemester}</span>
-                                    </h2>
-                                    <span className="text-sm text-slate-500">แสดงผล {graphData.nodes.length} วิชา, {graphData.edges.length} ความสัมพันธ์</span>
-                                </div>
-                                <button 
-                                    onClick={() => setIsFullscreen(!isFullscreen)} 
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors text-sm font-medium"
-                                >
-                                    {isFullscreen ? (
-                                        <><MinimizeIcon className="w-4 h-4" /> ออกจากโหมดเต็มจอ</>
-                                    ) : (
-                                        <><MaximizeIcon className="w-4 h-4" /> ขยายเต็มจอ</>
-                                    )}
-                                </button>
-                            </div>
+                        {/* พื้นที่แสดงกราฟ */}
+                        <div className={`relative bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 h-screen w-screen rounded-none border-none' : 'h-[600px]'}`}>
                             
-                            {!visLoaded ? (
-                                <div className="flex-1 flex items-center justify-center text-slate-400 bg-white">กำลังโหลดไลบรารีกราฟ...</div>
-                            ) : graphData.nodes.length === 0 ? (
-                                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-white">
-                                <NetworkIcon className="w-12 h-12 mb-2 text-slate-300" />
-                                <p>ไม่มีข้อมูลสำหรับเงื่อนไขที่เลือก หรือวิชาถูกซ่อนทั้งหมด</p>
-                                </div>
-                            ) : (
-                                <div ref={graphRef} className="flex-1 w-full bg-slate-50/50 cursor-grab active:cursor-grabbing"></div>
-                            )}
+                            {/* ปุ่ม Fullscreen */}
+                            <button 
+                                onClick={() => setIsFullscreen(!isFullscreen)} 
+                                className="absolute top-4 right-4 z-10 bg-white p-2.5 rounded-lg shadow-md hover:bg-slate-50 border border-slate-200 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                                title={isFullscreen ? "ย่อหน้าต่าง" : "ขยายเต็มจอ"}
+                            >
+                                {isFullscreen ? <MinimizeIcon className="w-5 h-5" /> : <MaximizeIcon className="w-5 h-5" />}
+                            </button>
 
-                            {isFullscreen && (
-                                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur p-4 rounded-xl border border-slate-200 shadow-lg pointer-events-none max-w-sm">
-                                    <h4 className="font-semibold text-indigo-900 mb-2 text-sm">คำแนะนำการใช้งานกราฟ</h4>
-                                    <ul className="text-xs text-slate-700 space-y-1.5">
-                                        <li>• <b>คลิกค้างและลาก</b> จุดเพื่อจัดระเบียบ</li>
-                                        <li>• <b>Scroll เมาส์</b> เพื่อซูมเข้า-ออก</li>
-                                        <li>• <b>เส้นเชื่อม</b> คือมีนิสิตลงเรียนทั้ง 2 วิชานี้</li>
-                                        <li className="pt-1 mt-1 border-t border-slate-100 flex gap-3">
-                                            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500"></span> คณิตศาสตร์</span>
-                                            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-pink-500"></span> สถิติ</span>
-                                            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span> อื่นๆ</span>
-                                        </li>
-                                    </ul>
+                            {/* Legend (คำอธิบายสัญลักษณ์) */}
+                            <div className="absolute top-4 left-4 z-10 bg-white/95 p-4 rounded-lg shadow-md border border-slate-200 text-sm backdrop-blur-sm pointer-events-none">
+                                <h4 className="font-bold text-slate-800 mb-3 text-xs uppercase tracking-wider">คำอธิบายสัญลักษณ์</h4>
+                                <div className="space-y-2.5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-5 bg-[#e0f2fe] border-2 border-[#0284c7] rounded flex items-center justify-center text-[8px] font-bold text-[#0284c7]">วิชา</div>
+                                        <span className="text-slate-600 text-xs font-medium">รายวิชา (Node)</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-1 bg-[#ef4444] rounded-full"></div>
+                                        <span className="text-slate-600 text-xs">สาขาคณิตศาสตร์ ลงเรียนคู่กัน</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-1 bg-[#ec4899] rounded-full"></div>
+                                        <span className="text-slate-600 text-xs">สาขาสถิติ ลงเรียนคู่กัน</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-1 bg-[#10b981] rounded-full"></div>
+                                        <span className="text-slate-600 text-xs">สาขาวิทยาการคอมพิวเตอร์</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-1 bg-[#94a3b8] rounded-full"></div>
+                                        <span className="text-slate-600 text-xs">สาขาอื่นๆ</span>
+                                    </div>
                                 </div>
-                            )}
+                                <div className="mt-3 pt-3 border-t border-slate-200 text-[10px] text-slate-500 leading-tight">
+                                    * ตัวเลขบนเส้น และความหนาของเส้น<br/>บ่งบอกถึงจำนวนนิสิตที่ลงเรียนคู่กัน
+                                </div>
+                            </div>
+
+                            {/* Container สำหรับ rendering vis.js */}
+                            <div ref={graphRef} className="w-full h-full bg-slate-50/30 cursor-grab active:cursor-grabbing"></div>
                         </div>
                     </div>
                     )}
                 </main>
-                </div>
+            </div>
             );
         }
 
