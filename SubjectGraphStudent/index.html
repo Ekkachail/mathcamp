@@ -28,12 +28,11 @@
                 <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 CourseNetwork Analytics
                 
-                <!-- ================= START: ส่วนที่ 1 - ตัวนับวิชาบน Header ================= -->
+                <!-- ตัวนับวิชาบน Header -->
                 <span id="global-course-counter-container" class="hidden ml-4 flex items-center bg-blue-50 border border-blue-200 rounded-full px-3 py-0.5 shadow-inner">
                     <span class="text-xs font-semibold text-blue-800 mr-1">วิชาที่รอจัดกลุ่ม:</span>
                     <span class="text-sm font-bold text-blue-600"><span id="unassigned-count">0</span>/<span id="total-count">0</span></span>
                 </span>
-                <!-- ================= END: ส่วนที่ 1 ================= -->
             </h1>
             <div class="flex items-center space-x-4">
                 <div class="flex items-center space-x-2">
@@ -54,10 +53,7 @@
                 <button onclick="switchTab('graph-tab')" id="btn-graph-tab" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">📊 กราฟความสัมพันธ์รายวิชา</button>
                 <button onclick="switchTab('student-tab')" id="btn-student-tab" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">👤 ค้นหาข้อมูลนิสิต</button>
                 <button onclick="switchTab('course-tab')" id="btn-course-tab" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">📝 รายชื่อนิสิตรายวิชา</button>
-                
-                <!-- ================= START: ส่วนที่ 2 - ปุ่ม Tab จัดกลุ่มรายวิชา ================= -->
                 <button onclick="switchTab('grouping-tab')" id="btn-grouping-tab" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700">🗂️ จัดกลุ่มรายวิชา</button>
-                <!-- ================= END: ส่วนที่ 2 ================= -->
             </nav>
         </div>
     </header>
@@ -77,7 +73,7 @@
                 </div>
                 
                 <!-- จัดการรายวิชาในกราฟ -->
-                <div class="flex-1 min-w-[300px] border-l pl-4 border-gray-200">
+                <div class="flex-1 min-w-[350px] border-l pl-4 border-gray-200">
                     <label class="block text-xs font-medium text-gray-700 mb-1">จัดการรายวิชาในกราฟ</label>
                     <div class="flex space-x-2 mb-2">
                         <button onclick="toggleAllNodes(false)" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded text-sm border border-red-200 transition">ลบวิชาทั้งหมด</button>
@@ -88,8 +84,10 @@
                             <input type="text" id="course-input" list="course-datalist" placeholder="พิมพ์รหัส/ชื่อวิชา เพื่อจัดการ..." class="w-full border-gray-300 rounded text-sm py-1.5 px-3 border focus:ring-blue-500 focus:border-blue-500">
                             <datalist id="course-datalist"></datalist>
                         </div>
-                        <button onclick="manageNodeFromInput('add')" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 rounded text-sm transition">เพิ่ม</button>
-                        <button onclick="manageNodeFromInput('remove')" class="bg-gray-500 text-white hover:bg-gray-600 px-3 py-1.5 rounded text-sm transition">ตัดออก</button>
+                        <button onclick="manageNodeFromInput('add')" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 rounded text-sm transition whitespace-nowrap">เพิ่ม</button>
+                        <button onclick="manageNodeFromInput('remove')" class="bg-gray-500 text-white hover:bg-gray-600 px-3 py-1.5 rounded text-sm transition whitespace-nowrap">ตัดออก</button>
+                        <!-- เพิ่มปุ่มประชิดกับจุด -->
+                        <button onclick="manageNodeFromInput('adjacent')" class="bg-purple-600 text-white hover:bg-purple-700 px-3 py-1.5 rounded text-sm transition whitespace-nowrap shadow-sm font-medium">ประชิดกับจุด</button>
                     </div>
                 </div>
             </div>
@@ -102,7 +100,7 @@
                     <div class="font-bold mb-2">คำอธิบายเส้นเชื่อม (Shared Students)</div>
                     <div class="flex items-center mb-1"><div class="w-4 h-1 bg-red-500 mr-2"></div> นิสิตสาขาคณิตศาสตร์</div>
                     <div class="flex items-center mb-1"><div class="w-4 h-1 bg-green-500 mr-2"></div> นิสิตสาขาสถิติ</div>
-                    <div class="flex items-center"><div class="w-4 h-1 bg-yellow-400 mr-2"></div> นิสิตสาขาอื่นๆ</div>
+                    <div class="flex items-center"><div class="w-4 h-1 bg-yellow-400 mr-2"></div> นิสิตสาขาวิทยาการคอมพิวเตอร์</div>
                 </div>
             </div>
         </div>
@@ -160,7 +158,6 @@
             </div>
         </div>
 
-        <!-- ================= START: ส่วนที่ 3 - เนื้อหาหน้าต่างจัดกลุ่ม (แทนที่ทั้ง Tab) ================= -->
         <!-- ================= TAB 4: COURSE GROUPING ================= -->
         <div id="grouping-tab" class="tab-content hidden h-full flex flex-col">
             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex-1 flex flex-col h-full overflow-hidden">
@@ -187,7 +184,6 @@
                 </div>
             </div>
         </div>
-        <!-- ================= END: ส่วนที่ 3 ================= -->
 
     </main>
 
@@ -195,20 +191,19 @@
         // ================= CONFIGURATION =================
         const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2n3uMndnk1NQElScgt0WyRP1zjNeq3SndNTqU8IhElP3M3G5sUWT-hZZkzIxojfLgHjSkPjkKlPLK/pub?gid=0&single=true&output=csv';
         
-        // ข้อมูลตัวอย่างที่ถูกปรับให้มีการเรียนซ้ำซ้อนกัน เพื่อให้เห็นการทำงานของป้ายเตือน (Badge) ได้ชัดเจน
         const MOCK_DATA = `รหัสวิชา,ชื่อวิชา,สาขา,นิสิต,ภาคเรียน
 252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66310325 กัญญาณี แช่มเดช,ต้น
 252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66310929 จุฑาภรณ์ วิวัฒน์ยุวะถาวร,ต้น
 252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66311315 ญาณิศา ว่องไว,ต้น
 252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66311490 ณัฎฐวี คงคา,ต้น
 252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66313586 พิจิตตรา ศรีบัวจับ,ต้น
-252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66313968 ภัทราวดี สีขาว,ต้น
-252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66314293 ยุพารัตน์ จันทะราช,ต้น
-252281,คณิตศาสตร์การเงินเบื้องต้น,คณิตศาสตร์,66314699 วรินธร อินต๊ะภา,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,วิทยาการคอมพิวเตอร์,66313968 ภัทราวดี สีขาว,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,สถิติ,66314293 ยุพารัตน์ จันทะราช,ต้น
+252281,คณิตศาสตร์การเงินเบื้องต้น,สถิติ,66314699 วรินธร อินต๊ะภา,ต้น
 252111,แคลคูลัส 1,คณิตศาสตร์,66310325 กัญญาณี แช่มเดช,ต้น
 252111,แคลคูลัส 1,คณิตศาสตร์,66310929 จุฑาภรณ์ วิวัฒน์ยุวะถาวร,ต้น
 252112,แคลคูลัส 2,คณิตศาสตร์,66311315 ญาณิศา ว่องไว,ต้น
-252112,แคลคูลัส 2,คณิตศาสตร์,66311490 ณัฎฐวี คงคา,ต้น`;
+252112,แคลคูลัส 2,วิทยาการคอมพิวเตอร์,66313968 ภัทราวดี สีขาว,ต้น`;
 
         // ================= GLOBAL STATE =================
         let rawData = [];
@@ -216,18 +211,15 @@
         let activeNodes = new Set(); 
         let excludedMajors = new Set(); 
 
-        // ================= START: ส่วนที่ 4 - ตัวแปรสำหรับจัดกลุ่ม =================
+        // ตัวแปรสำหรับจัดกลุ่ม
         let groupingData = {}; 
         let allUniqueCourses = []; 
         let assignedCourses = new Set(); 
-        
-        // สีคู่สำหรับแสดงวิชาที่ชนกัน
         const CONFLICT_COLORS = [
             'bg-blue-600', 'bg-red-600', 'bg-green-600', 'bg-purple-600', 
             'bg-orange-600', 'bg-teal-600', 'bg-pink-600', 'bg-indigo-600',
             'bg-yellow-600', 'bg-cyan-600', 'bg-lime-600', 'bg-rose-600'
         ];
-        // ================= END: ส่วนที่ 4 =================
 
         // ================= INITIALIZATION =================
         document.addEventListener('DOMContentLoaded', () => {
@@ -314,7 +306,6 @@
             for (const [code, name] of Object.entries(uniqueCourses)) {
                 let option = document.createElement('option');
                 option.value = code;
-                // สร้างคำค้นหาให้ครอบคลุมทั้งรหัสและชื่อ
                 option.text = `${code} ${name}`; 
                 datalist.appendChild(option);
             }
@@ -332,7 +323,6 @@
                 majorContainer.appendChild(lbl);
             });
             
-            // เรียกใช้อัปเดตตัวแปรตอนโหลดเสร็จ
             updateAllUniqueCoursesForTerm();
         }
 
@@ -341,7 +331,6 @@
             viewAllCourses(); 
             document.getElementById('student-result-container').classList.add('hidden'); 
             
-            // อัปเดตเมื่อเปลี่ยนภาคเรียน
             updateAllUniqueCoursesForTerm();
             resetGroups(); 
         }
@@ -371,16 +360,54 @@
             const inputVal = document.getElementById('course-input').value.trim();
             if(!inputVal) return;
             
-            const matchedRow = rawData.find(r => r.courseCode === inputVal || r.courseName === inputVal || `${r.courseCode} ${r.courseName}`.includes(inputVal));
+            const term = document.getElementById('global-term-select').value;
+            // ค้นหาวิชาจากรหัสหรือชื่อ โดยเช็คในเทอมที่เลือกด้วย
+            const matchedRow = rawData.find(r => 
+                (term === 'all' || r.term === term) && 
+                (r.courseCode === inputVal || r.courseName === inputVal || `${r.courseCode} ${r.courseName}`.includes(inputVal))
+            );
             
             if(matchedRow) {
-                if(action === 'add') activeNodes.add(matchedRow.courseCode);
-                else activeNodes.delete(matchedRow.courseCode);
+                const targetCode = matchedRow.courseCode;
+
+                if(action === 'add') {
+                    activeNodes.add(targetCode);
+                } 
+                else if(action === 'remove') {
+                    activeNodes.delete(targetCode);
+                } 
+                else if(action === 'adjacent') {
+                    // --- ระบบประชิดจุด ---
+                    const newActiveNodes = new Set();
+                    newActiveNodes.add(targetCode); // เพิ่มจุดศูนย์กลาง
+
+                    // 1. กรองข้อมูลเฉพาะเทอมและสาขาที่ไม่ได้ถูกตัดออก
+                    const filteredData = rawData.filter(r => 
+                        (term === 'all' || r.term === term) && 
+                        !excludedMajors.has(r.major)
+                    );
+
+                    // 2. หานิสิตทั้งหมดที่เรียนวิชาเป้าหมาย (ในสาขาที่อนุญาต)
+                    const targetStudents = new Set(
+                        filteredData.filter(r => r.courseCode === targetCode).map(r => r.studentId)
+                    );
+
+                    // 3. หาวิชาอื่นๆ ที่นิสิตกลุ่มนี้ไปเรียนด้วย (วิชาประชิด)
+                    filteredData.forEach(r => {
+                        if (r.courseCode !== targetCode && targetStudents.has(r.studentId)) {
+                            newActiveNodes.add(r.courseCode);
+                        }
+                    });
+
+                    // 4. เคลียร์กราฟเดิม และตั้งค่าให้แสดงเฉพาะจุดใหม่
+                    activeNodes.clear();
+                    newActiveNodes.forEach(code => activeNodes.add(code));
+                }
                 
                 document.getElementById('course-input').value = ''; 
                 drawGraph();
             } else {
-                alert('ไม่พบรายวิชานี้ในระบบ');
+                alert('ไม่พบรายวิชานี้ในระบบ (โปรดตรวจสอบรหัสวิชาหรือภาคเรียน)');
             }
         }
 
@@ -393,28 +420,22 @@
                 activeNodes.has(r.courseCode)
             );
 
-            const nodesMap = new Map();
             const courseStudents = {}; 
 
+            // จัดกลุ่มนิสิตตามรายวิชา
             filteredData.forEach(row => {
-                if (!nodesMap.has(row.courseCode)) {
-                    nodesMap.set(row.courseCode, {
-                        id: row.courseCode,
-                        label: `${row.courseCode}\n${row.courseName}`,
-                        shape: 'box',
-                        color: { background: '#ffffff', border: '#cbd5e1' },
-                        font: { face: 'Noto Sans Thai', size: 14 }
-                    });
-                }
-                
                 if (!courseStudents[row.courseCode]) courseStudents[row.courseCode] = {};
                 courseStudents[row.courseCode][row.studentId] = row.major;
             });
 
-            const nodesArray = Array.from(nodesMap.values());
             const edgesArray = [];
             const courseCodes = Object.keys(courseStudents);
+            
+            // เตรียมตัวแปรเก็บค่า Degree ของแต่ละวิชา
+            const nodeDegrees = {};
+            courseCodes.forEach(code => nodeDegrees[code] = 0);
 
+            // ================= คำนวณเส้นเชื่อม (Edges) และ Degree =================
             for (let i = 0; i < courseCodes.length; i++) {
                 for (let j = i + 1; j < courseCodes.length; j++) {
                     const cA = courseCodes[i];
@@ -425,30 +446,58 @@
                     
                     let mathCount = 0;
                     let statCount = 0;
-                    let otherCount = 0;
+                    let otherCount = 0; // สาขาวิทยาการคอมพิวเตอร์ หรืออื่นๆ
 
                     for (const stuId in studentsA) {
                         if (studentsB[stuId]) {
                             const major = studentsA[stuId];
                             if (major === 'คณิตศาสตร์') mathCount++;
                             else if (major === 'สถิติ') statCount++;
-                            else otherCount++;
+                            else otherCount++; 
                         }
                     }
 
                     const baseEdgeProps = { from: cA, to: cB, font: { align: 'top', strokeWidth: 3, strokeColor: '#ffffff' } };
+                    let isConnected = false;
 
                     if (mathCount > 0) {
                         edgesArray.push({ ...baseEdgeProps, label: String(mathCount), color: { color: '#ef4444' }, width: Math.min(mathCount, 10) }); 
+                        isConnected = true;
                     }
                     if (statCount > 0) {
                         edgesArray.push({ ...baseEdgeProps, label: String(statCount), color: { color: '#22c55e' }, width: Math.min(statCount, 10) }); 
+                        isConnected = true;
                     }
                     if (otherCount > 0) {
                         edgesArray.push({ ...baseEdgeProps, label: String(otherCount), color: { color: '#facc15' }, width: Math.min(otherCount, 10) }); 
+                        isConnected = true;
+                    }
+
+                    // ถ้าระหว่าง 2 วิชามีการเชื่อมกัน ให้เพิ่ม Degree เข้าไป 1 ให้ทั้ง 2 วิชา
+                    if (isConnected) {
+                        nodeDegrees[cA]++;
+                        nodeDegrees[cB]++;
                     }
                 }
             }
+
+            // ================= สร้างจุด (Nodes) และใส่ Degree =================
+            const nodesMap = new Map();
+            filteredData.forEach(row => {
+                if (!nodesMap.has(row.courseCode)) {
+                    const degree = nodeDegrees[row.courseCode] || 0;
+                    
+                    nodesMap.set(row.courseCode, {
+                        id: row.courseCode,
+                        label: `${row.courseCode}\n${row.courseName} (Degree: ${degree})`,
+                        shape: 'box',
+                        color: { background: '#ffffff', border: '#cbd5e1' },
+                        font: { face: 'Noto Sans Thai', size: 14 }
+                    });
+                }
+            });
+
+            const nodesArray = Array.from(nodesMap.values());
 
             const container = document.getElementById('network-graph');
             const data = { nodes: nodesArray, edges: edgesArray };
@@ -581,7 +630,7 @@
             container.innerHTML = html;
         }
 
-        // ================= START: ส่วนที่ 5 - ฟังก์ชันระบบจัดกลุ่มรายวิชา (ทั้งหมด) =================
+        // ================= GROUPING LOGIC =================
         function updateAllUniqueCoursesForTerm() {
             const term = document.getElementById('global-term-select').value;
             const uniqueSet = new Set();
@@ -594,7 +643,6 @@
             updateGlobalCourseCounter();
         }
 
-        // อัปเดตตัวเลขกำกับบนหัวเว็บ
         function updateGlobalCourseCounter() {
             const counterContainer = document.getElementById('global-course-counter-container');
             const totalEl = document.getElementById('total-count');
@@ -615,7 +663,6 @@
             }
         }
 
-        // สร้างตารางกลุ่มตามจำนวนที่ระบุ
         function createGroups() {
             const numInput = document.getElementById('num-groups-input');
             let numGroups = parseInt(numInput.value);
@@ -633,7 +680,6 @@
             updateGlobalCourseCounter();
         }
 
-        // ล้างข้อมูลกลุ่มทั้งหมด
         function resetGroups() {
             groupingData = {};
             assignedCourses.clear();
@@ -645,7 +691,6 @@
             updateGlobalCourseCounter();
         }
 
-        // วาดตารางกลุ่มและรายวิชาภายใน
         function renderAllGroups() {
             const container = document.getElementById('groups-container');
             if(Object.keys(groupingData).length === 0) return; 
@@ -653,7 +698,6 @@
             container.innerHTML = '';
             
             for (const [groupId, courses] of Object.entries(groupingData)) {
-                // วิเคราะห์หาตัวเลขชนกัน (Conflict Badges)
                 const conflicts = analyzeGroupConflicts(courses);
                 
                 let groupHtml = `
@@ -678,7 +722,6 @@
                         const courseInfo = rawData.find(r => r.courseCode === code);
                         const courseName = courseInfo ? courseInfo.courseName : 'ไม่ทราบชื่อวิชา';
                         
-                        // สร้างป้ายตัวเลขแจ้งเตือน (Badges)
                         let badgesHtml = '';
                         if (conflicts[code] && conflicts[code].length > 0) {
                             conflicts[code].forEach(conflict => {
@@ -714,14 +757,12 @@
             }
         }
 
-        // ฟังก์ชันเพิ่มวิชาลงกลุ่ม
         function addCourseToGroup(groupId) {
             const inputEl = document.getElementById(`group-input-${groupId}`);
             const inputVal = inputEl.value.trim();
             if (!inputVal) return;
 
             const term = document.getElementById('global-term-select').value;
-            // ค้นหาวิชาจากรหัส หรือ รหัส+ชื่อ ที่ถูกพิมพ์เข้ามา (Autocomplete)
             const matchedRow = rawData.find(r => 
                 (term === 'all' || r.term === term) && 
                 (r.courseCode === inputVal || r.courseName === inputVal || `${r.courseCode} ${r.courseName}`.includes(inputVal))
@@ -734,7 +775,6 @@
 
             const courseCode = matchedRow.courseCode;
 
-            // ตรวจสอบว่าวิชานี้ถูกจัดกลุ่มไปแล้วหรือไม่
             if (assignedCourses.has(courseCode)) {
                 let existingGroup = null;
                 for (const [gId, courses] of Object.entries(groupingData)) {
@@ -742,16 +782,14 @@
                 }
                 if (existingGroup === String(groupId)) {
                     inputEl.value = ''; 
-                    return; // อยู่ในกลุ่มนี้อยู่แล้ว
+                    return; 
                 }
                 const confirmMove = confirm(`รายวิชา ${courseCode} ถูกจัดอยู่ใน "กลุ่มที่ ${existingGroup}" แล้ว\nต้องการย้ายมากลุ่มนี้หรือไม่?`);
                 if (!confirmMove) return;
                 
-                // เอารหัสออกจากกลุ่มเดิม
                 groupingData[existingGroup] = groupingData[existingGroup].filter(code => code !== courseCode);
             }
 
-            // เพิ่มวิชาลงกลุ่มใหม่
             groupingData[groupId].push(courseCode);
             assignedCourses.add(courseCode);
             inputEl.value = '';
@@ -760,7 +798,6 @@
             updateGlobalCourseCounter();
         }
 
-        // ฟังก์ชันลบวิชาออกจากกลุ่ม
         function removeCourseFromGroup(groupId, courseCode) {
             groupingData[groupId] = groupingData[groupId].filter(code => code !== courseCode);
             assignedCourses.delete(courseCode);
@@ -769,7 +806,6 @@
             updateGlobalCourseCounter();
         }
 
-        // ฟังก์ชันคำนวณการชนกันของวิชาภายในกลุ่มเดียวกัน และกำหนดสีคู่
         function analyzeGroupConflicts(coursesInGroup) {
             const term = document.getElementById('global-term-select').value;
             const conflicts = {}; 
@@ -788,7 +824,6 @@
 
             let colorIndex = 0;
 
-            // จับคู่เปรียบเทียบทีละ 2 วิชาในกลุ่ม
             for (let i = 0; i < coursesInGroup.length; i++) {
                 for (let j = i + 1; j < coursesInGroup.length; j++) {
                     const codeA = coursesInGroup[i];
@@ -802,7 +837,6 @@
                         if (studentsB.has(stu)) sharedCount++;
                     });
 
-                    // ถ้ามีนิสิตซ้ำกัน จะบันทึกจำนวนและกำหนดสีคู่
                     if (sharedCount > 0) {
                         const colorClass = CONFLICT_COLORS[colorIndex % CONFLICT_COLORS.length];
                         colorIndex++;
@@ -815,7 +849,6 @@
 
             return conflicts;
         }
-        // ================= END: ส่วนที่ 5 =================
 
     </script>
 </body>
