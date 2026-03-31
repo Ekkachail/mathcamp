@@ -84,6 +84,7 @@
             const [selectedSemester, setSelectedSemester] = useState('ต้น');
             const [excludedMajors, setExcludedMajors] = useState([]);
             const [selectedCourseForList, setSelectedCourseForList] = useState('all');
+            const [excludedGraphCourses, setExcludedGraphCourses] = useState([]);
 
             // ============================================================================
             // 🚀 ตำแหน่งสำหรับดึงข้อมูลจาก Google Sheets (นำ Comment ออกเพื่อใช้งานจริง)
@@ -149,6 +150,25 @@
                 );
             };
 
+            const toggleCourseExclusion = (courseCode) => {
+                setExcludedGraphCourses(prev => 
+                prev.includes(courseCode) ? prev.filter(c => c !== courseCode) : [...prev, courseCode]
+                );
+            };
+
+            const graphAvailableCoursesList = useMemo(() => {
+                const filteredData = data.filter(item => 
+                item.semester === selectedSemester && !excludedMajors.includes(item.major)
+                );
+                const map = new Map();
+                filteredData.forEach(d => {
+                if (!map.has(d.courseCode)) {
+                    map.set(d.courseCode, d.courseName);
+                }
+                });
+                return Array.from(map.entries()).map(([code, name]) => ({ code, name })).sort((a, b) => a.code.localeCompare(b.code));
+            }, [data, selectedSemester, excludedMajors]);
+
             // Logic 1: ค้นหานิสิต
             const searchResults = useMemo(() => {
                 if (!searchQuery.trim()) return [];
@@ -162,7 +182,9 @@
             // Logic 2: กราฟความสัมพันธ์
             const graphData = useMemo(() => {
                 const filteredData = data.filter(item => 
-                item.semester === selectedSemester && !excludedMajors.includes(item.major)
+                item.semester === selectedSemester && 
+                !excludedMajors.includes(item.major) &&
+                !excludedGraphCourses.includes(item.courseCode)
                 );
 
                 const studentMap = {};
@@ -220,7 +242,7 @@
                 });
 
                 return { nodes, edges };
-            }, [data, selectedSemester, excludedMajors]);
+            }, [data, selectedSemester, excludedMajors, excludedGraphCourses]);
 
             // Logic 3: รายชื่อนิสิต
             const courseListDisplayData = useMemo(() => {
@@ -413,6 +435,26 @@
                                 </label>
                                 ))}
                             </div>
+                            </div>
+
+                            <div className="pt-5 mt-5 border-t border-slate-200">
+                                <label className="block text-sm font-medium text-slate-700 mb-2">เลือกแสดงรายวิชา (จุด)</label>
+                                <div className="flex gap-2 mb-3">
+                                    <button onClick={() => setExcludedGraphCourses([])} className="flex-1 py-1.5 px-2 bg-indigo-50 text-indigo-700 text-xs font-medium rounded hover:bg-indigo-100 transition-colors">
+                                        เพิ่มจุดทั้งหมด
+                                    </button>
+                                    <button onClick={() => setExcludedGraphCourses(graphAvailableCoursesList.map(c => c.code))} className="flex-1 py-1.5 px-2 bg-slate-100 text-slate-700 text-xs font-medium rounded hover:bg-slate-200 transition-colors">
+                                        ตัดออกทั้งหมด
+                                    </button>
+                                </div>
+                                <div className="space-y-2 max-h-48 overflow-y-auto p-1 border border-slate-100 rounded bg-slate-50/50">
+                                    {graphAvailableCoursesList.map(course => (
+                                    <label key={course.code} className="flex items-center gap-2 cursor-pointer hover:bg-white p-1.5 rounded border border-transparent hover:border-slate-200 transition-all">
+                                        <input type="checkbox" checked={!excludedGraphCourses.includes(course.code)} onChange={() => toggleCourseExclusion(course.code)} className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+                                        <span className="text-sm text-slate-700">{course.code}</span>
+                                    </label>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
