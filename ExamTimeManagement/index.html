@@ -11,10 +11,13 @@
     /* Loading Spinner */
     .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    /* Drag & Drop Effect */
+    .dragging { opacity: 0.5; background-color: #f0fdf4; border: 2px dashed #22c55e; }
+    .drag-over { border-top: 2px solid #3b82f6; }
   </style>
 </head>
 <body class="bg-gray-50 p-6 text-gray-800">
-  <div id="app" v-cloak class="max-w-7xl mx-auto">
+  <div id="app" v-cloak class="max-w-7xl mx-auto relative">
     
     <!-- หน้าต่าง Loading ตอนเชื่อมต่อกับ Google Sheet -->
     <div v-if="isLoadingData" class="fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50">
@@ -40,8 +43,9 @@
           <button @click="saveDraftOnly" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded shadow text-sm transition duration-200" :disabled="isSaving">
             {{ isSaving ? 'กำลังบันทึก...' : '💾 บันทึกสถานะชั่วคราว' }}
           </button>
-          <button @click="saveDataAndExport" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow text-sm transition duration-200" :disabled="isSaving">
-            {{ isSaving ? 'กำลังประมวลผล...' : '📥 ส่งออกเป็น Sheet ใหม่' }}
+          <!-- เปลี่ยนปุ่มเป็นเปิดหน้าต่าง Preview -->
+          <button @click="openPreview" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow text-sm transition duration-200" :disabled="isSaving">
+            📋 ตรวจสอบและส่งออก
           </button>
         </div>
       </div>
@@ -76,7 +80,7 @@
       </div>
     </div>
 
-    <!-- ตารางรายวิชา -->
+    <!-- ตารางรายวิชาหลัก -->
     <div class="bg-white shadow-md rounded-lg overflow-x-auto" v-if="!isLoadingData">
       <table class="w-full text-sm text-left">
         <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b-2">
@@ -133,13 +137,88 @@
         </tbody>
       </table>
     </div>
+
+    <!-- ============================================== -->
+    <!-- หน้าต่าง Preview และจัดเรียงข้อมูล (Modal) -->
+    <!-- ============================================== -->
+    <div v-if="showPreviewModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col">
+        
+        <!-- Modal Header -->
+        <div class="p-5 border-b bg-gray-50 flex justify-between items-center rounded-t-xl">
+          <h2 class="text-xl font-bold text-gray-800">📋 ตรวจสอบและจัดเรียงข้อมูลก่อนส่งออก</h2>
+          <button @click="showPreviewModal = false" class="text-gray-500 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
+        </div>
+
+        <!-- Modal Body (Table) -->
+        <div class="p-5 overflow-y-auto flex-1">
+          <p class="text-sm text-gray-600 mb-3">
+            💡 <b>คำแนะนำ:</b> คุณสามารถจัดลำดับวิชาได้โดย <b>ลากและวาง (Drag & Drop)</b> ที่แถว หรือคลิกปุ่มเลื่อน <span class="text-blue-500">▲</span> <span class="text-blue-500">▼</span> ด้านขวาสุด<br>
+            ข้อมูลที่แสดงในหน้านี้ จะเป็นรูปแบบเดียวกับที่จะถูกส่งออกไปยัง Google Sheet
+          </p>
+
+          <table class="w-full text-sm text-left border rounded">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-200 sticky top-0 shadow-sm">
+              <tr>
+                <th class="px-4 py-3 w-24">ลำดับ</th>
+                <th class="px-4 py-3">รหัสวิชา</th>
+                <th class="px-4 py-3">ชื่อวิชา</th>
+                <th class="px-4 py-3 text-center">กลุ่ม</th>
+                <th class="px-4 py-3">รายชื่อผู้คุมสอบ</th>
+                <th class="px-4 py-3">หมายเหตุ</th>
+                <th class="px-4 py-3 text-center w-24">จัดเรียง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(course, index) in previewCourses" 
+                  :key="'prev_'+course.id" 
+                  draggable="true"
+                  @dragstart="dragStart(index)"
+                  @dragover.prevent="dragOver($event, index)"
+                  @dragleave="dragLeave($event)"
+                  @drop="drop(index)"
+                  class="border-b hover:bg-yellow-50 cursor-move bg-white transition-colors"
+                  :class="{'dragging': draggedIndex === index, 'drag-over': dragOverIndex === index}">
+                
+                <td class="px-4 py-3 font-bold text-gray-400 text-center">{{ index + 1 }}</td>
+                <td class="px-4 py-3 font-medium">{{ course.code }}</td>
+                <td class="px-4 py-3">{{ course.name }}</td>
+                <td class="px-4 py-3 text-center font-bold">{{ course.section }}</td>
+                <!-- แสดงชื่อเต็มและขึ้นบรรทัดใหม่ด้วย v-html -->
+                <td class="px-4 py-3 text-xs leading-relaxed" v-html="getCompiledProctors(course.proctors)"></td>
+                <td class="px-4 py-3 text-xs text-gray-600">{{ getCompiledRemark(course) }}</td>
+                
+                <!-- ปุ่มสลับลำดับ -->
+                <td class="px-4 py-3 text-center space-x-1">
+                  <button @click="moveUp(index)" :disabled="index === 0" class="p-1 text-gray-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer">▲</button>
+                  <button @click="moveDown(index)" :disabled="index === previewCourses.length - 1" class="p-1 text-gray-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer">▼</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-5 border-t bg-gray-50 flex justify-end gap-3 rounded-b-xl">
+          <button @click="showPreviewModal = false" class="px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-100 font-semibold transition">
+            ยกเลิก
+          </button>
+          <button @click="confirmAndExport" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold shadow transition flex items-center" :disabled="isSaving">
+            <span v-if="isSaving" class="loader !w-4 !h-4 !border-2 mr-2"></span>
+            {{ isSaving ? 'กำลังส่งออก...' : 'ยืนยันการส่งออกเป็น Sheet ใหม่' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- จบ Modal -->
+
   </div>
 
   <script>
     const { createApp } = Vue;
     
     // =======================================================
-    // ⚠️ นำ URL Web App ของคุณมาใส่ตรงนี้ (ต้องขึ้นต้นด้วย https://script.google.com/macros/s/.../exec)
+    // ⚠️ นำ URL Web App ของคุณมาใส่ตรงนี้ 
     // =======================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbypX4-QAJSKtsb2tiRnxW0V2qpFVxnsscUnRxxUXcp5uk0vmr_d8Hz8S50vr-62lJm3KA/exec'; 
 
@@ -152,7 +231,13 @@
           isLoadingData: true,
           isDraftLoaded: false,
           filterCondition: 'all',
-          filterNumber: 0
+          filterNumber: 0,
+          
+          // ตัวแปรสำหรับ Modal Preview & Drag Drop
+          showPreviewModal: false,
+          previewCourses: [],
+          draggedIndex: null,
+          dragOverIndex: null
         };
       },
       computed: {
@@ -197,7 +282,7 @@
         this.loadData();
       },
       methods: {
-        // ฟังก์ชันดึงข้อมูลผ่าน Fetch API
+        // --- ส่วนเชื่อมต่อ API ---
         async loadData() {
           this.isLoadingData = true;
           try {
@@ -212,14 +297,11 @@
             this.isLoadingData = false;
           }
         },
-
-        // ฟังก์ชันส่งข้อมูลผ่าน Fetch API (ใช้ text/plain เลี่ยง CORS)
         async sendApiRequest(actionName, payloadData) {
           try {
             const response = await fetch(API_URL, {
               method: 'POST',
               body: JSON.stringify({ action: actionName, payload: payloadData }),
-              // จำเป็นต้องใช้ text/plain เพื่อให้ Apps script รับแบบไม่ติด Preflight CORS
               headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             return await response.json();
@@ -227,7 +309,6 @@
             throw error;
           }
         },
-
         async saveDraftOnly() {
           this.isSaving = true;
           let rawData = JSON.parse(JSON.stringify(this.courses));
@@ -241,15 +322,91 @@
             this.isSaving = false;
           }
         },
+        async resetData() {
+          if(confirm('ระบบจะล้างข้อมูลที่คุณจัดไว้ทั้งหมด และดึงตารางสอนใหม่มาจาก Sheet ยืนยันหรือไม่?')) {
+            this.isSaving = true;
+            try {
+              await this.sendApiRequest('clearDraft', {});
+              await this.loadData();
+              alert('รีเซ็ตและดึงข้อมูลตั้งต้นเรียบร้อยแล้ว');
+            } catch(err) {
+              alert('ไม่สามารถรีเซ็ตได้: ' + err.message);
+            } finally {
+              this.isSaving = false;
+            }
+          }
+        },
 
-        async saveDataAndExport() {
+        // --- ส่วนจัดการหน้าต่าง Preview และจัดเรียงข้อมูล ---
+        openPreview() {
+          // จำลองข้อมูลเข้าตารางพรีวิว (Clone Array ป้องกันการแก้ไขตารางจริงระหว่างจัดเรียง)
+          this.previewCourses = JSON.parse(JSON.stringify(this.courses));
+          this.showPreviewModal = true;
+        },
+        getCompiledProctors(proctorsArray) {
+          // กรองเอาเฉพาะที่มีชื่อ และแปลงชื่อสั้นเป็นชื่อเต็ม
+          let active = proctorsArray.filter(p => p !== "");
+          if(active.length === 0) return "<span class='text-red-400'>- ไม่มีผู้คุมสอบ -</span>";
+          
+          let fullNames = active.map(shortName => {
+             let t = this.teachers.find(x => x.shortName === shortName);
+             return t ? t.fullName : shortName;
+          });
+          // ใช้ <br> เพื่อให้ขึ้นบรรทัดใหม่ในหน้าเว็บ HTML
+          return fullNames.join('<br>');
+        },
+        getCompiledRemark(course) {
+          let full = course.remarkType || '';
+          if (course.remarkRef) full += " " + course.remarkRef;
+          if (course.customRemark) full += (full ? " " : "") + course.customRemark;
+          return full || '-';
+        },
+        
+        // ฟังก์ชันลากวาง (Drag & Drop)
+        dragStart(index) {
+          this.draggedIndex = index;
+        },
+        dragOver(event, index) {
+          this.dragOverIndex = index;
+        },
+        dragLeave(event) {
+          this.dragOverIndex = null;
+        },
+        drop(index) {
+          this.dragOverIndex = null;
+          if (this.draggedIndex !== null && this.draggedIndex !== index) {
+            const movedItem = this.previewCourses.splice(this.draggedIndex, 1)[0];
+            this.previewCourses.splice(index, 0, movedItem);
+          }
+          this.draggedIndex = null;
+        },
+        
+        // ฟังก์ชันปุ่มเลื่อนขึ้น-ลง
+        moveUp(index) {
+          if (index > 0) {
+            const item = this.previewCourses.splice(index, 1)[0];
+            this.previewCourses.splice(index - 1, 0, item);
+          }
+        },
+        moveDown(index) {
+          if (index < this.previewCourses.length - 1) {
+            const item = this.previewCourses.splice(index, 1)[0];
+            this.previewCourses.splice(index + 1, 0, item);
+          }
+        },
+
+        // ส่งออกหลังจากจัดเรียงเสร็จ
+        async confirmAndExport() {
           this.isSaving = true;
-          let rawData = JSON.parse(JSON.stringify(this.courses));
+          // อัปเดตตารางหลักด้วยตารางที่จัดเรียงใหม่ เพื่อให้ระบบหลักจำค่าการจัดเรียงไว้ด้วย
+          this.courses = JSON.parse(JSON.stringify(this.previewCourses));
+          
           try {
-            const result = await this.sendApiRequest('exportSheet', rawData);
+            const result = await this.sendApiRequest('exportSheet', this.previewCourses);
             if(result.status === 'success'){
                this.isDraftLoaded = true;
-               alert('ส่งออกสำเร็จ! ตารางถูกส่งออกไปยัง Sheet ชื่อ: ' + result.sheetName);
+               this.showPreviewModal = false; // ปิดหน้าต่าง Modal
+               alert('✅ ส่งออกสำเร็จ!\nตารางถูกส่งออกไปยัง Google Sheet ชื่อ: ' + result.sheetName);
             } else {
                alert('เกิดข้อผิดพลาด: ' + result.message);
             }
@@ -260,22 +417,7 @@
           }
         },
 
-        async resetData() {
-          if(confirm('ระบบจะล้างข้อมูลที่คุณจัดไว้ทั้งหมด และดึงตารางสอนใหม่มาจาก Sheet ยืนยันหรือไม่?')) {
-            this.isSaving = true;
-            try {
-              await this.sendApiRequest('clearDraft', {});
-              await this.loadData(); // รีโหลดข้อมูลใหม่จาก Sheet ทันที
-              alert('รีเซ็ตและดึงข้อมูลตั้งต้นเรียบร้อยแล้ว');
-            } catch(err) {
-              alert('ไม่สามารถรีเซ็ตได้: ' + err.message);
-            } finally {
-              this.isSaving = false;
-            }
-          }
-        },
-
-        // --- ฟังก์ชัน UI ปกติ (ไม่ถูกแก้ไข) ---
+        // --- ส่วน UI และ Logic ปกติของตารางหลัก ---
         getCountColor(count) {
           if (!count || count === 0) return { hex: '#374151' };
           if (count === 1) return { hex: '#16a34a' };
