@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดอาจารย์คุมสอบ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    [v-cloak] { display: none; }
+    /* Loading Spinner */
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gray-50 p-6 text-gray-800">
+  <div id="app" v-cloak class="max-w-7xl mx-auto">
+    
+    <!-- หน้าต่าง Loading ตอนเชื่อมต่อกับ Google Sheet -->
+    <div v-if="isLoadingData" class="fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50">
+      <div class="loader mb-4"></div>
+      <p class="text-lg font-semibold text-gray-700">กำลังเชื่อมต่อกับฐานข้อมูล...</p>
+    </div>
+
+    <!-- แจ้งเตือนเมื่อโหลด Draft -->
+    <div v-if="isDraftLoaded && !isLoadingData" class="bg-blue-100 text-blue-800 border border-blue-200 p-4 rounded-lg mb-4 text-sm flex justify-between items-center shadow-sm transition">
+       <span>
+         <b class="mr-2">ℹ️ โหลดข้อมูลร่างล่าสุด</b> 
+         หากอัปเดต Google Sheet แล้ว ให้กดปุ่มรีเซ็ตเพื่อดึงข้อมูลใหม่
+       </span>
+       <button @click="resetData" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow-sm text-xs transition duration-200" :disabled="isSaving">
+         รีเซ็ตและดึงข้อมูลใหม่
+       </button>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6" v-if="!isLoadingData">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">ระบบจัดอาจารย์คุมสอบ</h1>
+        <div class="space-x-3">
+          <button @click="saveDraftOnly" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded shadow text-sm transition duration-200" :disabled="isSaving">
+            {{ isSaving ? 'กำลังบันทึก...' : '💾 บันทึกสถานะชั่วคราว' }}
+          </button>
+          <button @click="saveDataAndExport" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow text-sm transition duration-200" :disabled="isSaving">
+            {{ isSaving ? 'กำลังประมวลผล...' : '📥 ส่งออกเป็น Sheet ใหม่' }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- ตัวกรองและรายละเอียดภาระงาน -->
+      <div class="mb-4">
+        <span class="font-semibold mr-2 text-sm">ระดับสีภาระงาน (นับตามกลุ่มเวลา):</span>
+        <span class="inline-block px-2 py-1 rounded bg-green-100 text-green-700 font-bold mr-2 text-xs">1 ครั้ง</span>
+        <span class="inline-block px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-bold mr-2 text-xs">2 ครั้ง</span>
+        <span class="inline-block px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold mr-2 text-xs">3 ครั้ง</span>
+        <span class="inline-block px-2 py-1 rounded bg-red-100 text-red-700 font-bold mr-2 text-xs">4 ครั้ง</span>
+        <span class="inline-block px-2 py-1 rounded bg-purple-100 text-purple-700 font-bold text-xs">5+ ครั้ง</span>
+      </div>
+
+      <div class="mb-3 flex items-center gap-3 bg-gray-50 p-3 rounded border">
+        <span class="font-semibold text-sm text-gray-700">🔎 กรองค้นหาอาจารย์:</span>
+        <select v-model="filterCondition" class="border rounded p-1 text-sm bg-white outline-none focus:ring-blue-500 shadow-sm cursor-pointer">
+          <option value="all">แสดงทั้งหมด</option>
+          <option value="less">คุมสอบน้อยกว่า (<)</option>
+          <option value="greater">คุมสอบมากกว่า (>)</option>
+          <option value="equal">คุมสอบเท่ากับ (=)</option>
+        </select>
+        <input v-if="filterCondition !== 'all'" v-model.number="filterNumber" type="number" class="border rounded p-1 w-16 text-sm bg-white outline-none focus:ring-blue-500 shadow-sm" min="0">
+      </div>
+
+      <div class="border-t pt-4 text-sm flex flex-wrap gap-2">
+        <div v-for="(count, name) in filteredTeacherWorkloads" :key="name" 
+             class="border px-2 py-1.5 rounded font-semibold bg-white shadow-sm transition"
+             :style="{ borderColor: getCountColor(count).hex, color: getCountColor(count).hex }">
+          {{ name }} ({{ count }})
+        </div>
+      </div>
+    </div>
+
+    <!-- ตารางรายวิชา -->
+    <div class="bg-white shadow-md rounded-lg overflow-x-auto" v-if="!isLoadingData">
+      <table class="w-full text-sm text-left">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b-2">
+          <tr>
+            <th class="px-4 py-3">รหัสวิชา</th>
+            <th class="px-4 py-3">ชื่อวิชา</th>
+            <th class="px-4 py-3 text-center">กลุ่ม</th>
+            <th class="px-4 py-3">ผู้สอน</th>
+            <th class="px-4 py-3 text-center" colspan="4">ผู้คุมสอบ (สูงสุด 4 คน)</th>
+            <th class="px-4 py-3 min-w-[250px]">หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(course, index) in courses" :key="course.id" class="border-b hover:bg-blue-50 transition duration-150" :class="{'bg-gray-200 opacity-60': course.isNoExam}">
+            <td class="px-4 py-2 font-medium">{{ course.code }}</td>
+            <td class="px-4 py-2">{{ course.name }}</td>
+            <td class="px-4 py-2 text-center font-bold text-gray-600">{{ course.section }}</td>
+            <td class="px-4 py-2 text-xs text-gray-600">{{ course.instructors }}</td>
+            
+            <td class="px-1 py-2" v-for="i in 4" :key="i">
+              <select v-model="course.proctors[i-1]" @change="syncProctors(course)" 
+                      :disabled="course.isNoExam"
+                      class="border rounded p-1.5 w-full text-sm font-semibold focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm cursor-pointer bg-white"
+                      :style="{ color: getTeacherColor(course.proctors[i-1]) }">
+                <option value="">- ว่าง -</option>
+                <option v-for="teacher in teachers" :key="teacher.shortName" :value="teacher.shortName" class="text-black">
+                  {{ teacher.shortName }}
+                </option>
+              </select>
+            </td>
+
+            <td class="px-4 py-2 flex flex-col gap-2">
+              <select v-model="course.remarkType" @change="handleRemarkChange(course, index)" class="border rounded p-1.5 w-full text-xs shadow-sm bg-gray-50 focus:bg-white focus:ring-blue-500">
+                <option value="">- ไม่มีหมายเหตุ -</option>
+                <option value="จัดสอบร่วมกันทุกกลุ่มเรียน">จัดสอบร่วมกันทุกกลุ่มเรียน</option>
+                <option value="จัดสอบร่วมกับกลุ่มที่">จัดสอบร่วมกับกลุ่มที่</option>
+                <option value="จัดสอบร่วมกับวิชา">จัดสอบร่วมกับวิชา</option>
+                <option value="สอบนอกตาราง">สอบนอกตาราง</option>
+              </select>
+              
+              <input v-if="course.remarkType === 'จัดสอบร่วมกับกลุ่มที่' || course.remarkType === 'จัดสอบร่วมกับวิชา'" 
+                     v-model="course.remarkRef" 
+                     @blur="handleRemarkRefChange(course, index)"
+                     type="text" 
+                     :placeholder="course.remarkType === 'จัดสอบร่วมกับกลุ่มที่' ? 'ระบุกลุ่ม (เช่น 1,2)' : 'ระบุรหัสวิชา (เช่น Math101)'"
+                     class="border border-yellow-400 rounded p-1.5 w-full text-xs bg-yellow-50 focus:ring-yellow-500 shadow-sm">
+
+              <input v-model="course.customRemark" 
+                     type="text" 
+                     placeholder="+ พิมพ์หมายเหตุเพิ่มเติม..." 
+                     class="border rounded p-1.5 w-full text-xs bg-white focus:ring-blue-500 shadow-sm">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    
+    // =======================================================
+    // ⚠️ นำ URL Web App ของคุณมาใส่ตรงนี้ (ต้องขึ้นต้นด้วย https://script.google.com/macros/s/.../exec)
+    // =======================================================
+    const API_URL = 'YOUR_WEB_APP_URL'; 
+
+    createApp({
+      data() {
+        return {
+          courses: [],
+          teachers: [],
+          isSaving: false,
+          isLoadingData: true,
+          isDraftLoaded: false,
+          filterCondition: 'all',
+          filterNumber: 0
+        };
+      },
+      computed: {
+        teacherWorkloads() {
+          let workloads = {};
+          this.teachers.forEach(t => workloads[t.shortName] = 0);
+          let seenGroups = new Set();
+          this.courses.forEach(course => {
+            if (course.isNoExam) return;
+            course.proctors.forEach(proctor => {
+              if (proctor && workloads[proctor] !== undefined) {
+                let uniqueEventKey = proctor + '_' + course.groupId;
+                if (!seenGroups.has(uniqueEventKey)) {
+                  seenGroups.add(uniqueEventKey);
+                  workloads[proctor]++;
+                }
+              }
+            });
+          });
+          return workloads;
+        },
+        filteredTeacherWorkloads() {
+          let workloads = this.teacherWorkloads;
+          let result = {};
+          let num = parseInt(this.filterNumber) || 0;
+          
+          for (let t in workloads) {
+            let count = workloads[t];
+            if (this.filterCondition === 'all') result[t] = count;
+            else if (this.filterCondition === 'less' && count < num) result[t] = count;
+            else if (this.filterCondition === 'greater' && count > num) result[t] = count;
+            else if (this.filterCondition === 'equal' && count === num) result[t] = count;
+          }
+          return Object.fromEntries(Object.entries(result).sort((a, b) => b[1] - a[1]));
+        }
+      },
+      mounted() {
+        if(API_URL === 'YOUR_WEB_APP_URL'){
+            alert("กรุณาใส่ API_URL (Web App URL) ในโค้ด HTML ก่อนใช้งาน");
+            return;
+        }
+        this.loadData();
+      },
+      methods: {
+        // ฟังก์ชันดึงข้อมูลผ่าน Fetch API
+        async loadData() {
+          this.isLoadingData = true;
+          try {
+            const response = await fetch(`${API_URL}?action=getData`);
+            const data = await response.json();
+            this.courses = data.courses;
+            this.teachers = data.teachers;
+            this.isDraftLoaded = data.isDraftLoaded;
+          } catch (error) {
+            alert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ' + error.message);
+          } finally {
+            this.isLoadingData = false;
+          }
+        },
+
+        // ฟังก์ชันส่งข้อมูลผ่าน Fetch API (ใช้ text/plain เลี่ยง CORS)
+        async sendApiRequest(actionName, payloadData) {
+          try {
+            const response = await fetch(API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: actionName, payload: payloadData }),
+              // จำเป็นต้องใช้ text/plain เพื่อให้ Apps script รับแบบไม่ติด Preflight CORS
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+          } catch (error) {
+            throw error;
+          }
+        },
+
+        async saveDraftOnly() {
+          this.isSaving = true;
+          let rawData = JSON.parse(JSON.stringify(this.courses));
+          try {
+            await this.sendApiRequest('saveDraft', rawData);
+            this.isDraftLoaded = true;
+            alert('บันทึกข้อมูลแบบร่างไปยัง Google Sheet เรียบร้อยแล้ว');
+          } catch (err) {
+            alert('เกิดข้อผิดพลาดในการบันทึกร่าง: ' + err.message);
+          } finally {
+            this.isSaving = false;
+          }
+        },
+
+        async saveDataAndExport() {
+          this.isSaving = true;
+          let rawData = JSON.parse(JSON.stringify(this.courses));
+          try {
+            const result = await this.sendApiRequest('exportSheet', rawData);
+            if(result.status === 'success'){
+               this.isDraftLoaded = true;
+               alert('ส่งออกสำเร็จ! ตารางถูกส่งออกไปยัง Sheet ชื่อ: ' + result.sheetName);
+            } else {
+               alert('เกิดข้อผิดพลาด: ' + result.message);
+            }
+          } catch (err) {
+            alert('เกิดข้อผิดพลาด: ' + err.message);
+          } finally {
+            this.isSaving = false;
+          }
+        },
+
+        async resetData() {
+          if(confirm('ระบบจะล้างข้อมูลที่คุณจัดไว้ทั้งหมด และดึงตารางสอนใหม่มาจาก Sheet ยืนยันหรือไม่?')) {
+            this.isSaving = true;
+            try {
+              await this.sendApiRequest('clearDraft', {});
+              await this.loadData(); // รีโหลดข้อมูลใหม่จาก Sheet ทันที
+              alert('รีเซ็ตและดึงข้อมูลตั้งต้นเรียบร้อยแล้ว');
+            } catch(err) {
+              alert('ไม่สามารถรีเซ็ตได้: ' + err.message);
+            } finally {
+              this.isSaving = false;
+            }
+          }
+        },
+
+        // --- ฟังก์ชัน UI ปกติ (ไม่ถูกแก้ไข) ---
+        getCountColor(count) {
+          if (!count || count === 0) return { hex: '#374151' };
+          if (count === 1) return { hex: '#16a34a' };
+          if (count === 2) return { hex: '#eab308' };
+          if (count === 3) return { hex: '#f97316' };
+          if (count === 4) return { hex: '#dc2626' };
+          return { hex: '#9333ea' };
+        },
+        getTeacherColor(teacherName) {
+          if (!teacherName) return '#000000';
+          let count = this.teacherWorkloads[teacherName] || 0;
+          return this.getCountColor(count).hex;
+        },
+        syncProctors(course) {
+          this.courses.forEach(c => {
+            if (c.groupId === course.groupId && c.id !== course.id) {
+              c.proctors = [...course.proctors];
+            }
+          });
+        },
+        handleRemarkChange(course, index) {
+          let oldGroupId = course.groupId;
+          this.courses.forEach(c => {
+            if (c.groupId === oldGroupId) {
+              c.groupId = 'g_' + c.id; 
+              if (c.id !== course.id) {
+                c.remarkType = ''; c.remarkRef = '';
+              }
+            }
+          });
+          course.isNoExam = false; course.remarkRef = '';
+          
+          if (course.remarkType === 'สอบนอกตาราง') {
+            course.isNoExam = true; course.proctors = ['', '', '', '']; course.groupId = 'g_out_' + course.id; 
+          } 
+          else if (course.remarkType === 'จัดสอบร่วมกันทุกกลุ่มเรียน') {
+            let targetGroupId = course.groupId;
+            this.courses.forEach(c => {
+              if (c.code === course.code) {
+                c.groupId = targetGroupId;
+                if (c.id !== course.id) {
+                   c.proctors = [...course.proctors];
+                   if(!c.remarkType) c.remarkType = "จัดสอบร่วมกันทุกกลุ่มเรียน"; 
+                }
+              }
+            });
+          }
+        },
+        handleRemarkRefChange(course, currentIndex) {
+          if (!course.remarkRef) return;
+          let refs = course.remarkRef.split(',').map(s => s.trim());
+          let targetGroupId = course.groupId;
+          if (course.remarkType === 'จัดสอบร่วมกับกลุ่มที่') {
+            this.courses.forEach(c => {
+              if (c.code === course.code && refs.includes(String(c.section))) {
+                c.groupId = targetGroupId; c.proctors = [...course.proctors];
+                c.remarkType = 'จัดสอบร่วมกับกลุ่มที่'; c.remarkRef = course.section; 
+              }
+            });
+          } 
+          else if (course.remarkType === 'จัดสอบร่วมกับวิชา') {
+            let toMove = [];
+            for (let i = this.courses.length - 1; i >= 0; i--) {
+              if (refs.includes(this.courses[i].code) && this.courses[i].id !== course.id) {
+                let pulledCourse = this.courses.splice(i, 1)[0];
+                pulledCourse.groupId = targetGroupId; pulledCourse.proctors = [...course.proctors];
+                pulledCourse.remarkType = 'จัดสอบร่วมกับวิชา'; pulledCourse.remarkRef = course.code;
+                toMove.push(pulledCourse);
+              }
+            }
+            let newCurrentIndex = this.courses.findIndex(c => c.id === course.id);
+            this.courses.splice(newCurrentIndex + 1, 0, ...toMove.reverse());
+          }
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
