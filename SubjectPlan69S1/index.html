@@ -1,421 +1,436 @@
-import React, { useState, useMemo } from 'react';
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดตารางเรียน มหาวิทยาลัยนเรศวร</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel (สำหรับแปลโค้ด JSX เป็น JavaScript ปกติให้เบราว์เซอร์เข้าใจ) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-// ข้อมูลรายวิชาที่สกัดจากตารางด้านล่างสุดของ PDF (เฉพาะ 252, 255, 265)
-// ตัด C/L ทิ้ง และยุบรวมวิชาที่เปิดทั้งปี 3 และ ปี 4
-const coursesData = [
-  // 252222
-  { id: '1', code: '252222', name: 'Abstract Algebra 1', year: '3', day: 'MON', start: '08:00', end: '10:00' },
-  { id: '2', code: '252222', name: 'Abstract Algebra 1', year: '3', day: 'WED', start: '10:00', end: '12:00' },
-  // 252281
-  { id: '3', code: '252281', name: 'Intro to Financial Math', year: '3, 4', day: 'MON', start: '10:00', end: '12:00' },
-  { id: '4', code: '252281', name: 'Intro to Financial Math', year: '3, 4', day: 'TUE', start: '15:00', end: '17:00' },
-  // 252300
-  { id: '5', code: '252300', name: 'Communicative English', year: '3', day: 'THU', start: '15:00', end: '17:00' },
-  // 252303
-  { id: '6', code: '252303', name: 'Numbers and Algebra for Teacher', year: '3, 4', day: 'TUE', start: '15:00', end: '17:00' },
-  { id: '7', code: '252303', name: 'Numbers and Algebra for Teacher', year: '3, 4', day: 'THU', start: '10:00', end: '12:00' },
-  // 252304
-  { id: '8', code: '252304', name: 'Measure and Geometry for Teacher', year: '3, 4', day: 'WED', start: '13:00', end: '15:00' },
-  { id: '9', code: '252304', name: 'Measure and Geometry for Teacher', year: '3, 4', day: 'FRI', start: '08:00', end: '10:00' },
-  // 252305 
-  { id: '10', code: '252305', name: 'Stat and Prob for Teacher', year: '4', day: 'MON', start: '13:00', end: '15:00' },
-  { id: '11', code: '252305', name: 'Stat and Prob for Teacher', year: '4', day: 'FRI', start: '13:00', end: '15:00' },
-  // 252311
-  { id: '12', code: '252311', name: 'Advanced Calculus', year: '3', day: 'TUE', start: '10:00', end: '12:00' },
-  { id: '13', code: '252311', name: 'Advanced Calculus', year: '3', day: 'THU', start: '08:00', end: '10:00' },
-  // 252315
-  { id: '14', code: '252315', name: 'Numerical Method', year: '3', day: 'MON', start: '15:00', end: '17:00' },
-  { id: '15', code: '252315', name: 'Numerical Method', year: '3', day: 'TUE', start: '08:00', end: '10:00' },
-  // 252323
-  { id: '16', code: '252323', name: 'Theory of Numbers 2', year: '4', day: 'MON', start: '13:00', end: '15:00' },
-  { id: '17', code: '252323', name: 'Theory of Numbers 2', year: '4', day: 'TUE', start: '10:00', end: '12:00' },
-  // 252373
-  { id: '18', code: '252373', name: 'Intro to Math Modeling', year: '4', day: 'MON', start: '15:00', end: '17:00' },
-  { id: '19', code: '252373', name: 'Intro to Math Modeling', year: '4', day: 'WED', start: '10:00', end: '12:00' },
-  // 252391
-  { id: '20', code: '252391', name: 'Seminar', year: '4', day: 'THU', start: '15:00', end: '17:00' },
-  // 255321
-  { id: '21', code: '255321', name: 'Regression Analysis', year: '4', day: 'WED', start: '08:00', end: '10:00' },
-  { id: '22', code: '255321', name: 'Regression Analysis', year: '4', day: 'TUE', start: '13:00', end: '15:00' },
-  // 255351
-  { id: '23', code: '255351', name: 'Sampling Techniques', year: '4', day: 'WED', start: '13:00', end: '15:00' },
-  { id: '24', code: '255351', name: 'Sampling Techniques', year: '4', day: 'FRI', start: '08:00', end: '10:00' },
-  // 265331
-  { id: '25', code: '265331', name: 'Data Visualization', year: '4', day: 'MON', start: '08:00', end: '10:00' },
-  { id: '26', code: '265331', name: 'Data Visualization', year: '4', day: 'THU', start: '13:00', end: '15:00' },
-  // 265342
-  { id: '27', code: '265342', name: 'Intro to Deep Learning', year: '3', day: 'FRI', start: '13:00', end: '15:00' },
-  { id: '28', code: '265342', name: 'Intro to Deep Learning', year: '3', day: 'WED', start: '15:00', end: '17:00' },
-];
+  <style>
+    body { font-family: 'Sarabun', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- จุดที่ React จะนำแอปพลิเคชันมาแสดงผล -->
+  <div id="root"></div>
 
-const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  <script type="text/babel">
+    const { useState, useMemo } = React;
 
-// ฟังก์ชันคำนวณตำแหน่ง Grid คอลัมน์จากเวลา
-const timeToCol = (timeStr) => {
-  const hour = parseInt(timeStr.split(':')[0]);
-  return hour - 8 + 2; 
-};
+    // ข้อมูลรายวิชาที่สกัดจากตารางด้านล่างสุดของ PDF (เฉพาะ 252, 255, 265)
+    // ตัด C/L ทิ้ง และยุบรวมวิชาที่เปิดทั้งปี 3 และ ปี 4
+    const coursesData = [
+      // 252222
+      { id: '1', code: '252222', name: 'Abstract Algebra 1', year: '3', day: 'MON', start: '08:00', end: '10:00' },
+      { id: '2', code: '252222', name: 'Abstract Algebra 1', year: '3', day: 'WED', start: '10:00', end: '12:00' },
+      // 252281
+      { id: '3', code: '252281', name: 'Intro to Financial Math', year: '3, 4', day: 'MON', start: '10:00', end: '12:00' },
+      { id: '4', code: '252281', name: 'Intro to Financial Math', year: '3, 4', day: 'TUE', start: '15:00', end: '17:00' },
+      // 252300
+      { id: '5', code: '252300', name: 'Communicative English', year: '3', day: 'THU', start: '15:00', end: '17:00' },
+      // 252303
+      { id: '6', code: '252303', name: 'Numbers and Algebra for Teacher', year: '3, 4', day: 'TUE', start: '15:00', end: '17:00' },
+      { id: '7', code: '252303', name: 'Numbers and Algebra for Teacher', year: '3, 4', day: 'THU', start: '10:00', end: '12:00' },
+      // 252304
+      { id: '8', code: '252304', name: 'Measure and Geometry for Teacher', year: '3, 4', day: 'WED', start: '13:00', end: '15:00' },
+      { id: '9', code: '252304', name: 'Measure and Geometry for Teacher', year: '3, 4', day: 'FRI', start: '08:00', end: '10:00' },
+      // 252305 
+      { id: '10', code: '252305', name: 'Stat and Prob for Teacher', year: '4', day: 'MON', start: '13:00', end: '15:00' },
+      { id: '11', code: '252305', name: 'Stat and Prob for Teacher', year: '4', day: 'FRI', start: '13:00', end: '15:00' },
+      // 252311
+      { id: '12', code: '252311', name: 'Advanced Calculus', year: '3', day: 'TUE', start: '10:00', end: '12:00' },
+      { id: '13', code: '252311', name: 'Advanced Calculus', year: '3', day: 'THU', start: '08:00', end: '10:00' },
+      // 252315
+      { id: '14', code: '252315', name: 'Numerical Method', year: '3', day: 'MON', start: '15:00', end: '17:00' },
+      { id: '15', code: '252315', name: 'Numerical Method', year: '3', day: 'TUE', start: '08:00', end: '10:00' },
+      // 252323
+      { id: '16', code: '252323', name: 'Theory of Numbers 2', year: '4', day: 'MON', start: '13:00', end: '15:00' },
+      { id: '17', code: '252323', name: 'Theory of Numbers 2', year: '4', day: 'TUE', start: '10:00', end: '12:00' },
+      // 252373
+      { id: '18', code: '252373', name: 'Intro to Math Modeling', year: '4', day: 'MON', start: '15:00', end: '17:00' },
+      { id: '19', code: '252373', name: 'Intro to Math Modeling', year: '4', day: 'WED', start: '10:00', end: '12:00' },
+      // 252391
+      { id: '20', code: '252391', name: 'Seminar', year: '4', day: 'THU', start: '15:00', end: '17:00' },
+      // 255321
+      { id: '21', code: '255321', name: 'Regression Analysis', year: '4', day: 'WED', start: '08:00', end: '10:00' },
+      { id: '22', code: '255321', name: 'Regression Analysis', year: '4', day: 'TUE', start: '13:00', end: '15:00' },
+      // 255351
+      { id: '23', code: '255351', name: 'Sampling Techniques', year: '4', day: 'WED', start: '13:00', end: '15:00' },
+      { id: '24', code: '255351', name: 'Sampling Techniques', year: '4', day: 'FRI', start: '08:00', end: '10:00' },
+      // 265331
+      { id: '25', code: '265331', name: 'Data Visualization', year: '4', day: 'MON', start: '08:00', end: '10:00' },
+      { id: '26', code: '265331', name: 'Data Visualization', year: '4', day: 'THU', start: '13:00', end: '15:00' },
+      // 265342
+      { id: '27', code: '265342', name: 'Intro to Deep Learning', year: '3', day: 'FRI', start: '13:00', end: '15:00' },
+      { id: '28', code: '265342', name: 'Intro to Deep Learning', year: '3', day: 'WED', start: '15:00', end: '17:00' },
+    ];
 
-const timeToNum = (timeStr) => {
-  const [h, m] = timeStr.split(':');
-  return parseInt(h) + parseInt(m) / 60;
-};
+    const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+    const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
-// เช็คการทับซ้อนของเวลาเรียน
-const isTimeOverlap = (course1, course2) => {
-  if (course1.day !== course2.day) return false;
-  const start1 = timeToNum(course1.start);
-  const end1 = timeToNum(course1.end);
-  const start2 = timeToNum(course2.start);
-  const end2 = timeToNum(course2.end);
-  return (start1 < end2 && start2 < end1);
-};
+    // ฟังก์ชันคำนวณตำแหน่ง Grid คอลัมน์จากเวลา
+    const timeToCol = (timeStr) => {
+      const hour = parseInt(timeStr.split(':')[0]);
+      return hour - 8 + 2; 
+    };
 
-// ตัวช่วยสำหรับจัดกลุ่มวิชาที่เหมือนกัน (เพื่อแสดงในแถบด้านข้าง)
-const getUniqueCourses = (coursesArr) => {
-  const map = new Map();
-  coursesArr.forEach(c => {
-    if (!map.has(c.code)) {
-      map.set(c.code, { code: c.code, name: c.name, year: c.year, slots: [] });
-    }
-    map.get(c.code).slots.push({ day: c.day, start: c.start, end: c.end });
-  });
-  return Array.from(map.values());
-};
+    const timeToNum = (timeStr) => {
+      const [h, m] = timeStr.split(':');
+      return parseInt(h) + parseInt(m) / 60;
+    };
 
-// กำหนดรหัสวิชาบังคับแยกตามชั้นปี
-const mandatoryCodesByYear = {
-  '3': ['252222', '252315', '252311', '252300'],
-  '4': ['252391']
-};
+    // เช็คการทับซ้อนของเวลาเรียน
+    const isTimeOverlap = (course1, course2) => {
+      if (course1.day !== course2.day) return false;
+      const start1 = timeToNum(course1.start);
+      const end1 = timeToNum(course1.end);
+      const start2 = timeToNum(course2.start);
+      const end2 = timeToNum(course2.end);
+      return (start1 < end2 && start2 < end1);
+    };
 
-export default function App() {
-  const [studentYear, setStudentYear] = useState('4'); // เลือกชั้นปีเพื่อกำหนดวิชาบังคับ (ค่าเริ่มต้นปี 4 ตามผู้ใช้ระบุ)
-  const [yearFilter, setYearFilter] = useState('all');
-  const [selectedCodes, setSelectedCodes] = useState([]); // เปลี่ยนมาเก็บ รหัสวิชา แทน ID เพื่อเลือกทุกคาบ
-
-  // ดึงวิชาบังคับตามชั้นปีที่เลือก
-  const currentMandatoryCodes = useMemo(() => mandatoryCodesByYear[studentYear] || [], [studentYear]);
-
-  // รวมวิชาบังคับและวิชาที่เลือกเข้าด้วยกัน เพื่อนำไปเช็คเวลาทับซ้อน
-  const allActiveCodes = [...currentMandatoryCodes, ...selectedCodes];
-
-  // กรองตามชั้นปี
-  const filteredCourses = useMemo(() => {
-    return coursesData.filter(c => yearFilter === 'all' || c.year.includes(yearFilter));
-  }, [yearFilter]);
-
-  // คำนวณรหัสวิชาที่เวลาชนกับวิชาที่ถูกเลือกไปแล้ว หรือชนกับวิชาบังคับ
-  const conflictingCodes = useMemo(() => {
-    const conflicts = new Set();
-    const grouped = {};
-    
-    // จัดกลุ่มตามรหัสวิชา (เฉพาะที่แสดงอยู่ตามชั้นปีที่กรอง)
-    filteredCourses.forEach(c => {
-      if (!grouped[c.code]) grouped[c.code] = [];
-      grouped[c.code].push(c);
-    });
-
-    // คาบเรียนที่ active ทั้งหมด (วิชาบังคับ + วิชาที่เลือก) ดึงจากฐานข้อมูลทั้งหมดเผื่อข้ามชั้นปี
-    const activeSlots = coursesData.filter(c => allActiveCodes.includes(c.code));
-
-    Object.keys(grouped).forEach(code => {
-      if (!allActiveCodes.includes(code)) {
-        const slots = grouped[code];
-        // เช็คว่ามีคาบไหนชนกับคาบของวิชาที่ active ไว้ไหม
-        const hasConflict = activeSlots.some(active =>
-          slots.some(slot => isTimeOverlap(slot, active))
-        );
-        if (hasConflict) {
-          conflicts.add(code);
+    // ตัวช่วยสำหรับจัดกลุ่มวิชาที่เหมือนกัน (เพื่อแสดงในแถบด้านข้าง)
+    const getUniqueCourses = (coursesArr) => {
+      const map = new Map();
+      coursesArr.forEach(c => {
+        if (!map.has(c.code)) {
+          map.set(c.code, { code: c.code, name: c.name, year: c.year, slots: [] });
         }
-      }
-    });
-    return Array.from(conflicts);
-  }, [filteredCourses, allActiveCodes]);
+        map.get(c.code).slots.push({ day: c.day, start: c.start, end: c.end });
+      });
+      return Array.from(map.values());
+    };
 
-  // วิชาที่แสดงในตาราง (ไม่เอาวิชาที่ชนมาแสดง)
-  const gridCourses = filteredCourses.filter(c => !conflictingCodes.includes(c.code));
+    // กำหนดรหัสวิชาบังคับแยกตามชั้นปี
+    const mandatoryCodesByYear = {
+      '3': ['252222', '252315', '252311', '252300'],
+      '4': ['252391']
+    };
 
-  // ฟังก์ชันเลือก / ยกเลิก วิชา (เลือกรหัสเดียว ได้ทุกคาบ)
-  const toggleCourse = (courseCode) => {
-    // วิชาบังคับไม่สามารถยกเลิกหรือเลือกเพิ่มได้
-    if (currentMandatoryCodes.includes(courseCode)) return;
+    function App() {
+      const [studentYear, setStudentYear] = useState('4'); // เลือกชั้นปีเพื่อกำหนดวิชาบังคับ
+      const [yearFilter, setYearFilter] = useState('all');
+      const [selectedCodes, setSelectedCodes] = useState([]); 
 
-    if (selectedCodes.includes(courseCode)) {
-      setSelectedCodes(selectedCodes.filter(c => c !== courseCode));
-    } else {
-      if (selectedCodes.length >= 3) {
-        console.warn("เลือกวิชาสูงสุด 3 วิชาแล้ว");
-        return;
-      }
-      setSelectedCodes([...selectedCodes, courseCode]);
-    }
-  };
+      // ดึงวิชาบังคับตามชั้นปีที่เลือก
+      const currentMandatoryCodes = useMemo(() => mandatoryCodesByYear[studentYear] || [], [studentYear]);
 
-  const getDayTH = (day) => {
-    const map = { MON: 'จันทร์', TUE: 'อังคาร', WED: 'พุธ', THU: 'พฤหัสฯ', FRI: 'ศุกร์' };
-    return map[day];
-  };
+      // รวมวิชาบังคับและวิชาที่เลือกเข้าด้วยกัน เพื่อนำไปเช็คเวลาทับซ้อน
+      const allActiveCodes = [...currentMandatoryCodes, ...selectedCodes];
 
-  // ดึงข้อมูลสำหรับ Sidebar (แสดงรวมวิชาบังคับและวิชาที่เลือก)
-  const allActiveUnique = getUniqueCourses(coursesData.filter(c => allActiveCodes.includes(c.code)));
-  const conflictingUnique = getUniqueCourses(filteredCourses.filter(c => conflictingCodes.includes(c.code)));
+      // กรองตามชั้นปี
+      const filteredCourses = useMemo(() => {
+        return coursesData.filter(c => yearFilter === 'all' || c.year.includes(yearFilter));
+      }, [yearFilter]);
 
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      // คำนวณรหัสวิชาที่เวลาชนกับวิชาที่ถูกเลือกไปแล้ว หรือชนกับวิชาบังคับ
+      const conflictingCodes = useMemo(() => {
+        const conflicts = new Set();
+        const grouped = {};
         
-        {/* Header & Controls */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-indigo-900">ระบบบริหารวิชาเอกเลือกภาคเรียนต้น 2569</h1>
-            <p className="text-sm text-gray-500 mt-1">ภาควิชาคณิตศาสตร์ มหาวิทยาลัยนเรศวร (เฉพาะ 252, 255, 265)</p>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-t border-gray-100 pt-4">
-            {/* Student Year Selector (Mandatory Courses) */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-gray-700">ชั้นปีของคุณ (วิชาบังคับ):</span>
-              <div className="flex gap-1 bg-indigo-50 p-1 rounded-lg border border-indigo-100">
-                <button 
-                  onClick={() => { setStudentYear('3'); setSelectedCodes([]); }}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${studentYear === '3' ? 'bg-indigo-600 text-white shadow-sm' : 'text-indigo-600 hover:bg-indigo-100'}`}
-                >
-                  ปี 3
-                </button>
-                <button 
-                  onClick={() => { setStudentYear('4'); setSelectedCodes([]); }}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${studentYear === '4' ? 'bg-indigo-600 text-white shadow-sm' : 'text-indigo-600 hover:bg-indigo-100'}`}
-                >
-                  ปี 4
-                </button>
-              </div>
-            </div>
+        filteredCourses.forEach(c => {
+          if (!grouped[c.code]) grouped[c.code] = [];
+          grouped[c.code].push(c);
+        });
 
-            {/* View Filter */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-gray-700">แสดงตารางของ:</span>
-              <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-                <button 
-                  onClick={() => setYearFilter('all')}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === 'all' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
-                >
-                  ทุกชั้นปี
-                </button>
-                <button 
-                  onClick={() => setYearFilter('3')}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === '3' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
-                >
-                  ชั้นปี 3
-                </button>
-                <button 
-                  onClick={() => setYearFilter('4')}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === '4' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
-                >
-                  ชั้นปี 4
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        const activeSlots = coursesData.filter(c => allActiveCodes.includes(c.code));
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          
-          {/* Main Schedule Grid */}
-          <div className="flex-grow bg-white p-6 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2 flex justify-between">
-              <span>ตารางเรียน (คลิกรายวิชาเพื่อเลือก)</span>
-              <span className="text-xs text-gray-400 font-normal mt-1">*เวลามีวิชาทับซ้อนกัน จะแสดงซ้อนเป็นแถวย่อย</span>
-            </h2>
+        Object.keys(grouped).forEach(code => {
+          if (!allActiveCodes.includes(code)) {
+            const slots = grouped[code];
+            const hasConflict = activeSlots.some(active =>
+              slots.some(slot => isTimeOverlap(slot, active))
+            );
+            if (hasConflict) {
+              conflicts.add(code);
+            }
+          }
+        });
+        return Array.from(conflicts);
+      }, [filteredCourses, allActiveCodes]);
+
+      const gridCourses = filteredCourses.filter(c => !conflictingCodes.includes(c.code));
+
+      const toggleCourse = (courseCode) => {
+        if (currentMandatoryCodes.includes(courseCode)) return;
+
+        if (selectedCodes.includes(courseCode)) {
+          setSelectedCodes(selectedCodes.filter(c => c !== courseCode));
+        } else {
+          if (selectedCodes.length >= 3) {
+            alert("คุณเลือกวิชาเพิ่มเติมครบ 3 วิชาแล้ว");
+            return;
+          }
+          setSelectedCodes([...selectedCodes, courseCode]);
+        }
+      };
+
+      const getDayTH = (day) => {
+        const map = { MON: 'จันทร์', TUE: 'อังคาร', WED: 'พุธ', THU: 'พฤหัสฯ', FRI: 'ศุกร์' };
+        return map[day];
+      };
+
+      const allActiveUnique = getUniqueCourses(coursesData.filter(c => allActiveCodes.includes(c.code)));
+      const conflictingUnique = getUniqueCourses(filteredCourses.filter(c => conflictingCodes.includes(c.code)));
+
+      return (
+        <div className="min-h-screen text-gray-800 font-sans p-4 md:p-8">
+          <div className="max-w-7xl mx-auto">
             
-            <div className="min-w-[800px] relative">
-              {/* Header Row (Times) */}
-              <div className="grid grid-cols-[80px_repeat(9,1fr)] gap-1 mb-2">
-                <div className="text-center font-medium text-gray-400 text-xs py-2">วัน / เวลา</div>
-                {timeSlots.slice(0, 9).map((time, idx) => (
-                  <div key={time} className="text-center font-medium text-gray-500 text-sm py-2 border-l border-gray-100">
-                    {time} - {timeSlots[idx+1]}
+            {/* Header & Controls */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-indigo-900">ระบบบริหารวิชาเอกเลือกภาคเรียนต้น 2569</h1>
+                <p className="text-sm text-gray-500 mt-1">ภาควิชาคณิตศาสตร์ มหาวิทยาลัยนเรศวร (เฉพาะ 252, 255, 265)</p>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-t border-gray-100 pt-4">
+                {/* Student Year Selector (Mandatory Courses) */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-700">ชั้นปีของคุณ (วิชาบังคับ):</span>
+                  <div className="flex gap-1 bg-indigo-50 p-1 rounded-lg border border-indigo-100">
+                    <button 
+                      onClick={() => { setStudentYear('3'); setSelectedCodes([]); }}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${studentYear === '3' ? 'bg-indigo-600 text-white shadow-sm' : 'text-indigo-600 hover:bg-indigo-100'}`}
+                    >
+                      ปี 3
+                    </button>
+                    <button 
+                      onClick={() => { setStudentYear('4'); setSelectedCodes([]); }}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${studentYear === '4' ? 'bg-indigo-600 text-white shadow-sm' : 'text-indigo-600 hover:bg-indigo-100'}`}
+                    >
+                      ปี 4
+                    </button>
                   </div>
-                ))}
+                </div>
+
+                {/* View Filter */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-700">แสดงตารางของ:</span>
+                  <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                    <button 
+                      onClick={() => setYearFilter('all')}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === 'all' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
+                    >
+                      ทุกชั้นปี
+                    </button>
+                    <button 
+                      onClick={() => setYearFilter('3')}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === '3' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
+                    >
+                      ชั้นปี 3
+                    </button>
+                    <button 
+                      onClick={() => setYearFilter('4')}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${yearFilter === '4' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`}
+                    >
+                      ชั้นปี 4
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col lg:flex-row gap-6">
+              
+              {/* Main Schedule Grid */}
+              <div className="flex-grow bg-white p-6 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2 flex justify-between">
+                  <span>ตารางเรียน (คลิกรายวิชาเพื่อเลือก)</span>
+                  <span className="text-xs text-gray-400 font-normal mt-1">*เวลามีวิชาทับซ้อนกัน จะแสดงซ้อนเป็นแถวย่อย</span>
+                </h2>
+                
+                <div className="min-w-[800px] relative">
+                  {/* Header Row (Times) */}
+                  <div className="grid grid-cols-[80px_repeat(9,1fr)] gap-1 mb-2">
+                    <div className="text-center font-medium text-gray-400 text-xs py-2">วัน / เวลา</div>
+                    {timeSlots.slice(0, 9).map((time, idx) => (
+                      <div key={time} className="text-center font-medium text-gray-500 text-sm py-2 border-l border-gray-100">
+                        {time} - {timeSlots[idx+1]}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Grid Body */}
+                  <div className="relative border-t border-l border-gray-200 rounded-sm overflow-hidden">
+                    {days.map(day => {
+                      const dayCourses = gridCourses.filter(c => c.day === day).sort((a, b) => timeToNum(a.start) - timeToNum(b.start));
+                      
+                      const rows = [];
+                      dayCourses.forEach(course => {
+                        let placed = false;
+                        for (let i = 0; i < rows.length; i++) {
+                          if (!rows[i].some(existing => isTimeOverlap(course, existing))) {
+                            rows[i].push(course);
+                            course.rowIndex = i;
+                            placed = true;
+                            break;
+                          }
+                        }
+                        if (!placed) {
+                          course.rowIndex = rows.length;
+                          rows.push([course]);
+                        }
+                      });
+
+                      const numRows = Math.max(1, rows.length);
+
+                      return (
+                        <div key={day} className="grid border-b border-gray-200 relative min-h-[70px]"
+                             style={{ 
+                               gridTemplateColumns: '80px repeat(9, 1fr)',
+                               gridTemplateRows: `repeat(${numRows}, minmax(65px, auto))`
+                             }}>
+                          
+                          {/* Day Label */}
+                          <div className="flex items-center justify-center font-medium text-sm text-gray-600 bg-gray-50/80 z-10 border-r border-gray-200"
+                               style={{ gridColumn: '1 / 2', gridRow: '1 / -1' }}>
+                            {getDayTH(day)}
+                          </div>
+
+                          {/* Background Grid Lines */}
+                          {timeSlots.slice(0, 9).map((_, idx) => (
+                            <div key={`line-${idx}`} className="border-r border-gray-100 pointer-events-none" 
+                                 style={{ gridColumn: idx + 2, gridRow: '1 / -1' }}></div>
+                          ))}
+
+                          {/* Render Courses */}
+                          {dayCourses.map(course => {
+                            const colStart = timeToCol(course.start);
+                            const colEnd = timeToCol(course.end);
+                            const isMandatory = currentMandatoryCodes.includes(course.code);
+                            const isSelected = selectedCodes.includes(course.code);
+                            
+                            let styleClass = '';
+                            if (isMandatory) {
+                              styleClass = 'bg-gray-200 border-gray-300 text-gray-600 cursor-not-allowed';
+                            } else if (isSelected) {
+                              styleClass = 'bg-indigo-600 border-indigo-700 text-white shadow-md transform scale-[1.02] z-20 cursor-pointer';
+                            } else {
+                              let bgBase = 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-800 cursor-pointer'; 
+                              if (course.year === '3') bgBase = 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800 cursor-pointer';
+                              if (course.year === '3, 4') bgBase = 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800 cursor-pointer';
+                              styleClass = bgBase;
+                            }
+
+                            return (
+                              <div 
+                                key={course.id}
+                                onClick={() => toggleCourse(course.code)}
+                                className={`m-1 p-2 rounded border transition-all duration-200 flex flex-col justify-center overflow-hidden leading-tight relative ${styleClass}`}
+                                style={{
+                                  gridColumn: `${colStart} / ${colEnd}`,
+                                  gridRow: `${course.rowIndex + 1} / span 1`,
+                                }}
+                              >
+                                <div className="font-bold text-[13px] flex items-center justify-between">
+                                  {course.code}
+                                  {isMandatory && <span className="text-[9px] font-normal bg-gray-400 text-white px-1 rounded">บังคับ</span>}
+                                </div>
+                                <div className="text-[11px] truncate opacity-90 mt-0.5">{course.name}</div>
+                                <div className="text-[10px] opacity-75 mt-1">ปี {course.year}</div>
+                                {isSelected && <div className="absolute top-1 right-2 text-xs">✓</div>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Grid Body */}
-              <div className="relative border-t border-l border-gray-200 rounded-sm overflow-hidden">
-                {days.map(day => {
-                  // ดึงวิชาของแต่ละวัน และจัดเรียงตามเวลาเริ่ม
-                  const dayCourses = gridCourses.filter(c => c.day === day).sort((a, b) => timeToNum(a.start) - timeToNum(b.start));
-                  
-                  // อัลกอริทึมจัดการแถวย่อยแนวนอน (Sub-rows) เมื่อเวลาทับซ้อนกัน
-                  const rows = [];
-                  dayCourses.forEach(course => {
-                    let placed = false;
-                    for (let i = 0; i < rows.length; i++) {
-                      if (!rows[i].some(existing => isTimeOverlap(course, existing))) {
-                        rows[i].push(course);
-                        course.rowIndex = i;
-                        placed = true;
-                        break;
-                      }
-                    }
-                    if (!placed) {
-                      course.rowIndex = rows.length;
-                      rows.push([course]);
-                    }
-                  });
-
-                  // จำนวนแถวย่อยสูงสุดในวันนี้
-                  const numRows = Math.max(1, rows.length);
-
-                  return (
-                    <div key={day} className="grid border-b border-gray-200 relative min-h-[70px]"
-                         style={{ 
-                           gridTemplateColumns: '80px repeat(9, 1fr)',
-                           gridTemplateRows: `repeat(${numRows}, minmax(65px, auto))`
-                         }}>
-                      
-                      {/* Day Label */}
-                      <div className="flex items-center justify-center font-medium text-sm text-gray-600 bg-gray-50/80 z-10 border-r border-gray-200"
-                           style={{ gridColumn: '1 / 2', gridRow: '1 / -1' }}>
-                        {getDayTH(day)}
-                      </div>
-
-                      {/* Background Grid Lines */}
-              {timeSlots.slice(0, 9).map((_, idx) => (
-                <div key={`line-${idx}`} className="border-r border-gray-100 pointer-events-none" 
-                     style={{ gridColumn: idx + 2, gridRow: '1 / -1' }}></div>
-              ))}
-
-              {/* Render Courses */}
-              {dayCourses.map(course => {
-                const colStart = timeToCol(course.start);
-                const colEnd = timeToCol(course.end);
-                const isMandatory = currentMandatoryCodes.includes(course.code);
-                const isSelected = selectedCodes.includes(course.code);
+              {/* Right Sidebar */}
+              <div className="w-full lg:w-80 flex flex-col gap-6">
                 
-                // สีของ Block แยกตามสถานะและชั้นปี
-                        let styleClass = '';
-                        if (isMandatory) {
-                          styleClass = 'bg-gray-200 border-gray-300 text-gray-600 cursor-not-allowed';
-                        } else if (isSelected) {
-                          styleClass = 'bg-indigo-600 border-indigo-700 text-white shadow-md transform scale-[1.02] z-20 cursor-pointer';
-                        } else {
-                          let bgBase = 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-800 cursor-pointer'; // ค่าเริ่มต้น ปี 4
-                          if (course.year === '3') bgBase = 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800 cursor-pointer';
-                          if (course.year === '3, 4') bgBase = 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800 cursor-pointer';
-                          styleClass = bgBase;
-                        }
-
+                {/* Selected Courses Box */}
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-indigo-100 h-fit">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-indigo-900">วิชาที่เรียน</h3>
+                    <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">เลือกเพิ่ม: {selectedCodes.length} / 3</span>
+                  </div>
+                  
+                  {allActiveUnique.length === 0 ? (
+                    <div className="text-sm text-gray-400 italic text-center py-6">ไม่มีรายวิชา</div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {allActiveUnique.map(courseGroup => {
+                        const isMand = currentMandatoryCodes.includes(courseGroup.code);
                         return (
-                          <div 
-                            key={course.id}
-                            onClick={() => toggleCourse(course.code)}
-                            className={`m-1 p-2 rounded border transition-all duration-200 flex flex-col justify-center overflow-hidden leading-tight relative ${styleClass}`}
-                            style={{
-                              gridColumn: `${colStart} / ${colEnd}`,
-                              gridRow: `${course.rowIndex + 1} / span 1`,
-                            }}
-                          >
-                            <div className="font-bold text-[13px] flex items-center justify-between">
-                              {course.code}
-                              {isMandatory && <span className="text-[9px] font-normal bg-gray-400 text-white px-1 rounded">บังคับ</span>}
+                          <div key={courseGroup.code} className={`p-3 border rounded-lg relative pr-8 ${isMand ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
+                            <div className={`font-bold text-sm flex items-center gap-2 ${isMand ? 'text-gray-700' : 'text-indigo-800'}`}>
+                              {courseGroup.code}
+                              {isMand && <span className="text-[10px] font-normal bg-gray-400 text-white px-1.5 py-0.5 rounded">บังคับ</span>}
                             </div>
-                            <div className="text-[11px] truncate opacity-90 mt-0.5">{course.name}</div>
-                            <div className="text-[10px] opacity-75 mt-1">ปี {course.year}</div>
-                            {isSelected && <div className="absolute top-1 right-2 text-xs">✓</div>}
+                            <div className={`text-xs my-1 ${isMand ? 'text-gray-600' : 'text-indigo-600'}`}>{courseGroup.name}</div>
+                            <div className={`mt-2 border-t pt-1 ${isMand ? 'border-gray-200' : 'border-indigo-100/50'}`}>
+                              {courseGroup.slots.map((slot, idx) => (
+                                <div key={idx} className="text-[11px] text-gray-500">
+                                  • {getDayTH(slot.day)} {slot.start} - {slot.end}
+                                </div>
+                              ))}
+                            </div>
+                            {!isMand && (
+                              <button 
+                                onClick={() => toggleCourse(courseGroup.code)}
+                                className="absolute right-2 top-2 text-indigo-300 hover:text-red-500 transition-colors p-1"
+                                title="ลบวิชานี้"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                              </button>
+                            )}
                           </div>
                         );
                       })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Warning if Max Reached */}
-            {selectedCodes.length >= 3 && (
-              <div className="mt-4 p-3 bg-amber-50 text-amber-700 rounded-md text-sm flex items-center gap-2 border border-amber-200">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                คุณเลือกวิชาเพิ่มเติมครบ 3 วิชาแล้ว
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="w-full lg:w-80 flex flex-col gap-6">
-            
-            {/* Selected Courses Box */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-indigo-100 h-fit">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-indigo-900">วิชาที่เรียน</h3>
-                <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">เลือกเพิ่ม: {selectedCodes.length} / 3</span>
-              </div>
-              
-              {allActiveUnique.length === 0 ? (
-        <div className="text-sm text-gray-400 italic text-center py-6">ไม่มีรายวิชา</div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {allActiveUnique.map(courseGroup => {
-            const isMand = currentMandatoryCodes.includes(courseGroup.code);
-            return (
-              <div key={courseGroup.code} className={`p-3 border rounded-lg relative pr-8 ${isMand ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
-                <div className={`font-bold text-sm flex items-center gap-2 ${isMand ? 'text-gray-700' : 'text-indigo-800'}`}>
-                          {courseGroup.code}
-                          {isMand && <span className="text-[10px] font-normal bg-gray-400 text-white px-1.5 py-0.5 rounded">บังคับ</span>}
-                        </div>
-                        <div className={`text-xs my-1 ${isMand ? 'text-gray-600' : 'text-indigo-600'}`}>{courseGroup.name}</div>
-                        <div className={`mt-2 border-t pt-1 ${isMand ? 'border-gray-200' : 'border-indigo-100/50'}`}>
-                          {courseGroup.slots.map((slot, idx) => (
-                            <div key={idx} className="text-[11px] text-gray-500">
-                              • {getDayTH(slot.day)} {slot.start} - {slot.end}
-                            </div>
-                          ))}
-                        </div>
-                        {!isMand && (
-                          <button 
-                            onClick={() => toggleCourse(courseGroup.code)}
-                            className="absolute right-2 top-2 text-indigo-300 hover:text-red-500 transition-colors p-1"
-                            title="ลบวิชานี้"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Conflicting Courses Box */}
-            <div className="bg-white p-5 rounded-xl shadow-sm border border-red-100 flex-grow">
-              <h3 className="font-bold text-red-700 mb-1 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                ไม่สามารถเรียนร่วมได้
-              </h3>
-              <p className="text-xs text-red-400 mb-4">รายวิชาที่เวลาเรียนทับซ้อนกับรายวิชาบังคับ หรือวิชาที่คุณเลือก</p>
-              
-              {conflictingUnique.length === 0 ? (
-                <div className="text-sm text-gray-400 italic text-center py-6">ไม่มีวิชาที่เวลาทับซ้อน</div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {conflictingUnique.map(courseGroup => (
-                    <div key={courseGroup.code} className="p-2 border-l-2 border-red-400 bg-red-50/50 rounded-r-md">
-                      <div className="font-semibold text-gray-700 text-xs">
-                        {courseGroup.code} <span className="text-[10px] text-gray-400 ml-1">ปี {courseGroup.year}</span>
-                      </div>
-                      <div className="text-[11px] text-gray-500 truncate">{courseGroup.name}</div>
+                {/* Conflicting Courses Box */}
+                <div className="bg-white p-5 rounded-xl shadow-sm border border-red-100 flex-grow">
+                  <h3 className="font-bold text-red-700 mb-1 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    ไม่สามารถเรียนร่วมได้
+                  </h3>
+                  <p className="text-xs text-red-400 mb-4">รายวิชาที่เวลาเรียนทับซ้อนกับรายวิชาบังคับ หรือวิชาที่คุณเลือก</p>
+                  
+                  {conflictingUnique.length === 0 ? (
+                    <div className="text-sm text-gray-400 italic text-center py-6">ไม่มีวิชาที่เวลาทับซ้อน</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {conflictingUnique.map(courseGroup => (
+                        <div key={courseGroup.code} className="p-2 border-l-2 border-red-400 bg-red-50/50 rounded-r-md">
+                          <div className="font-semibold text-gray-700 text-xs">
+                            {courseGroup.code} <span className="text-[10px] text-gray-400 ml-1">ปี {courseGroup.year}</span>
+                          </div>
+                          <div className="text-[11px] text-gray-500 truncate">{courseGroup.name}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
 
+              </div>
+            </div>
+            
           </div>
         </div>
-        
-      </div>
-    </div>
-  );
-}
+      );
+    }
+
+    // ทำการแสดงผล (Render) App เข้าไปใน <div id="root">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
