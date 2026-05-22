@@ -20,7 +20,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header & Settings -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -63,13 +63,14 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-200">
-                            <th class="p-4 font-semibold">ชื่อกองทุน</th>
-                            <th class="p-4 font-semibold text-right">ต้นทุนเฉลี่ย</th>
-                            <th class="p-4 font-semibold text-right">จำนวนหน่วย</th>
-                            <th class="p-4 font-semibold text-right bg-blue-50 w-40">ราคาปัจจุบัน (กรอก)</th>
-                            <th class="p-4 font-semibold text-right">มูลค่าปัจจุบัน</th>
-                            <th class="p-4 font-semibold text-right">กำไร / ขาดทุน</th>
+                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-200 select-none">
+                            <th class="p-4 font-semibold cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('name')">ชื่อกองทุน <i id="sort-icon-name" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('avgPrice')">ต้นทุนเฉลี่ย <i id="sort-icon-avgPrice" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('units')">จำนวนหน่วย <i id="sort-icon-units" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('cost')">ต้นทุนรวม <br><span class="text-xs text-gray-500 font-normal normal-case">(เฉลี่ย × หน่วย)</span> <i id="sort-icon-cost" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right bg-blue-50 w-40 cursor-pointer hover:bg-blue-100 transition" onclick="sortTable('currentPrice')">ราคาปัจจุบัน <br><span class="text-xs text-blue-500 font-normal normal-case">(กรอก)</span> <i id="sort-icon-currentPrice" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('currentValue')">มูลค่าปัจจุบัน <i id="sort-icon-currentValue" class="fas fa-sort text-gray-400 ml-1"></i></th>
+                            <th class="p-4 font-semibold text-right cursor-pointer hover:bg-gray-200 transition" onclick="sortTable('profitPercent')">กำไร / ขาดทุน <i id="sort-icon-profitPercent" class="fas fa-sort text-gray-400 ml-1"></i></th>
                             <th class="p-4 font-semibold text-center w-24">ดูแนวโน้ม</th>
                         </tr>
                     </thead>
@@ -96,6 +97,7 @@
 
     <script>
         let portfolioData = [];
+        let currentSort = { column: null, direction: 'asc' }; // ตัวแปรเก็บสถานะการเรียงข้อมูล
 
         // Format ตัวเลข
         const formatMoney = (num) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(num || 0);
@@ -124,6 +126,21 @@
             return arr;
         }
 
+        // คำนวณค่าต่างๆ (ต้นทุน, มูลค่า, กำไร/ขาดทุน) ภายใน Object ของข้อมูลแต่ละแถว
+        function updateItemDerivedMetrics(item) {
+            item.cost = item.avgPrice * item.units; // ต้นทุนรวม (ราคาเฉลี่ย * จำนวนหน่วย)
+            if (item.currentPrice && item.currentPrice > 0) {
+                item.currentValue = item.currentPrice * item.units;
+                item.profit = item.currentValue - item.cost;
+                item.profitPercent = item.cost > 0 ? (item.profit / item.cost) * 100 : 0;
+            } else {
+                // หากยังไม่กรอกราคาปัจจุบัน ให้ค่าส่วนนี้เป็น null ไว้สำหรับการเรียงลำดับที่ถูกต้อง
+                item.currentValue = null;
+                item.profit = null;
+                item.profitPercent = null;
+            }
+        }
+
         // ดึงข้อมูลจาก Google Sheets (อ่านไฟล์ CSV)
         async function loadFromSheet() {
             if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes("ใส่_ID_SHEET_ของคุณที่นี่")) {
@@ -131,7 +148,6 @@
                 return;
             }
 
-            // แสดง Loading
             document.getElementById('tableBody').classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('errorState').classList.add('hidden');
@@ -145,13 +161,9 @@
                 portfolioData = [];
 
                 rows.forEach((row, index) => {
-                    // ข้ามแถวหัวตาราง (แถวแรก)
-                    if (index === 0) return;
+                    if (index === 0) return; // ข้ามแถวหัวตาราง
 
-                    // ตรวจสอบว่าคอลัมน์แรกมีข้อมูลชื่อกองทุนหรือไม่
                     if (row && row.length >= 2 && row[0].trim() !== "") {
-                        
-                        // ดึงราคาปัจจุบันจากคอลัมน์ที่ 5 (index 4) ถ้ามีข้อมูล
                         let currentPriceFromSheet = null;
                         if (row.length > 4 && row[4] && row[4].trim() !== "") {
                             let parsedPrice = parseFloat(row[4].replace(/,/g, ''));
@@ -160,15 +172,17 @@
                             }
                         }
 
-                        portfolioData.push({
+                        let newItem = {
                             id: index,
                             name: row[0].trim(),
-                            // ลบคอมม่าออกจากตัวเลขก่อน (ถ้ามี) แล้วแปลงเป็นตัวเลข
                             avgPrice: parseFloat((row[1] || '0').replace(/,/g, '')),
                             units: parseFloat((row[2] || '0').replace(/,/g, '')),
                             link: (row[3] || "#").trim(),
                             currentPrice: currentPriceFromSheet
-                        });
+                        };
+                        
+                        updateItemDerivedMetrics(newItem); // อัปเดตข้อมูลการคำนวณเบื้องต้น
+                        portfolioData.push(newItem);
                     }
                 });
 
@@ -184,13 +198,63 @@
             }
         }
 
+        // ฟังก์ชันเรียงลำดับตารางเมื่อคลิกที่หัวตาราง
+        function sortTable(column) {
+            // สลับทิศทางการเรียง
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'desc'; // เรียงจากมากไปน้อยเป็นค่าเริ่มต้นเมื่อเปลี่ยนคอลัมน์
+            }
+
+            portfolioData.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // จัดการกับค่า null (เช่น ยังไม่ได้กรอกราคาปัจจุบัน) ให้อยู่ล่างสุด
+                if (valA === null || valA === undefined) valA = -Infinity;
+                if (valB === null || valB === undefined) valB = -Infinity;
+
+                if (typeof valA === 'string') {
+                    return currentSort.direction === 'asc' 
+                        ? valA.localeCompare(valB) 
+                        : valB.localeCompare(valA);
+                } else {
+                    return currentSort.direction === 'asc' 
+                        ? valA - valB 
+                        : valB - valA;
+                }
+            });
+
+            updateSortIcons();
+            renderTable();
+        }
+
+        // อัปเดตไอคอนลูกศรบนหัวตาราง
+        function updateSortIcons() {
+            const columns = ['name', 'avgPrice', 'units', 'cost', 'currentPrice', 'currentValue', 'profitPercent'];
+            columns.forEach(col => {
+                const icon = document.getElementById(`sort-icon-${col}`);
+                if (icon) {
+                    if (currentSort.column === col) {
+                        icon.className = currentSort.direction === 'asc' ? 'fas fa-sort-up text-blue-600 ml-1' : 'fas fa-sort-down text-blue-600 ml-1';
+                    } else {
+                        icon.className = 'fas fa-sort text-gray-400 ml-1 hover:text-gray-600';
+                    }
+                }
+            });
+        }
+
         // อัปเดตราคาปัจจุบันและคำนวณใหม่
         function updatePrice(id, value) {
             const index = portfolioData.findIndex(item => item.id === id);
             if (index !== -1) {
                 portfolioData[index].currentPrice = parseFloat(value) || null;
+                updateItemDerivedMetrics(portfolioData[index]);
                 calculateTotals();
                 updateRowUI(id, portfolioData[index]);
+                // ไม่ได้เรียก renderTable() ใหม่ทันที เพื่อป้องกันการเสีย Focus ที่ช่องกรอกข้อมูล
             }
         }
 
@@ -208,6 +272,7 @@
                     <td class="p-4 border-t border-gray-100 font-medium text-gray-800">${item.name}</td>
                     <td class="p-4 border-t border-gray-100 text-right text-gray-600">฿${formatNumber(item.avgPrice)}</td>
                     <td class="p-4 border-t border-gray-100 text-right text-gray-600">${formatNumber(item.units)}</td>
+                    <td class="p-4 border-t border-gray-100 text-right text-gray-700 font-medium bg-gray-50">฿${formatNumber(item.cost, 2)}</td>
                     <td class="p-4 border-t border-gray-100 text-right bg-blue-50/50">
                         <input type="number" step="0.0001" 
                                class="w-full text-right p-1.5 border border-blue-300 rounded focus:ring-2 focus:ring-blue-500 outline-none" 
@@ -236,17 +301,12 @@
             const plCell = document.getElementById(`pl-${id}`);
 
             if (item.currentPrice && item.currentPrice > 0) {
-                const cost = item.avgPrice * item.units;
-                const currentVal = item.currentPrice * item.units;
-                const profit = currentVal - cost;
-                const profitPercent = (profit / cost) * 100;
-
-                valCell.innerText = formatMoney(currentVal);
+                valCell.innerText = formatMoney(item.currentValue);
                 
-                const sign = profit >= 0 ? '+' : '';
-                const colorClass = profit >= 0 ? 'text-green-600' : 'text-red-500';
+                const sign = item.profit >= 0 ? '+' : '';
+                const colorClass = item.profit >= 0 ? 'text-green-600' : 'text-red-500';
                 
-                plCell.innerHTML = `<span class="${colorClass}">${sign}${formatMoney(profit)} <br><span class="text-xs">(${sign}${formatNumber(profitPercent, 2)}%)</span></span>`;
+                plCell.innerHTML = `<span class="${colorClass}">${sign}${formatMoney(item.profit)} <br><span class="text-xs">(${sign}${formatNumber(item.profitPercent, 2)}%)</span></span>`;
             } else {
                 valCell.innerText = '-';
                 plCell.innerHTML = '-';
@@ -259,13 +319,12 @@
             let totalCurrentVal = 0;
 
             portfolioData.forEach(item => {
-                const cost = item.avgPrice * item.units;
-                totalCost += cost;
+                totalCost += item.cost; // ใช้ item.cost ที่คำนวณไว้แล้ว
 
                 if (item.currentPrice && item.currentPrice > 0) {
-                    totalCurrentVal += (item.currentPrice * item.units);
+                    totalCurrentVal += item.currentValue;
                 } else {
-                    totalCurrentVal += cost; // หากยังไม่กรอกราคาปัจจุบัน ให้ถือว่ามูลค่าเท่าทุนไปก่อน
+                    totalCurrentVal += item.cost; // หากยังไม่กรอกราคาปัจจุบัน ให้ถือว่ามูลค่าเท่าทุนไปก่อน
                 }
             });
 
