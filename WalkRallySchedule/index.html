@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ตารางM-walk</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --white:#ffffff;
+  --bg:#f4f5f7;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --border2:#d1d5db;
+  --txt:#111827;
+  --txt2:#6b7280;
+  --txt3:#9ca3af;
+  --accent:#2563eb;
+  --accent-bg:#eff6ff;
+  --accent2:#7c3aed;
+  --accent2-bg:#f5f3ff;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+  --amber:#d97706;
+  --amber-bg:#fffbeb;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+html{font-size:15px}
+body{
+  font-family:'Noto Sans Thai',sans-serif;
+  background:var(--bg);
+  color:var(--txt);
+  min-height:100vh;
+  padding-bottom:2rem;
+}
+
+/* ── Header ── */
+.header{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:1rem 1.1rem .85rem;
+  position:sticky;top:0;z-index:50;
+}
+.header h1{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;color:var(--txt)}
+.header p{font-size:.75rem;color:var(--txt2);margin-top:.18rem}
+
+/* ── Tabs ── */
+.tabs{
+  display:flex;gap:.4rem;
+  padding:.7rem 1.1rem;
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;padding:.55rem .5rem;
+  border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);
+  background:transparent;
+  color:var(--txt2);
+  font-family:'Noto Sans Thai',sans-serif;
+  font-size:.82rem;font-weight:500;
+  cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;justify-content:center;gap:.3rem;
+}
+.tab.active{
+  background:var(--accent);border-color:var(--accent);
+  color:#fff;font-weight:600;
+  box-shadow:0 2px 8px rgba(37,99,235,.3);
+}
+
+/* ── Main ── */
+.main{padding:.9rem 1rem}
+
+/* ── Round pills ── */
+.round-bar{
+  display:flex;gap:.35rem;overflow-x:auto;
+  padding-bottom:.3rem;margin-bottom:.9rem;
+  scrollbar-width:none;
+}
+.round-bar::-webkit-scrollbar{display:none}
+.rnd-btn{
+  flex-shrink:0;
+  padding:.38rem .85rem;
+  border-radius:20px;
+  border:1.5px solid var(--border);
+  background:var(--white);
+  color:var(--txt2);
+  font-family:'Noto Sans Thai',sans-serif;
+  font-size:.8rem;font-weight:500;
+  cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.rnd-btn.active{
+  background:var(--accent2);border-color:var(--accent2);
+  color:#fff;font-weight:600;
+  box-shadow:0 2px 8px rgba(124,58,237,.25);
+}
+
+/* ── Station grid ── */
+.station-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:.55rem;
+  margin-bottom:.9rem;
+}
+.station-card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:.75rem .85rem;
+  cursor:pointer;
+  transition:all .18s;
+  box-shadow:var(--shadow);
+}
+.station-card:active{transform:scale(.97)}
+.station-card.selected{
+  border-color:var(--accent);
+  background:var(--accent-bg);
+  box-shadow:0 0 0 3px rgba(37,99,235,.12),var(--shadow);
+}
+.snum{
+  font-family:'DM Mono',monospace;
+  font-size:.65rem;color:var(--txt3);
+  margin-bottom:.15rem;letter-spacing:.04em;
+}
+.stitle{font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.35rem}
+.pair-row{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+.gtag{
+  padding:3px 8px;border-radius:6px;
+  font-family:'DM Mono',monospace;
+  font-size:.72rem;font-weight:500;
+  white-space:nowrap;
+}
+.vs-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--border2);flex-shrink:0;
+}
+
+/* ── Detail panel ── */
+.detail{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow-md);
+  margin-top:.1rem;
+}
+.detail-head{
+  padding:.75rem 1rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--accent-bg);
+}
+.detail-head-title{font-size:.95rem;font-weight:700}
+.badge{
+  padding:3px 9px;border-radius:20px;
+  font-size:.7rem;font-weight:600;
+  background:var(--accent);color:#fff;
+}
+.detail-body{padding:.85rem 1rem}
+.sec-label{
+  font-size:.7rem;font-weight:600;
+  color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.5rem;
+}
+
+/* next-round cards */
+.next-cards{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem}
+.next-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.6rem .75rem;
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+}
+.arrow-icon{color:var(--txt3);font-size:.9rem;flex-shrink:0}
+.next-info{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.next-stn{
+  font-size:.78rem;font-weight:600;color:var(--green);
+  font-family:'DM Mono',monospace;
+}
+
+/* journey strip */
+.journey{display:flex;gap:.3rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:none}
+.journey::-webkit-scrollbar{display:none}
+.j-cell{
+  flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;
+  gap:.2rem;
+}
+.j-rnd{font-size:.62rem;color:var(--txt3);font-weight:500}
+.j-stn{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:.78rem;font-weight:600;
+  border:1.5px solid var(--border);background:var(--bg);
+  color:var(--txt2);transition:all .15s;
+}
+.j-stn.cur{
+  background:var(--accent);border-color:var(--accent);
+  color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3);
+}
+
+/* divider */
+.divider{height:1px;background:var(--border);margin:.75rem 0}
+
+/* ── MODE 2 ── */
+.gs-label{font-size:.78rem;color:var(--txt2);margin-bottom:.65rem;font-weight:500}
+.letter-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:.4rem;margin-bottom:1.1rem;
+}
+.letter-section{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.5rem .45rem;
+  display:flex;flex-direction:column;align-items:center;gap:.35rem;
+}
+.letter-head{
+  font-family:'DM Mono',monospace;
+  font-size:.72rem;font-weight:700;
+}
+.grp-pair{display:flex;gap:.25rem}
+.grp-btn{
+  padding:.32rem .5rem;border-radius:6px;
+  border:1.5px solid var(--border);
+  background:transparent;
+  font-family:'DM Mono',monospace;
+  font-size:.75rem;font-weight:600;
+  cursor:pointer;transition:all .15s;
+  color:var(--txt2);
+  min-width:36px;text-align:center;
+}
+.grp-btn.sel-1{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.grp-btn.sel-2{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+.grp-btn.disabled{opacity:.3;cursor:default}
+
+/* sel info bar */
+.sel-bar{
+  display:flex;align-items:center;gap:.5rem;
+  flex-wrap:wrap;margin-bottom:.85rem;
+}
+.sel-chip{
+  padding:.3rem .75rem;border-radius:20px;
+  font-family:'DM Mono',monospace;
+  font-size:.82rem;font-weight:600;
+}
+.sc1{background:var(--accent-bg);border:1.5px solid var(--accent);color:var(--accent)}
+.sc2{background:var(--amber-bg);border:1.5px solid var(--amber);color:var(--amber)}
+.clear-btn{
+  padding:.3rem .7rem;border-radius:20px;
+  border:1.5px solid var(--border);background:transparent;
+  color:var(--txt2);font-size:.78rem;cursor:pointer;
+  font-family:'Noto Sans Thai',sans-serif;
+  margin-left:auto;
+}
+
+/* path grid */
+.path-outer{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);margin-bottom:.9rem;
+}
+.path-scroll{overflow-x:auto;scrollbar-width:none}
+.path-scroll::-webkit-scrollbar{display:none}
+.path-table{border-collapse:collapse;min-width:520px;width:100%}
+.path-table th{
+  padding:.45rem .5rem;
+  font-size:.67rem;font-weight:600;
+  color:var(--txt3);text-align:center;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  letter-spacing:.03em;
+  font-family:'DM Mono',monospace;
+}
+.path-table th.stn-th{text-align:left;padding-left:.75rem}
+.path-table td{
+  padding:.3rem .3rem;
+  border-bottom:1px solid var(--border);
+  text-align:center;vertical-align:middle;
+}
+.path-table tr:last-child td{border-bottom:none}
+.path-table td.stn-td{
+  padding-left:.75rem;
+  font-size:.72rem;font-weight:600;
+  color:var(--txt2);font-family:'DM Mono',monospace;
+  white-space:nowrap;text-align:left;
+}
+.pcell{
+  width:56px;height:42px;margin:auto;
+  border-radius:7px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;
+  font-size:.65rem;
+  background:var(--bg);
+}
+.pcell.occ1{background:var(--accent-bg);border:1.5px solid var(--accent)}
+.pcell.occ2{background:var(--amber-bg);border:1.5px solid var(--amber)}
+.pcell.occ-both{background:var(--green-bg);border:1.5px solid var(--green)}
+.pcell .pg1{color:var(--accent);font-weight:700;line-height:1.2}
+.pcell .pg2{color:var(--amber);font-weight:700;line-height:1.2}
+.pcell .pboth{color:var(--green);font-weight:700;line-height:1.2}
+.pcell .pvs{font-size:.56rem;color:var(--txt3);line-height:1.2}
+
+/* legend */
+.legend{display:flex;gap:.75rem;flex-wrap:wrap;margin:.65rem 0}
+.leg{display:flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--txt2)}
+.leg-sq{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* summary table */
+.sum-outer{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.sum-head{
+  padding:.6rem .85rem;
+  border-bottom:1px solid var(--border);
+  font-size:.78rem;font-weight:600;color:var(--txt2);
+  background:var(--bg);
+}
+.sum-scroll{overflow-x:auto;scrollbar-width:none}
+.sum-scroll::-webkit-scrollbar{display:none}
+.sum-table{border-collapse:collapse;min-width:480px;width:100%}
+.sum-table th{
+  padding:.4rem .45rem;font-size:.65rem;font-weight:600;
+  color:var(--txt3);text-align:center;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;
+}
+.sum-table th.grp-th{text-align:left;padding-left:.85rem}
+.sum-table td{
+  padding:.35rem .3rem;text-align:center;
+  border-bottom:1px solid var(--border);font-size:.75rem;
+}
+.sum-table tr:last-child td{border-bottom:none}
+.sum-table td.grp-td{
+  padding-left:.85rem;text-align:left;
+}
+.sum-stn{font-weight:600;color:var(--txt);font-family:'DM Mono',monospace;font-size:.78rem}
+.sum-vs{font-size:.65rem;color:var(--txt3)}
+.sum-vs.meet{color:var(--green);font-weight:600}
+
+.note{
+  font-size:.7rem;color:var(--txt3);
+  padding:.5rem .85rem .65rem;
+  border-top:1px solid var(--border);
+  line-height:1.5;
+}
+.no-sel{
+  padding:2.5rem 1rem;text-align:center;
+  color:var(--txt3);font-size:.88rem;
+}
+
+@media(min-width:480px){
+  .station-grid{grid-template-columns:repeat(4,1fr)}
+  .letter-grid{grid-template-columns:repeat(8,1fr)}
+  .letter-section{flex-direction:row;justify-content:center}
+  .grp-pair{gap:.3rem}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 ตารางเข้าฐาน</h1>
+  <p>8 รอบ · 8 ฐาน · 16 กลุ่ม · ทุกกลุ่มเข้าฐานไม่ซ้ำ</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-mode="1">🏕 มุมมองฐาน</button>
+  <button class="tab" data-mode="2">🗺 เส้นทางกลุ่ม</button>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+const SCHEDULE = [
+  [['C2','E2'],['C1','D1'],['B1','E1'],['F2','H2'],['A1','G2'],['A2','D2'],['F1','H1'],['B2','G1']],
+  [['A2','G1'],['E1','F1'],['D2','F2'],['B2','C2'],['D1','H1'],['B1','C1'],['A1','E2'],['G2','H2']],
+  [['D1','G2'],['A1','H1'],['C1','G1'],['A2','E1'],['B1','H2'],['C2','F2'],['B2','D2'],['E2','F1']],
+  [['A1','B1'],['F2','G1'],['D1','H2'],['D2','G2'],['C1','F1'],['B2','E2'],['A2','C2'],['E1','H1']],
+  [['B2','E1'],['C2','H2'],['A2','G2'],['C1','H1'],['E2','F2'],['D1','F1'],['B1','G1'],['A1','D2']],
+  [['F2','H1'],['B2','G2'],['C2','F1'],['B1','E2'],['D2','G1'],['A1','H2'],['D1','E1'],['A2','C1']],
+  [['C1','H2'],['B1','D2'],['E2','H1'],['A1','F1'],['A2','B2'],['E1','G1'],['F2','G2'],['C2','D1']],
+  [['D2','F1'],['A2','E2'],['A1','B2'],['D1','G1'],['C2','E1'],['G2','H1'],['C1','H2'],['B1','F2']],
+];
+
+const LETTERS = ['A','B','C','D','E','F','G','H'];
+const GROUPS = [];
+LETTERS.forEach(function(l){ GROUPS.push(l+'1'); GROUPS.push(l+'2'); });
+
+const GCOL = {A:'#7c3aed',B:'#2563eb',C:'#059669',D:'#ea580c',E:'#db2777',F:'#ca8a04',G:'#0891b2',H:'#dc2626'};
+const GBG  = {A:'#f5f3ff',B:'#eff6ff',C:'#ecfdf5',D:'#fff7ed',E:'#fdf2f8',F:'#fefce8',G:'#ecfeff',H:'#fef2f2'};
+
+const stationOf = {};
+GROUPS.forEach(function(g){ stationOf[g] = []; });
+SCHEDULE.forEach(function(rnd,r){ rnd.forEach(function(pair,s){ pair.forEach(function(g){ stationOf[g][r]=s; }); }); });
+
+function ltr(g){ return g[0]; }
+function gtag(g){
+  var l=ltr(g);
+  return '<span class="gtag" style="background:'+GBG[l]+';color:'+GCOL[l]+'">'+g+'</span>';
+}
+
+var mode=1, selRound=0, selStation=-1, selGroups=[];
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  var btn=e.target.closest('[data-mode]');
+  if(!btn) return;
+  mode=parseInt(btn.dataset.mode);
+  selStation=-1;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t===btn); });
+  render();
+});
+
+document.getElementById('main').addEventListener('click', function(e){
+  var rBtn=e.target.closest('[data-round]');
+  if(rBtn){ selRound=parseInt(rBtn.dataset.round); selStation=-1; render(); return; }
+  var sc=e.target.closest('[data-station]');
+  if(sc){ var s=parseInt(sc.dataset.station); selStation=(selStation===s)?-1:s; render(); return; }
+  var gb=e.target.closest('[data-group]');
+  if(gb){
+    if(gb.classList.contains('disabled')) return;
+    var g=gb.dataset.group, idx=selGroups.indexOf(g);
+    if(idx>=0) selGroups.splice(idx,1);
+    else if(selGroups.length<2) selGroups.push(g);
+    render(); return;
+  }
+  if(e.target.closest('[data-clear]')){ selGroups=[]; render(); return; }
+});
+
+function render(){ mode===1 ? renderMode1() : renderMode2(); }
+
+/* ══ MODE 1 ══ */
+function renderMode1(){
+  var h='<div class="round-bar">';
+  for(var r=0;r<8;r++){
+    h+='<button class="rnd-btn'+(r===selRound?' active':'')+'" data-round="'+r+'">รอบ '+(r+1)+'</button>';
+  }
+  h+='</div><div class="station-grid">';
+  for(var s=0;s<8;s++){
+    var pair=SCHEDULE[selRound][s], sel=selStation===s;
+    h+='<div class="station-card'+(sel?' selected':'')+'" data-station="'+s+'">'
+      +'<div class="snum">ฐาน '+(s+1)+'</div>'
+      +'<div class="stitle">ฐาน '+(s+1)+'</div>'
+      +'<div class="pair-row">'+gtag(pair[0])+'<div class="vs-dot"></div>'+gtag(pair[1])+'</div>'
+      +'</div>';
+  }
+  h+='</div>';
+
+  if(selStation>=0){
+    var pair=SCHEDULE[selRound][selStation];
+    h+='<div class="detail">'
+      +'<div class="detail-head">'
+      +'<div class="detail-head-title">ฐาน '+(selStation+1)+'</div>'
+      +'<span class="badge">รอบ '+(selRound+1)+'</span>'
+      +'</div>'
+      +'<div class="detail-body">';
+
+    // next round section
+    h+='<div class="sec-label">กลุ่มที่เข้าฐานนี้ → รอบถัดไป</div>'
+      +'<div class="next-cards">';
+    pair.forEach(function(g){
+      h+='<div class="next-card">'+gtag(g)+'<span class="arrow-icon">→</span>';
+      if(selRound<7){
+        var ns=stationOf[g][selRound+1];
+        var np=SCHEDULE[selRound+1][ns];
+        var pt=np[0]===g?np[1]:np[0];
+        h+='<div class="next-info"><span class="next-stn">ฐาน '+(ns+1)+'</span>'
+          +'<span style="color:#9ca3af;font-size:.72rem">พบ</span>'+gtag(pt)+'</div>';
+      } else {
+        h+='<span style="color:#9ca3af;font-size:.78rem">สิ้นสุดการแข่งขัน</span>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+
+    // journey strip per group
+    pair.forEach(function(g){
+      h+='<div class="divider"></div>'
+        +'<div class="sec-label" style="margin-bottom:.4rem">'+g+' — เส้นทางทุกรอบ</div>'
+        +'<div class="journey">';
+      for(var r=0;r<8;r++){
+        var ns=stationOf[g][r];
+        h+='<div class="j-cell">'
+          +'<div class="j-rnd">R'+(r+1)+'</div>'
+          +'<div class="j-stn'+(r===selRound?' cur':'')+'">F'+(ns+1)+'</div>'
+          +'</div>';
+      }
+      h+='</div>';
+    });
+
+    h+='</div></div>';
+  }
+  document.getElementById('main').innerHTML=h;
+}
+
+/* ══ MODE 2 ══ */
+function renderMode2(){
+  var h='<div class="gs-label">เลือกกลุ่มที่ต้องการดู (สูงสุด 2 กลุ่ม)</div>'
+    +'<div class="letter-grid">';
+  LETTERS.forEach(function(l){
+    h+='<div class="letter-section">'
+      +'<div class="letter-head" style="color:'+GCOL[l]+'">'+l+'</div>'
+      +'<div class="grp-pair">';
+    ['1','2'].forEach(function(n){
+      var g=l+n, idx=selGroups.indexOf(g);
+      var cls=idx===0?'sel-1':idx===1?'sel-2':selGroups.length>=2?'disabled':'';
+      h+='<button class="grp-btn '+cls+'" data-group="'+g+'">'+n+'</button>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+
+  if(selGroups.length===0){
+    h+='<div class="path-outer"><div class="no-sel">☝️ แตะกลุ่มด้านบนเพื่อดูเส้นทาง</div></div>';
+  } else {
+    h+='<div class="sel-bar">';
+    selGroups.forEach(function(g,i){
+      h+='<span class="sel-chip sc'+(i+1)+'">'+g+'</span>';
+    });
+    h+='<button class="clear-btn" data-clear="1">ล้าง</button></div>';
+
+    // path grid table
+    h+='<div class="path-outer"><div class="path-scroll"><table class="path-table">'
+      +'<thead><tr><th class="stn-th">ฐาน</th>';
+    for(var r=0;r<8;r++) h+='<th>R'+(r+1)+'</th>';
+    h+='</tr></thead><tbody>';
+
+    for(var s=0;s<8;s++){
+      h+='<tr><td class="stn-td">ฐาน '+(s+1)+'</td>';
+      for(var r=0;r<8;r++){
+        var pair=SCHEDULE[r][s];
+        var has0=selGroups[0]&&pair.indexOf(selGroups[0])>=0;
+        var has1=selGroups[1]&&pair.indexOf(selGroups[1])>=0;
+        var inner='';
+        if(has0&&has1){
+          inner='<div class="pcell occ-both"><div class="pboth">'+selGroups[0]+'</div><div class="pboth">'+selGroups[1]+'</div></div>';
+        } else if(has0){
+          var pt=pair[0]===selGroups[0]?pair[1]:pair[0];
+          inner='<div class="pcell occ1"><div class="pg1">'+selGroups[0]+'</div><div class="pvs">'+pt+'</div></div>';
+        } else if(has1){
+          var pt=pair[0]===selGroups[1]?pair[1]:pair[0];
+          inner='<div class="pcell occ2"><div class="pg2">'+selGroups[1]+'</div><div class="pvs">'+pt+'</div></div>';
+        } else {
+          inner='<div class="pcell"></div>';
+        }
+        h+='<td>'+inner+'</td>';
+      }
+      h+='</tr>';
+    }
+    h+='</tbody></table></div></div>';
+
+    // legend
+    h+='<div class="legend">';
+    selGroups.forEach(function(g,i){
+      var c=i===0?'var(--accent)':'var(--amber)';
+      var bg=i===0?'var(--accent-bg)':'var(--amber-bg)';
+      h+='<div class="leg"><div class="leg-sq" style="background:'+bg+';border:1.5px solid '+c+'"></div>'
+        +'<span style="color:'+c+';font-weight:600">'+g+'</span></div>';
+    });
+    if(selGroups.length===2){
+      h+='<div class="leg"><div class="leg-sq" style="background:var(--green-bg);border:1.5px solid var(--green)"></div>'
+        +'<span style="color:var(--green);font-weight:600">เจอกัน</span></div>';
+    }
+    h+='</div>';
+
+    // summary table
+    h+='<div class="sum-outer"><div class="sum-head">สรุปเส้นทาง</div>'
+      +'<div class="sum-scroll"><table class="sum-table"><thead><tr><th class="grp-th">กลุ่ม</th>';
+    for(var r=0;r<8;r++) h+='<th>รอบ '+(r+1)+'</th>';
+    h+='</tr></thead><tbody>';
+    selGroups.forEach(function(g,gi){
+      var c=gi===0?'var(--accent)':'var(--amber)';
+      h+='<tr><td class="grp-td"><span style="color:'+c+';font-weight:700;font-family:monospace">'+g+'</span></td>';
+      for(var r=0;r<8;r++){
+        var ns=stationOf[g][r];
+        var np=SCHEDULE[r][ns];
+        var pt=np[0]===g?np[1]:np[0];
+        var ptSel=selGroups.indexOf(pt)>=0;
+        h+='<td><div class="sum-stn">F'+(ns+1)+'</div>'
+          +'<div class="sum-vs'+(ptSel?' meet':'')+'">'+pt+'</div></td>';
+      }
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>'
+      +'<div class="note">ทุกกลุ่มเข้าฐานไม่ซ้ำครบ 8 ฐาน · มีเพียง C1&amp;H2 ที่เจอกัน 2 ครั้ง</div>'
+      +'</div>';
+  }
+  document.getElementById('main').innerHTML=h;
+}
+
+render();
+</script>
+</body>
+</html>
