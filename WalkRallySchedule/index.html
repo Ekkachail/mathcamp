@@ -139,6 +139,22 @@ body{
   width:4px;height:4px;border-radius:50%;
   background:var(--border2);flex-shrink:0;
 }
+/* big group tag for station cards */
+.pair-big{
+  display:flex;align-items:center;justify-content:center;
+  gap:.45rem;flex-wrap:wrap;margin-top:.1rem;
+}
+.gtag-big{
+  padding:6px 12px;border-radius:8px;
+  font-family:'DM Mono',monospace;
+  font-size:1.15rem;font-weight:700;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.vs-sep{
+  font-size:.72rem;font-weight:600;color:var(--txt3);
+  flex-shrink:0;
+}
 
 /* ── Detail panel ── */
 .detail{
@@ -192,11 +208,12 @@ body{
 }
 .j-rnd{font-size:.62rem;color:var(--txt3);font-weight:500}
 .j-stn{
-  width:36px;height:36px;border-radius:8px;
+  min-width:48px;height:36px;border-radius:8px;
+  padding:0 6px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'DM Mono',monospace;font-size:.78rem;font-weight:600;
+  font-family:'Noto Sans Thai',sans-serif;font-size:.75rem;font-weight:600;
   border:1.5px solid var(--border);background:var(--bg);
-  color:var(--txt2);transition:all .15s;
+  color:var(--txt2);transition:all .15s;white-space:nowrap;
 }
 .j-stn.cur{
   background:var(--accent);border-color:var(--accent);
@@ -378,13 +395,13 @@ body{
 
 <script>
 const SCHEDULE = [
-  [['C2','E2'],['C1','D1'],['B1','E1'],['F2','H2'],['A1','G2'],['A2','D2'],['F1','H1'],['B2','G1']],
+  [['C1','H2'],['B1','D2'],['E2','H1'],['A1','F1'],['A2','B2'],['E1','G1'],['F2','G2'],['C2','D1']],
   [['A2','G1'],['E1','F1'],['D2','F2'],['B2','C2'],['D1','H1'],['B1','C1'],['A1','E2'],['G2','H2']],
   [['D1','G2'],['A1','H1'],['C1','G1'],['A2','E1'],['B1','H2'],['C2','F2'],['B2','D2'],['E2','F1']],
   [['A1','B1'],['F2','G1'],['D1','H2'],['D2','G2'],['C1','F1'],['B2','E2'],['A2','C2'],['E1','H1']],
   [['B2','E1'],['C2','H2'],['A2','G2'],['C1','H1'],['E2','F2'],['D1','F1'],['B1','G1'],['A1','D2']],
   [['F2','H1'],['B2','G2'],['C2','F1'],['B1','E2'],['D2','G1'],['A1','H2'],['D1','E1'],['A2','C1']],
-  [['C1','H2'],['B1','D2'],['E2','H1'],['A1','F1'],['A2','B2'],['E1','G1'],['F2','G2'],['C2','D1']],
+  [['C2','E2'],['C1','D1'],['B1','E1'],['F2','H2'],['A1','G2'],['A2','D2'],['F1','H1'],['B2','G1']],
   [['D2','F1'],['A2','E2'],['A1','B2'],['D1','G1'],['C2','E1'],['G2','H1'],['C1','H2'],['B1','F2']],
 ];
 
@@ -403,6 +420,10 @@ function ltr(g){ return g[0]; }
 function gtag(g){
   var l=ltr(g);
   return '<span class="gtag" style="background:'+GBG[l]+';color:'+GCOL[l]+'">'+g+'</span>';
+}
+function gtagBig(g){
+  var l=ltr(g);
+  return '<span class="gtag-big" style="background:'+GBG[l]+';color:'+GCOL[l]+'">'+g+'</span>';
 }
 
 var mode=1, selRound=0, selStation=-1, selGroups=[];
@@ -445,8 +466,7 @@ function renderMode1(){
     var pair=SCHEDULE[selRound][s], sel=selStation===s;
     h+='<div class="station-card'+(sel?' selected':'')+'" data-station="'+s+'">'
       +'<div class="snum">ฐาน '+(s+1)+'</div>'
-      +'<div class="stitle">ฐาน '+(s+1)+'</div>'
-      +'<div class="pair-row">'+gtag(pair[0])+'<div class="vs-dot"></div>'+gtag(pair[1])+'</div>'
+      +'<div class="pair-big">'+gtagBig(pair[0])+'<div class="vs-sep">vs</div>'+gtagBig(pair[1])+'</div>'
       +'</div>';
   }
   h+='</div>';
@@ -487,7 +507,7 @@ function renderMode1(){
         var ns=stationOf[g][r];
         h+='<div class="j-cell">'
           +'<div class="j-rnd">R'+(r+1)+'</div>'
-          +'<div class="j-stn'+(r===selRound?' cur':'')+'">F'+(ns+1)+'</div>'
+          +'<div class="j-stn'+(r===selRound?' cur':'')+'">ฐาน '+(ns+1)+'</div>'
           +'</div>';
       }
       h+='</div>';
